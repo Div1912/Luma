@@ -41,8 +41,8 @@ In our Ghost smart contract (written in Compact):
 ## Submission Screenshots
 
 ### Successful Compile Output (Circuits Listed)
-![Compile Output](./compile-output.png)
-*(Note: Replace with your actual screenshot of `npm run compact` showing the circuits)*
+![Compile Output](./Screenshot/Compiler.png)
+
 
 ### Contract Deployed with Address Shown
 ![Deployed Contract](./Screenshot/Deployed%20Contract.png)
