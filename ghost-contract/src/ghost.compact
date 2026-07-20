@@ -1,0 +1,16 @@
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger spending_limit: Uint<32>;
+export ledger total_spent: Uint<32>;
+
+constructor(limit: Uint<32>) {
+  spending_limit = disclose(limit);
+  total_spent = 0 as Uint<32>;
+}
+
+export circuit spend(amount: Uint<32>): [] {
+  assert(total_spent + amount <= spending_limit, "Spending limit exceeded");
+  total_spent = (total_spent + disclose(amount)) as Uint<32>;
+}
