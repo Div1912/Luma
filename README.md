@@ -45,7 +45,8 @@ In our Ghost smart contract (written in Compact):
 *(Note: Replace with your actual screenshot of `npm run compact` showing the circuits)*
 
 ### Contract Deployed with Address Shown
-(Deployed via `deploy-simulated.ts` - Local Simulator)
-**Contract Address:** `ceb65735cbd23e7262c5f46a2d8542a9b72d3db95aa0cb1bfa50f9cc820da9c9`
+![Deployed Contract](./Screenshot/Deployed%20Contract.png)
+(Deployed via `deploy-ghost.ts` - Midnight Preview Testnet)
+**Contract Address:** `e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`
 
-*(You can run `npx tsx deploy-simulated.ts` inside `ghost-contract` to verify the deployment locally)*
+*(You can verify this contract on the Midnight Preview network)*
