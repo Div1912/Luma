@@ -1,52 +1,64 @@
 # Ghost: Verifiable Autonomous Agents on Midnight
+> Ghost acts as a cryptographic zero-knowledge guardrail for high-risk AI agent actions.
 
-## The Problem
-Agentic AI is the future, but trust is the main bottleneck. Consumers and enterprises alike are terrified of autonomous systems making unauthorized or harmful decisions. We want AI agents to shop, negotiate, and execute workflows for us, but we don’t trust what they do when left unsupervised. If a shopping agent blows past your budget, or a negotiation agent ignores constraints, the damage is real. 
+## Contract Address
+| Network  | Address                          |
+|----------|----------------------------------|
+| Preview  | `e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70` |
+| Preprod  | [PASTE ADDRESS AFTER DEPLOY]     |
 
-## The Product Idea
-**Ghost** is a verifiable autonomy layer for agents on the Midnight blockchain. It acts as a cryptographic guardrail for high-risk agent actions. 
-Starting with our first use case—a shopping and B2B negotiation agent—Ghost ensures that an agent cannot finalize any transaction over a user-specified maximum limit without explicit approval. Each completed action comes with an on-chain zero-knowledge proof guaranteeing that the agent obeyed the constraints (e.g., `amount ≤ limit`) at the time of execution, all without leaking private data to the public ledger. You don't have to trust the AI; you trust the math.
+## What This Does
+Ghost ensures that an AI agent cannot finalize any transaction over a user-specified maximum limit without explicit approval. Each completed action comes with an on-chain zero-knowledge proof guaranteeing that the agent obeyed the constraints at the time of execution, all without leaking private data to the public ledger. You don't have to trust the AI; you trust the math.
 
-## Technical Details: Public State vs Private Witness
-In our Ghost smart contract (written in Compact):
-- **Public State (`ledger`)**: The `spending_limit` and `total_spent` are stored on the public ledger. This allows the network and users to publicly verify that the total expenditure remains within the budget.
-- **Private Witness**: The `amount` being spent in a single transaction is passed as a private input (witness) to the `spend` circuit. The zero-knowledge proof verifies that `total_spent + amount <= spending_limit` without the user having to publicly reveal their exact transaction details before the constraint is checked. Only when the constraint is satisfied do we deliberately use `disclose(amount)` to update the public ledger, making the final authorized spend amount public while keeping the execution constraints private-first.
+## Privacy Model
+- **What is PUBLIC (on-chain, visible to anyone):** The `spending_limit` and `total_spent` are stored on the public ledger. This allows the network and users to publicly verify that the total expenditure remains within the budget.
+- **What is PRIVATE (private witness, never on-chain):** The `amount` being spent in a single transaction is passed as a private input to the `spend` circuit.
+- **What the user PROVES without revealing:** The zero-knowledge proof verifies that `total_spent + amount <= spending_limit` without the user having to publicly reveal their exact transaction details before the constraint is checked. We use `disclose(amount)` to update the public ledger ONLY after the proof succeeds.
 
-## Setup Instructions (How to run locally)
+## Tech Stack
+- Midnight network, Compact language, Node.js v22, Docker
 
-### Prerequisites
+## Prerequisites
 - Node.js 22+
 - Docker (for running the Midnight ZK Proof Server)
 - [Midnight Compact Compiler](https://docs.midnight.network/develop/tutorial/building/prereqs)
 
-### Build and Test
-1. Clone the repository and navigate to the project root.
-2. Navigate to the contract folder:
-   ```bash
-   cd ghost-contract
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Compile the Compact contract to generate zero-knowledge circuits and TypeScript bindings:
-   ```bash
-   npm run compact
-   ```
-5. Run the test suite to verify the spending limit constraints:
-   ```bash
-   npm test
-   ```
+## Setup
+```bash
+git clone https://github.com/Div1912/Luma.git
+cd Luma
+npm install
+npm run compact
+```
 
-## Submission Screenshots
+## Run Tests
+```bash
+npm run test
+```
+
+## Initial Idea
+**Ghost** is a verifiable autonomy layer for agents on the Midnight blockchain. It acts as a cryptographic guardrail for high-risk agent actions. 
+Starting with our first use case—a shopping and B2B negotiation agent—Ghost ensures that an agent cannot finalize any transaction over a user-specified maximum limit without explicit approval. Each completed action comes with an on-chain zero-knowledge proof guaranteeing that the agent obeyed the constraints (e.g., `amount <= limit`) at the time of execution, all without leaking private data to the public ledger. You don't have to trust the AI; you trust the math.
+
+## PROJECT FILE STRUCTURE
+Create the following folder structure in my project root:
+
+  my-project/
+  ├── contracts/
+  │   └── ghost.compact            ← my Compact contract
+  ├── managed/                     ← auto-generated by compact compile
+  ├── src/                         ← frontend (added in Level 2)
+  ├── tests/
+  │   └── ghost.test.ts            ← test file
+  ├── .github/
+  │   └── workflows/               ← CI/CD added in Level 3
+  ├── README.md                    ← detailed README (see Step 6)
+  └── package.json
+
+## Screenshots
 
 ### Successful Compile Output (Circuits Listed)
 ![Compile Output](./Screenshot/Compiler.png)
 
-
 ### Contract Deployed with Address Shown
 ![Deployed Contract](./Screenshot/Deployed%20Contract.png)
-(Deployed via `deploy-ghost.ts` - Midnight Preview Testnet)
-**Contract Address:** `e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`
-
-*(You can verify this contract on the Midnight Preview network)*

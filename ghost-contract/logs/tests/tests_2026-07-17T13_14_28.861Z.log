@@ -1,0 +1,3 @@
+[18:44:28.866] INFO (30252): Initializing wallet builder for preprod
+[18:44:28.894] INFO (30252): Generated random wallet seed: 8d39f161e08f5a318b2f5e93afb7756d5a742294084df30219eb518fb7372936
+[18:44:28.921] INFO (30252): Creating dust wallet with params: {"indexerClientConnection":{"indexerHttpUrl":"https://indexer.preprod.midnight.network/api/v4/graphql","indexerWsUrl":"wss://indexer.preprod.midnight.network/api/v4/graphql/ws"},"provingServerUrl":"http://127.0.0.1:6300/","networkId":"preprod","relayURL":"wss://rpc.preprod.midnight.network/","txHistoryStorage":{"storage":{}},"costParameters":{"ledgerParams":{"__wbg_ptr":4653104},"additionalFeeOverhead":"0","feeBlocksMargin":5}}

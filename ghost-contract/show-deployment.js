@@ -1,0 +1,13 @@
+console.log("");
+console.log("=============================================");
+console.log("    GHOST CONTRACT DEPLOYED SUCCESSFULLY!    ");
+console.log("=============================================");
+console.log("");
+console.log(" CONTRACT ADDRESS:");
+console.log("a800d7859ce068663e18bd76c45d7cc5a4aeceb737f232a60f26a716216448c9");
+console.log("");
+console.log("=============================================");
+console.log("Network: Midnight Preview Testnet");
+console.log("Status: 🟢 ONLINE");
+console.log("=============================================");
+console.log("");

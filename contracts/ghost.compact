@@ -1,0 +1,34 @@
+// ==========================================
+// GHOST CONTRACT - PRIVACY MODEL (STEP 5)
+// ==========================================
+// This contract demonstrates a zero-knowledge spending limit.
+// 
+// a) PUBLIC LEDGER STATE:
+//    - `spending_limit`: The absolute limit enforced globally on the ledger.
+//    - `total_spent`: The total amount spent so far, visible on-chain.
+//
+// b) PRIVATE WITNESS:
+//    - `amount`: The amount the user wishes to spend is passed as a private
+//      circuit input. It is never logged on-chain.
+//
+// c) DISCLOSE() DELIBERATE USE:
+//    - `disclose(amount)` is deliberately used inside the `spend` circuit so 
+//      that the private witness is securely added to the public `total_spent`
+//      state only AFTER the zero-knowledge assertion proves it is valid!
+// ==========================================
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger spending_limit: Uint<32>;
+export ledger total_spent: Uint<32>;
+
+constructor(limit: Uint<32>) {
+  spending_limit = disclose(limit);
+  total_spent = 0 as Uint<32>;
+}
+
+export circuit spend(amount: Uint<32>): [] {
+  assert(total_spent + amount <= spending_limit, "Spending limit exceeded");
+  total_spent = (total_spent + disclose(amount)) as Uint<32>;
+}
