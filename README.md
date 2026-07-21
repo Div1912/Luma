@@ -7,7 +7,9 @@ Ghost is a verifiable autonomy layer built on the Midnight privacy blockchain. I
 
 ---
 
-## 🎥 Demo Video
+## 🚀 Live Demo & Video
+**Live App:** [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/)
+
 [![Demo Video](https://img.youtube.com/vi/s0wpYVi6FOo/0.jpg)](https://youtu.be/s0wpYVi6FOo)
 
 ---
