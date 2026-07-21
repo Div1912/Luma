@@ -18,7 +18,8 @@ import {
   X,
   Search,
   Bell,
-  Plus
+  Plus,
+  Ghost
 } from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
 
@@ -42,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/auth/signin");
+      router.replace("/auth/signin");
     }
   }, [isAuthenticated, router]);
 
@@ -52,7 +53,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleSignOut = () => {
     signOut();
-    router.push("/auth/signin");
+    router.replace("/auth/signin");
   };
 
   return (
@@ -60,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Mobile Header (Hidden on Desktop) */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[rgba(8,8,8,0.9)] backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-6 h-6 text-white" />
+          <Ghost className="w-6 h-6 text-white" />
           <span className="font-medium tracking-wider">GHOST</span>
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-white/70 hover:text-white">
@@ -77,7 +78,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       `}>
         {/* Desktop Logo */}
         <div className="hidden md:flex h-20 items-center gap-3 px-6 border-b border-white/[0.06]">
-          <ShieldCheck className="w-7 h-7 text-white" />
+          <Ghost className="w-7 h-7 text-white" />
           <span className="font-medium tracking-[0.15em] text-lg">GHOST</span>
         </div>
 

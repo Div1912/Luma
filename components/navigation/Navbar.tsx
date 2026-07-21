@@ -63,32 +63,12 @@ export default function Navbar() {
 
           {/* Right: Actions (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
-            {!walletState.isConnected ? (
-              <button
-                onClick={connectLace}
-                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-              >
-                Connect Wallet
-              </button>
-            ) : (
-              <>
-                <span className="text-sm text-white/50 font-mono">
-                  {walletState.address?.slice(0, 6)}...{walletState.address?.slice(-4)}
-                </span>
-                <button
-                  onClick={disconnect}
-                  className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-                >
-                  Disconnect
-                </button>
-                <Link
-                  href="/dashboard"
-                  className="h-9 px-5 flex items-center justify-center text-sm font-medium bg-white text-black rounded hover:bg-[#b8d4f0] transition-colors"
-                >
-                  Launch App
-                </Link>
-              </>
-            )}
+            <Link
+              href="/dashboard"
+              className="h-9 px-5 flex items-center justify-center text-sm font-medium bg-white text-black rounded hover:bg-[#b8d4f0] transition-colors"
+            >
+              Launch App
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -142,39 +122,13 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="h-px w-full bg-white/[0.06] my-4" />
-              {!walletState.isConnected ? (
-                <button
-                  onClick={() => {
-                    connectLace();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-lg font-medium text-left text-white/80 hover:text-white"
-                >
-                  Connect Wallet
-                </button>
-              ) : (
-                <>
-                  <span className="text-sm text-white/50 font-mono">
-                    {walletState.address?.slice(0, 6)}...{walletState.address?.slice(-4)}
-                  </span>
-                  <button
-                    onClick={() => {
-                      disconnect();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="text-lg font-medium text-left text-white/80 hover:text-white"
-                  >
-                    Disconnect
-                  </button>
-                  <Link
-                    href="/dashboard"
-                    className="h-12 w-full flex items-center justify-center text-lg font-medium bg-white text-black rounded mt-2 hover:bg-[#b8d4f0] transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Launch App
-                  </Link>
-                </>
-              )}
+              <Link
+                href="/dashboard"
+                className="h-12 w-full flex items-center justify-center text-lg font-medium bg-white text-black rounded mt-2 hover:bg-[#b8d4f0] transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Launch App
+              </Link>
             </div>
           </motion.div>
         )}
