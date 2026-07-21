@@ -4,4 +4,3 @@ dist/
 .next/
 .vite/
 tsconfig.tsbuildinfo
-dummy-ws.js
