@@ -1,0 +1,217 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useGhostStore } from "@/store/useGhostStore";
+import { Play, Pause, ShieldBan, RotateCcw, Plus, X, ShieldAlert, Cpu, Activity, Info } from "lucide-react";
+
+export default function AgentsPage() {
+  const { agents, revokeAgent, pauseAgent } = useGhostStore();
+  const [filter, setFilter] = useState("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const filteredAgents = agents.filter(agent => {
+    if (filter === "All") return true;
+    return agent.status.toLowerCase() === filter.toLowerCase();
+  });
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Agent Management</h1>
+          <p className="text-zinc-400 mt-1">Monitor and control your autonomous AI agents.</p>
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="btn-primary flex items-center space-x-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Connect Agent</span>
+        </button>
+      </div>
+
+      <div className="flex space-x-2 border-b border-zinc-800 pb-4">
+        {["All", "Connected", "Paused", "Revoked"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              filter === tab
+                ? "bg-zinc-800 text-white"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        {filteredAgents.map((agent) => (
+          <motion.div key={agent.id} variants={item} className="glass-panel p-6 flex flex-col h-full relative group hover:border-zinc-700 transition-colors">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
+                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-zinc-800 text-zinc-300">
+                    {agent.version || 'v1.0'}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2 mt-2">
+                  <span className={`badge-${agent.status.toLowerCase()}`}>{agent.status}</span>
+                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{agent.type}</span>
+                </div>
+              </div>
+              <div className="p-2 bg-zinc-900 rounded-lg">
+                <Cpu className="w-5 h-5 text-zinc-400" />
+              </div>
+            </div>
+
+            <div className="space-y-4 flex-grow">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-zinc-500 block mb-1">Risk Level</span>
+                  <span className={`inline-flex items-center space-x-1 ${
+                    (agent as any).riskLevel === 'critical' ? 'text-red-400' :
+                    (agent as any).riskLevel === 'high' ? 'text-orange-400' :
+                    (agent as any).riskLevel === 'medium' ? 'text-yellow-400' :
+                    'text-emerald-400'
+                  }`}>
+                    <ShieldAlert className="w-3 h-3" />
+                    <span className="capitalize">{(agent as any).riskLevel || 'Low'}</span>
+                  </span>
+                </div>
+                <div>
+                  <span className="text-zinc-500 block mb-1">Last Activity</span>
+                  <span className="text-zinc-300">{agent.lastActivity || 'Just now'}</span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-zinc-900 rounded border border-zinc-800">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-zinc-400">Total Spent</span>
+                  <span className="text-white font-mono">${(agent.totalSpent || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-zinc-400">Transactions</span>
+                  <span className="text-zinc-300 font-mono">{agent.totalTransactions || 0}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Blocked Attempts</span>
+                  <span className="text-red-400 font-mono">{agent.blockedAttempts || 0}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 text-sm text-zinc-400 bg-zinc-900/50 p-2 rounded">
+                <Info className="w-4 h-4" />
+                <span>Policy: <span className="text-zinc-200">{(agent as any).policyName || 'Standard Policy'}</span></span>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-zinc-800 flex space-x-2">
+              {agent.status === 'Connected' ? (
+                <button onClick={() => pauseAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2">
+                  <Pause className="w-4 h-4" />
+                  <span>Pause</span>
+                </button>
+              ) : (
+                <button className="flex-1 btn-secondary flex justify-center items-center space-x-2 opacity-50 cursor-not-allowed">
+                  <Play className="w-4 h-4" />
+                  <span>Resume</span>
+                </button>
+              )}
+              
+              <button onClick={() => revokeAgent?.(agent.id)} className="flex-1 btn-danger flex justify-center items-center space-x-2 hover:bg-red-950 hover:text-red-400 hover:border-red-900 transition-colors">
+                <ShieldBan className="w-4 h-4" />
+                <span>Revoke</span>
+              </button>
+              
+              <button className="p-2 border border-zinc-800 rounded hover:bg-zinc-800 text-zinc-400 transition-colors" title="Reset Policy">
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setIsModalOpen(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="glass-panel p-6 max-w-md w-full relative z-10"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-white">Connect New Agent</h2>
+                <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">Agent Name</label>
+                  <input type="text" className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none" placeholder="e.g., ProcureBot-X" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">Agent Type</label>
+                  <select className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none">
+                    <option>Shopping</option>
+                    <option>Procurement</option>
+                    <option>Research</option>
+                    <option>Financial</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">Description</label>
+                  <textarea className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none" rows={3} placeholder="What will this agent do?"></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">Attach Policy</label>
+                  <select className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none">
+                    <option>Standard Shopping (Strict)</option>
+                    <option>SaaS Subscriptions</option>
+                    <option>Travel & Expenses</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end space-x-3">
+                <button onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancel</button>
+                <button onClick={() => setIsModalOpen(false)} className="btn-primary">Connect Agent</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
