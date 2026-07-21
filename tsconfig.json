@@ -43,6 +43,9 @@
   "exclude": [
     "node_modules",
     "src-vite-old",
-    "tests"
+    "tests",
+    "bboard",
+    "ghost-contract",
+    "deploy-simulated.ts"
   ]
 }

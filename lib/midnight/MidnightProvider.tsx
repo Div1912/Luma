@@ -10,7 +10,7 @@ export type WalletState = {
   error?: string;
 };
 
-interface MidnightContextType {
+export interface MidnightContextType {
   walletState: WalletState;
   connectLace: () => Promise<void>;
   disconnect: () => Promise<void>;

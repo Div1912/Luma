@@ -6,7 +6,7 @@ import { Clock, CheckCircle2, XCircle, ShieldAlert, FileText, ExternalLink, Hash
 import { motion } from "framer-motion";
 
 export default function ApprovalsPage() {
-  const { approvalRequests, approveRequest, rejectRequest } = useGhostStore();
+  const { approvals: approvalRequests, approveRequest, rejectRequest } = useGhostStore();
   const [selectedId, setSelectedId] = useState<string | null>(
     approvalRequests?.[0]?.id || null
   );
@@ -89,7 +89,7 @@ export default function ApprovalsPage() {
                 <div>
                   <h3 className="text-lg font-medium text-zinc-200 mb-1">Policy Trigger</h3>
                   <p className="text-zinc-400 leading-relaxed">
-                    This transaction exceeds the <span className="text-white font-mono">${selectedRequest.ruleTriggered || 500}</span> approval threshold set in the <span className="text-white font-medium">{selectedRequest.policyApplied}</span> policy.
+                    This transaction exceeds the <span className="text-white font-mono">${selectedRequest.ruleTriggered || 500}</span> approval threshold set in the <span className="text-white font-medium">{selectedRequest.policyId}</span> policy.
                   </p>
                 </div>
               </div>
@@ -105,7 +105,7 @@ export default function ApprovalsPage() {
                   </div>
                   <div className="flex justify-between border-b border-zinc-800 pb-2">
                     <span className="text-zinc-400">Policy</span>
-                    <span className="text-zinc-200">{selectedRequest.policyApplied}</span>
+                    <span className="text-zinc-200">{selectedRequest.policyId}</span>
                   </div>
                   <div className="flex justify-between border-b border-zinc-800 pb-2">
                     <span className="text-zinc-400">Merchant Risk</span>

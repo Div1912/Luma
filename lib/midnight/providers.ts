@@ -17,7 +17,7 @@ const compiledGhostContract = CompiledContract.make(
   'ghost', 
   Contract as any
 ).pipe(
-  CompiledContract.withWitnesses({} as any)
+  CompiledContract.withWitnesses({} as never)
 );
 
 export async function createGhostContract(api: any, contractAddress: string) {
@@ -61,12 +61,12 @@ export async function createGhostContract(api: any, contractAddress: string) {
 
   const contract = new Contract({} as any);
   
-  const ghost = await findDeployedContract(providers, {
+  const ghost = await findDeployedContract(providers as any, {
     contractAddress,
-    compiledContract: compiledGhostContract,
+    compiledContract: compiledGhostContract as any,
     initialPrivateState: {} as any,
     privateStateId: 'ghost-join'
-  });
+  } as any);
 
   return { providers, contract, ghost };
 }
@@ -110,12 +110,12 @@ export async function deployGhostContract(api: any, initialLimit: bigint) {
   const contract = new Contract({} as any);
   
   // Actually perform the deployment transaction
-  const ghost = await deployContract(providers, {
+  const ghost = await deployContract(providers as any, {
     privateStateId: 'ghost-deploy',
-    compiledContract: compiledGhostContract,
+    compiledContract: compiledGhostContract as any,
     args: [initialLimit],
     initialPrivateState: {} as any
-  });
+  } as any);
 
   return { 
     ghost, 

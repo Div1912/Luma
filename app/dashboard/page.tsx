@@ -34,7 +34,7 @@ const chartData = Array.from({ length: 14 }).map((_, i) => ({
 }));
 
 export default function DashboardOverview() {
-  const { policies, agents, approvals, auditEvents, approveAction, rejectAction } = useGhostStore();
+  const { policies, agents, approvals, auditEvents } = useGhostStore();
   
   const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
@@ -112,12 +112,12 @@ export default function DashboardOverview() {
   };
 
   const activePolicies = policies.filter(p => p.status === "active").length;
-  const activeAgents = agents.filter(a => a.status === "active").length;
+  const activeAgents = agents.filter(a => a.status === "connected").length;
   const pendingApprovals = approvals.filter(a => a.status === "pending");
   const recentEvents = auditEvents.slice(0, 7);
 
   // Stagger variants
-  const containerVariants = {
+  const containerVariants: any = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -127,7 +127,7 @@ export default function DashboardOverview() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   };
@@ -334,15 +334,15 @@ export default function DashboardOverview() {
                 </div>
                 <div className="flex-1 pb-1">
                   <div className="flex justify-between items-start mb-1">
-                    <span className="text-sm font-medium">{event.action}</span>
+                    <span className="text-sm font-medium">{event.type}</span>
                     <span className="text-xs text-white/40">{new Date(event.timestamp).toLocaleTimeString()}</span>
                   </div>
-                  <div className="text-sm text-white/50 mb-2">{event.details}</div>
+                  <div className="text-sm text-white/50 mb-2">{event.description}</div>
                   <div className="flex items-center gap-4 text-[10px] font-mono text-white/30">
-                    <span>AGENT: {event.actor}</span>
-                    {event.hash && (
+                    <span>AGENT: {event.agentName || 'System'}</span>
+                    {event.proofHash && (
                       <span className="flex items-center gap-1">
-                        TX: <span className="text-[#b8d4f0]/70">{event.hash.slice(0, 8)}...</span>
+                        TX: <span className="text-[#b8d4f0]/70">{event.proofHash.slice(0, 8)}...</span>
                       </span>
                     )}
                   </div>
