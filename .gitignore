@@ -1,3 +1,7 @@
 node_modules/
 dist/
 .DS_Store
+.next/
+.vite/
+tsconfig.tsbuildinfo
+dummy-ws.js

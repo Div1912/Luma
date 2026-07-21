@@ -1,0 +1,275 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap');
+
+:root {
+  --bg-dark: #050505;
+  --bg-panel: #111111;
+  --fg-white: #f5f5f5;
+  --fg-dim: #888888;
+  --accent-blue: #0044ff;
+  --accent-red: #ff2222;
+  --accent-green: #00ff66;
+  --border-color: #333333;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--fg-white);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* -------------------------------------
+   Brutalist Grid Layout
+-------------------------------------- */
+.app-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 2px solid var(--border-color);
+  background: var(--bg-dark);
+}
+
+.nav-brand {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background-color: var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  min-height: calc(100vh - 70px); /* minus nav */
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -------------------------------------
+   Panels
+-------------------------------------- */
+.panel {
+  background-color: var(--bg-dark);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--fg-dim);
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.panel-title {
+  color: var(--fg-white);
+  font-size: 1.25rem;
+}
+
+/* -------------------------------------
+   Typography & Elements
+-------------------------------------- */
+h1, h2, h3 {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.brutalist-btn {
+  background: var(--fg-white);
+  color: var(--bg-dark);
+  border: none;
+  padding: 1rem 2rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  width: 100%;
+}
+
+.brutalist-btn:hover:not(:disabled) {
+  background: var(--accent-blue);
+  color: var(--fg-white);
+}
+
+.brutalist-btn.outline {
+  background: transparent;
+  color: var(--fg-white);
+  border: 2px solid var(--fg-white);
+}
+.brutalist-btn.outline:hover {
+  background: var(--fg-white);
+  color: var(--bg-dark);
+}
+
+.brutalist-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-box {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--fg-white);
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  width: 100%;
+  outline: none;
+}
+.input-box:focus {
+  border-color: var(--fg-white);
+}
+
+/* -------------------------------------
+   Agent Simulator specific
+-------------------------------------- */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  margin-bottom: 1rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+.cart-item-price {
+  font-family: var(--font-mono);
+  color: var(--accent-blue);
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  border-top: 2px solid var(--border-color);
+  margin-top: auto;
+}
+
+/* -------------------------------------
+   Ghost HUD specific
+-------------------------------------- */
+.ghost-hud {
+  font-family: var(--font-mono);
+}
+
+.stat-box {
+  border: 2px solid var(--border-color);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.stat-label {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+.stat-value.green { color: var(--accent-green); }
+.stat-value.red { color: var(--accent-red); }
+
+.terminal-log {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-color);
+  padding: 1rem;
+  font-size: 0.85rem;
+  height: 250px;
+  overflow-y: auto;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.log-entry {
+  animation: typeIn 0.2s ease-out;
+}
+
+.log-time { color: var(--fg-dim); margin-right: 0.5rem; }
+.log-system { color: var(--accent-blue); }
+.log-success { color: var(--accent-green); font-weight: bold; }
+.log-error { color: var(--accent-red); font-weight: bold; }
+
+@keyframes typeIn {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Glitch effect for verification */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+.glitch-text::before, .glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-dark);
+}
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -1px 0 red;
+  animation: glitch-anim 2s infinite linear alternate-reverse;
+}
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -1px 0 blue;
+  animation: glitch-anim2 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip-path: inset(10% 0 80% 0); }
+  20% { clip-path: inset(80% 0 10% 0); }
+  40% { clip-path: inset(40% 0 30% 0); }
+  60% { clip-path: inset(90% 0 5% 0); }
+  80% { clip-path: inset(20% 0 60% 0); }
+  100% { clip-path: inset(50% 0 30% 0); }
+}
+@keyframes glitch-anim2 {
+  0% { clip-path: inset(20% 0 60% 0); }
+  20% { clip-path: inset(50% 0 30% 0); }
+  40% { clip-path: inset(80% 0 10% 0); }
+  60% { clip-path: inset(10% 0 80% 0); }
+  80% { clip-path: inset(40% 0 30% 0); }
+  100% { clip-path: inset(90% 0 5% 0); }
+}
