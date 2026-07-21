@@ -128,7 +128,7 @@ export default function AgentsPage() {
             </div>
 
             <div className="mt-6 pt-4 border-t border-zinc-800 flex space-x-2">
-              {agent.status === 'Connected' ? (
+              {agent.status === 'connected' ? (
                 <button onClick={() => pauseAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2">
                   <Pause className="w-4 h-4" />
                   <span>Pause</span>
