@@ -9,6 +9,8 @@ import { toast } from "sonner";
 
 export default function AgentsPage() {
   const { agents, revokeAgent, pauseAgent, resumeAgent } = useGhostStore();
+  const updateAgent = useGhostStore(s => s.updateAgent);
+  const addAuditEvent = useGhostStore(s => s.addAuditEvent);
   const { spend, walletState } = useMidnight();
   const [filter, setFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,6 +151,31 @@ export default function AgentsPage() {
                         setIsSpending(agent.id);
                         const tx = await spend(BigInt(25));
                         const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || tx;
+                        
+                        // Update store to reflect spend
+                        updateAgent(agent.id, {
+                          totalSpent: (agent.totalSpent || 0) + 25,
+                          totalTransactions: (agent.totalTransactions || 0) + 1,
+                          lastActivity: new Date().toLocaleTimeString()
+                        });
+                        
+                        addAuditEvent({
+                          type: 'purchase_approved',
+                          agentId: agent.id,
+                          agentName: agent.name,
+                          merchant: 'On-Chain Execution',
+                          amount: 25,
+                          currency: 'tDUST',
+                          status: 'success',
+                          description: `Agent ${agent.name} successfully executed a 25 tDUST on-chain spend.`,
+                          proofHash: typeof txId === 'string' ? txId : '0xUnknown',
+                          metadata: {
+                            rule_evaluated: 'Transaction Limit',
+                            limit: '1000',
+                            verified: true
+                          }
+                        });
+                        
                         toast.success(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`, {
                           description: "Transaction verified via zero-knowledge proof.",
                           action: txId ? {

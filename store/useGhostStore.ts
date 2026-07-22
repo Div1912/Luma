@@ -135,6 +135,7 @@ interface GhostStore {
   revokeAgent: (id: string) => void;
   pauseAgent: (id: string) => void;
   resumeAgent: (id: string) => void;
+  updateAgent: (id: string, updates: Partial<Agent>) => void;
 
   // Approval actions
   approveRequest: (id: string) => void;
@@ -299,6 +300,21 @@ export const useGhostStore = create<GhostStore>()(
             a.id === id ? { ...a, status: "connected" as AgentStatus } : a
           ),
         }));
+      },
+
+      updateAgent: (id, updates) => {
+        set((s) => {
+          const updatedAgents = s.agents.map((a) =>
+            a.id === id ? { ...a, ...updates } : a
+          );
+          
+          // Try to push to Supabase if it exists in DB
+          supabase.from('agents').update(updates).eq('id', id).then(({ error }) => {
+            if (error) console.error('Supabase agent update error:', error);
+          });
+          
+          return { agents: updatedAgents };
+        });
       },
 
       // Approval actions
