@@ -99,48 +99,60 @@ export default function AuditPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/50">
-            {(filteredEvents || []).map((ev: any) => (
-              <tr 
-                key={ev.id} 
-                onClick={() => setSelectedEvent(ev)}
-                className="hover:bg-zinc-900/50 transition-colors cursor-pointer group"
-              >
-                <td className="py-4 px-6 text-sm text-zinc-400 font-mono">{ev.time}</td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center space-x-2">
-                    {getEventIcon(ev.type)}
-                    <span className="text-sm text-zinc-300 capitalize">{ev.type.replace('_', ' ')}</span>
+            {(!filteredEvents || filteredEvents.length === 0) ? (
+              <tr>
+                <td colSpan={7} className="py-16 text-center text-zinc-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <Activity className="w-10 h-10 mb-3 opacity-50" />
+                    <p className="text-base font-medium text-zinc-400">No events found</p>
+                    <p className="text-sm mt-1 max-w-sm">Execute an agent transaction or deploy a contract to start generating immutable audit logs.</p>
                   </div>
                 </td>
-                <td className="py-4 px-6 text-sm text-zinc-200">{ev.agent}</td>
-                <td className="py-4 px-6 text-sm text-zinc-400 truncate max-w-[200px]">{ev.merchant || ev.description}</td>
-                <td className="py-4 px-6 text-sm text-right font-mono text-zinc-300">
-                  {ev.amount ? `$${ev.amount}` : '-'}
-                </td>
-                <td className="py-4 px-6 text-center">
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    ev.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
-                    ev.status === 'blocked' ? 'bg-red-500/10 text-red-400' :
-                    'bg-zinc-800 text-zinc-400'
-                  }`}>
-                    {ev.status}
-                  </span>
-                </td>
-                <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if(ev.proofHash) e.stopPropagation(); }}>
-                  {ev.proofHash ? (
-                    <a 
-                      href={`https://preview.midnightexplorer.com/transactions/${ev.proofHash}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="hover:text-[#b8d4f0] transition-colors inline-block"
-                      title="View on Explorer"
-                    >
-                      <Hash className="w-4 h-4 mx-auto" />
-                    </a>
-                  ) : '-'}
-                </td>
               </tr>
-            ))}
+            ) : (
+              filteredEvents.map((ev: any) => (
+                <tr 
+                  key={ev.id} 
+                  onClick={() => setSelectedEvent(ev)}
+                  className="hover:bg-zinc-900/50 transition-colors cursor-pointer group"
+                >
+                  <td className="py-4 px-6 text-sm text-zinc-400 font-mono">{ev.time}</td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center space-x-2">
+                      {getEventIcon(ev.type)}
+                      <span className="text-sm text-zinc-300 capitalize">{ev.type.replace('_', ' ')}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-zinc-200">{ev.agent}</td>
+                  <td className="py-4 px-6 text-sm text-zinc-400 truncate max-w-[200px]">{ev.merchant || ev.description}</td>
+                  <td className="py-4 px-6 text-sm text-right font-mono text-zinc-300">
+                    {ev.amount ? `$${ev.amount}` : '-'}
+                  </td>
+                  <td className="py-4 px-6 text-center">
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      ev.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
+                      ev.status === 'blocked' ? 'bg-red-500/10 text-red-400' :
+                      'bg-zinc-800 text-zinc-400'
+                    }`}>
+                      {ev.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if(ev.proofHash) e.stopPropagation(); }}>
+                    {ev.proofHash ? (
+                      <a 
+                        href={`https://preview.midnightexplorer.com/transactions/${ev.proofHash}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:text-[#b8d4f0] transition-colors inline-block"
+                        title="View on Explorer"
+                      >
+                        <Hash className="w-4 h-4 mx-auto" />
+                      </a>
+                    ) : '-'}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

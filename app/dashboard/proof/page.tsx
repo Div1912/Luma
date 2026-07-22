@@ -20,42 +20,50 @@ export default function ProofPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {provedEvents.map((ev: any) => (
-          <motion.div 
-            key={ev.id}
-            whileHover={{ y: -2 }}
-            onClick={() => setSelectedProof(ev)}
-            className="glass-panel p-6 cursor-pointer group border border-zinc-800 hover:border-zinc-700 transition-all"
-          >
-            <div className="flex justify-between items-start mb-6">
-              <div className="p-2 bg-blue-500/10 text-[#b8d4f0] rounded-lg">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-medium px-2 py-1 bg-zinc-900 text-zinc-400 rounded">
-                {ev.time}
-              </span>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium text-white capitalize">{ev.type.replace('_', ' ')}</h3>
-                <p className="text-sm text-zinc-400 mt-1 truncate">{ev.merchant || ev.description}</p>
-              </div>
-
-              <div className="bg-zinc-900 rounded p-3 font-mono text-xs text-zinc-500 truncate group-hover:text-zinc-300 transition-colors">
-                {ev.proofHash}
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center text-emerald-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2 animate-pulse" />
-                  Verified on Midnight
+        {provedEvents.length === 0 ? (
+          <div className="col-span-full py-16 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-900/20">
+            <ShieldCheck className="w-12 h-12 mb-4 opacity-50 text-[#b8d4f0]" />
+            <h3 className="text-lg font-medium text-zinc-300 mb-2">No proofs generated yet</h3>
+            <p className="text-sm max-w-md text-center">Deploy a contract and execute a private spend via an agent to generate verifiable zero-knowledge proofs on the Midnight network.</p>
+          </div>
+        ) : (
+          provedEvents.map((ev: any) => (
+            <motion.div 
+              key={ev.id}
+              whileHover={{ y: -2 }}
+              onClick={() => setSelectedProof(ev)}
+              className="glass-panel p-6 cursor-pointer group border border-zinc-800 hover:border-zinc-700 transition-all"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-2 bg-blue-500/10 text-[#b8d4f0] rounded-lg">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-medium px-2 py-1 bg-zinc-900 text-zinc-400 rounded">
+                  {ev.time}
                 </span>
-                <span className="text-zinc-500">Block #{(Math.random() * 1000000).toFixed(0)}</span>
               </div>
-            </div>
-          </motion.div>
-        ))}
+              
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium text-white capitalize">{ev.type.replace('_', ' ')}</h3>
+                  <p className="text-sm text-zinc-400 mt-1 truncate">{ev.merchant || ev.description}</p>
+                </div>
+
+                <div className="bg-zinc-900 rounded p-3 font-mono text-xs text-zinc-500 truncate group-hover:text-zinc-300 transition-colors">
+                  {ev.proofHash}
+                </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="flex items-center text-emerald-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2 animate-pulse" />
+                    Verified on Midnight
+                  </span>
+                  <span className="text-zinc-500">Block #{(Math.random() * 1000000).toFixed(0)}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))
+        )}
       </div>
 
       <AnimatePresence>

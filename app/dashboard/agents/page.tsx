@@ -73,123 +73,131 @@ export default function AgentsPage() {
         animate="show"
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
-        {filteredAgents.map((agent) => (
-          <motion.div key={agent.id} variants={item} className="glass-panel p-6 flex flex-col h-full relative group hover:border-zinc-700 transition-colors">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
-                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-zinc-800 text-zinc-300">
-                    {agent.version || 'v1.0'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 mt-2">
-                  <span className={`badge-${agent.status.toLowerCase()}`}>{agent.status}</span>
-                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{agent.type}</span>
-                </div>
-              </div>
-              <div className="p-2 bg-zinc-900 rounded-lg">
-                <Cpu className="w-5 h-5 text-zinc-400" />
-              </div>
-            </div>
-
-            <div className="space-y-4 flex-grow">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+        {filteredAgents.length === 0 ? (
+          <div className="col-span-full py-12 flex flex-col items-center justify-center text-zinc-500 border border-dashed border-zinc-800 rounded-2xl bg-zinc-900/20">
+            <Cpu className="w-12 h-12 mb-4 opacity-50" />
+            <h3 className="text-lg font-medium text-zinc-300 mb-2">No agents connected</h3>
+            <p className="text-sm max-w-md text-center">Click "Connect Agent" in the top right to register a new autonomous agent to your workspace.</p>
+          </div>
+        ) : (
+          filteredAgents.map((agent) => (
+            <motion.div key={agent.id} variants={item} className="glass-panel p-6 flex flex-col h-full relative group hover:border-zinc-700 transition-colors">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <span className="text-zinc-500 block mb-1">Risk Level</span>
-                  <span className={`inline-flex items-center space-x-1 ${
-                    (agent as any).riskLevel === 'critical' ? 'text-red-400' :
-                    (agent as any).riskLevel === 'high' ? 'text-orange-400' :
-                    (agent as any).riskLevel === 'medium' ? 'text-yellow-400' :
-                    'text-emerald-400'
-                  }`}>
-                    <ShieldAlert className="w-3 h-3" />
-                    <span className="capitalize">{(agent as any).riskLevel || 'Low'}</span>
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
+                    <span className="px-2 py-0.5 rounded text-xs font-mono bg-zinc-800 text-zinc-300">
+                      {agent.version || 'v1.0'}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <span className={`badge-${agent.status.toLowerCase()}`}>{agent.status}</span>
+                    <span className="text-xs text-zinc-500 uppercase tracking-wider">{agent.type}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-zinc-500 block mb-1">Last Activity</span>
-                  <span className="text-zinc-300">{agent.lastActivity || 'Just now'}</span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-zinc-900 rounded border border-zinc-800">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-zinc-400">Total Spent</span>
-                  <span className="text-white font-mono">${(agent.totalSpent || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-zinc-400">Transactions</span>
-                  <span className="text-zinc-300 font-mono">{agent.totalTransactions || 0}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Blocked Attempts</span>
-                  <span className="text-red-400 font-mono">{agent.blockedAttempts || 0}</span>
+                <div className="p-2 bg-zinc-900 rounded-lg">
+                  <Cpu className="w-5 h-5 text-zinc-400" />
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 text-sm text-zinc-400 bg-zinc-900/50 p-2 rounded">
-                <Info className="w-4 h-4" />
-                <span>Policy: <span className="text-zinc-200">{(agent as any).policyName || 'Standard Policy'}</span></span>
-              </div>
-            </div>
+              <div className="space-y-4 flex-grow">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-zinc-500 block mb-1">Risk Level</span>
+                    <span className={`inline-flex items-center space-x-1 ${
+                      (agent as any).riskLevel === 'critical' ? 'text-red-400' :
+                      (agent as any).riskLevel === 'high' ? 'text-orange-400' :
+                      (agent as any).riskLevel === 'medium' ? 'text-yellow-400' :
+                      'text-emerald-400'
+                    }`}>
+                      <ShieldAlert className="w-3 h-3" />
+                      <span className="capitalize">{(agent as any).riskLevel || 'Low'}</span>
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 block mb-1">Last Activity</span>
+                    <span className="text-zinc-300">{agent.lastActivity || 'Just now'}</span>
+                  </div>
+                </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col space-y-2">
-              {walletState.isConnected && agent.status === 'connected' && (
-                <button 
-                  onClick={async () => {
-                    try {
-                      setIsSpending(agent.id);
-                      const tx = await spend(BigInt(25));
-                      const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || tx;
-                      toast.success(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`, {
-                        description: "Transaction verified via zero-knowledge proof.",
-                        action: txId ? {
-                          label: "View Explorer",
-                          onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txId}`, "_blank")
-                        } : undefined
-                      });
-                    } catch (e: any) {
-                      toast.error(`Transaction failed`, {
-                        description: e.message || String(e),
-                      });
-                    } finally {
-                      setIsSpending(null);
-                    }
-                  }}
-                  disabled={isSpending === agent.id}
-                  className="w-full bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/30 font-medium text-xs py-2 rounded flex justify-center items-center space-x-1.5 transition-colors disabled:opacity-50"
-                >
-                  <Activity className="w-3.5 h-3.5" />
-                  <span>{isSpending === agent.id ? "Executing ZK Spend..." : "Execute On-Chain Spend"}</span>
-                </button>
-              )}
-              <div className="flex space-x-2">
-                {agent.status === 'connected' ? (
-                  <button onClick={() => pauseAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2">
-                    <Pause className="w-4 h-4" />
-                    <span>Pause</span>
-                  </button>
-                ) : agent.status === 'paused' ? (
-                  <button onClick={() => resumeAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2 hover:bg-zinc-800 text-white">
-                    <Play className="w-4 h-4 text-emerald-400" />
-                    <span>Resume</span>
-                  </button>
-                ) : (
-                  <button className="flex-1 btn-secondary flex justify-center items-center space-x-2 opacity-50 cursor-not-allowed">
-                    <Play className="w-4 h-4" />
-                    <span>Revoked</span>
+                <div className="p-3 bg-zinc-900 rounded border border-zinc-800">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-zinc-400">Total Spent</span>
+                    <span className="text-white font-mono">${(agent.totalSpent || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-zinc-400">Transactions</span>
+                    <span className="text-zinc-300 font-mono">{agent.totalTransactions || 0}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-400">Blocked Attempts</span>
+                    <span className="text-red-400 font-mono">{agent.blockedAttempts || 0}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 text-sm text-zinc-400 bg-zinc-900/50 p-2 rounded">
+                  <Info className="w-4 h-4" />
+                  <span>Policy: <span className="text-zinc-200">{(agent as any).policyName || 'Standard Policy'}</span></span>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col space-y-2">
+                {walletState.isConnected && agent.status === 'connected' && (
+                  <button 
+                    onClick={async () => {
+                      try {
+                        setIsSpending(agent.id);
+                        const tx = await spend(BigInt(25));
+                        const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || tx;
+                        toast.success(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`, {
+                          description: "Transaction verified via zero-knowledge proof.",
+                          action: txId ? {
+                            label: "View Explorer",
+                            onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txId}`, "_blank")
+                          } : undefined
+                        });
+                      } catch (e: any) {
+                        toast.error(`Transaction failed`, {
+                          description: e.message || String(e),
+                        });
+                      } finally {
+                        setIsSpending(null);
+                      }
+                    }}
+                    disabled={isSpending === agent.id}
+                    className="w-full bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/30 font-medium text-xs py-2 rounded flex justify-center items-center space-x-1.5 transition-colors disabled:opacity-50"
+                  >
+                    <Activity className="w-3.5 h-3.5" />
+                    <span>{isSpending === agent.id ? "Executing ZK Spend..." : "Execute On-Chain Spend"}</span>
                   </button>
                 )}
-                
-                <button onClick={() => revokeAgent?.(agent.id)} className="flex-1 btn-danger flex justify-center items-center space-x-2 hover:bg-red-950 hover:text-red-400 hover:border-red-900 transition-colors">
-                  <ShieldBan className="w-4 h-4" />
-                  <span>Revoke</span>
-                </button>
+                <div className="flex space-x-2">
+                  {agent.status === 'connected' ? (
+                    <button onClick={() => pauseAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2">
+                      <Pause className="w-4 h-4" />
+                      <span>Pause</span>
+                    </button>
+                  ) : agent.status === 'paused' ? (
+                    <button onClick={() => resumeAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2 hover:bg-zinc-800 text-white">
+                      <Play className="w-4 h-4 text-emerald-400" />
+                      <span>Resume</span>
+                    </button>
+                  ) : (
+                    <button className="flex-1 btn-secondary flex justify-center items-center space-x-2 opacity-50 cursor-not-allowed">
+                      <Play className="w-4 h-4" />
+                      <span>Revoked</span>
+                    </button>
+                  )}
+                  
+                  <button onClick={() => revokeAgent?.(agent.id)} className="flex-1 btn-danger flex justify-center items-center space-x-2 hover:bg-red-950 hover:text-red-400 hover:border-red-900 transition-colors">
+                    <ShieldBan className="w-4 h-4" />
+                    <span>Revoke</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))
+        )}
       </motion.div>
 
       <AnimatePresence>
