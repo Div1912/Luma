@@ -38,14 +38,16 @@ const NAV_ITEMS = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, user, signOut, approvals } = useGhostStore();
+  const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/auth/signin");
+    } else {
+      fetchData(); // Fetch real data from Supabase
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, fetchData]);
 
   if (!isAuthenticated) return null;
 

@@ -27,14 +27,26 @@ import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { useState, useEffect } from "react";
 
-// Mock chart data based on monochrome specs
-const chartData = Array.from({ length: 14 }).map((_, i) => ({
-  day: i + 1,
-  spend: Math.floor(Math.random() * 500) + 100,
-}));
-
 export default function DashboardOverview() {
   const { policies, agents, approvals, auditEvents } = useGhostStore();
+  
+  // Real chart data derived from auditEvents (last 14 days)
+  const chartData = Array.from({ length: 14 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13 - i));
+    const dayStr = d.toISOString().split('T')[0];
+    
+    // Sum all 'purchase_approved' events for this day
+    const spend = auditEvents
+      .filter(e => e.type === 'purchase_approved' && e.timestamp.startsWith(dayStr))
+      .reduce((sum, e) => sum + (e.amount || 0), 0);
+      
+    return {
+      day: d.getDate(),
+      spend
+    };
+  });
+
   
   const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
