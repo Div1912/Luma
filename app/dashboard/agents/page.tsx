@@ -180,7 +180,7 @@ export default function AgentsPage() {
                           description: "Transaction verified via zero-knowledge proof.",
                           action: txId ? {
                             label: "View Explorer",
-                            onClick: () => window.open(`https://preview.midnightexplorer.com/transactions/${txId}`, "_blank")
+                            onClick: () => window.open(`https://${network}.midnightexplorer.com/transactions/${txId}`, "_blank")
                           } : undefined
                         });
                       } catch (e: any) {

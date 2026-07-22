@@ -34,7 +34,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const [api, setApi] = useState<any>(null);
   const [ghost, setGhost] = useState<any>(null);
   const [publicState, setPublicState] = useState<{ total_spent: bigint; spending_limit: bigint } | null>(null);
-  const [network, setNetwork] = useState<'preview' | 'preprod'>('preview');
+  const [network, setNetwork] = useState<'preview' | 'preprod'>('preprod');
 
   useEffect(() => {
     setNetworkId(network);
