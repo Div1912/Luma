@@ -108,16 +108,31 @@ Ghost is fully integrated with Midnight. It generates real zero-knowledge proofs
 
 ---
 
-## 🛠 Advanced ZK Features (Implementation)
+## 🏛️ Enterprise ZK Product Modules & Applications
 
-Ghost natively implements three advanced privacy-preserving features using Midnight Compact:
+Ghost is architected to solve three high-impact, real-world enterprise problems using Midnight's core ZK primitives:
 
-1. **Private Allowlist Access (Supply Chain Privacy)** 
-   Proves the AI is purchasing from an approved corporate vendor (e.g., AWS or GitHub) without ever revealing the vendor's identity on-chain.
-2. **Age / Eligibility Gate (Agent Reputation)**
-   Proves the AI agent meets a strict capital or reputation threshold required to execute large trades, without disclosing its exact balance.
-3. **Confidential Credentials (ZK API Keys)**
-   Proves the AI possesses the valid authorization key required to sign the transaction, without ever transmitting the secret key over the network.
+### 1. Enterprise AI B2B Procurement & Private Supply Chain
+* **The Problem:** Corporations want AI agents to automatically negotiate and pay for software, cloud compute, and supply chain inventory. On public blockchains, every vendor relationship, contract size, and pricing structure is visible to competitors.
+* **The Solution:** Ghost acts as a **Zero-Knowledge B2B Payment Gateway**.
+  * **Private Allowlist Access:** Cryptographically proves the AI is paying an authorized corporate vendor without exposing vendor identities on-chain.
+  * **Private Splits & Payroll:** Routes payments confidentially so competitors cannot track payment amounts or recipients.
+  * **Confidential Credentials:** Verifies corporate authorization API keys in ZK without transmitting secret credentials.
+
+### 2. Anti-MEV Sealed-Bid Auction Engine for Autonomous Trading
+* **The Problem:** Automated trading bots and AI agents bidding on digital ad space or financial assets are vulnerable to front-running (MEV) on public ledgers.
+* **The Solution:** Ghost implements an **Anti-MEV Sealed-Bid Auction Engine**.
+  * **Sealed-Bid Auction:** AI agents submit cryptographically sealed bids. Neither competitors nor auctioneers can inspect bid values prior to auction resolution.
+  * **Age / Eligibility Gate:** Proves the agent has sufficient collateral/capital ($\ge \text{threshold}$) to honor the bid without disclosing total wallet balances.
+
+### 3. Trustless AI Safety & Bias Auditing Protocol
+* **The Problem:** AI models deployed in critical infrastructure require independent auditing, but human auditors and reviewer agents face potential retaliation for reporting safety violations.
+* **The Solution:** Ghost provides an **Anonymous AI Safety Rating Protocol**.
+  * **Anonymous Feedback & Private Voting:** Auditors submit tamper-proof grades. The ledger computes aggregate safety tallies without revealing individual reviewer identities or votes.
+  * **Confidential Credentials:** Proves the reviewer is an accredited safety auditor in ZK without doxxing them.
+
+> [!TIP]
+> The full multi-module ZK smart contract source code implementing these circuits is available in [`contracts/ghost-advanced.compact`](file:///d:/Luma/contracts/ghost-advanced.compact).
 
 ---
 
