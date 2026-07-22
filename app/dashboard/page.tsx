@@ -76,7 +76,7 @@ export default function DashboardOverview() {
         description: "Waiting for indexer sync...",
         action: {
           label: "View Explorer",
-          onClick: () => window.open(`https://preview.midnightexplorer.com/`, "_blank")
+          onClick: () => window.open(`https://preview.midnightexplorer.com/address/${address}`, "_blank")
         }
       });
     } catch (err: any) {
@@ -290,7 +290,7 @@ export default function DashboardOverview() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
                 <a 
-                  href={`https://preview.midnightexplorer.com/transaction/${contractAddress}`}
+                  href={`https://preview.midnightexplorer.com/address/${contractAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-2 text-[#b8d4f0] hover:text-white transition-colors"

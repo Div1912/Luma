@@ -140,9 +140,14 @@ export default function AgentsPage() {
                   onClick={async () => {
                     try {
                       setIsSpending(agent.id);
-                      await spend(BigInt(25));
+                      const tx = await spend(BigInt(25));
+                      const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || tx;
                       toast.success(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`, {
                         description: "Transaction verified via zero-knowledge proof.",
+                        action: txId ? {
+                          label: "View Explorer",
+                          onClick: () => window.open(`https://preview.midnightexplorer.com/transaction/${txId}`, "_blank")
+                        } : undefined
                       });
                     } catch (e: any) {
                       toast.error(`Transaction failed`, {
