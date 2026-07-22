@@ -40,6 +40,46 @@ Ghost wraps AI shopping/commerce agents with cryptographic guardrails. Instead o
 
 ---
 
+## 🛡️ Privacy Model: What an Observer Can & Cannot Learn
+
+| Observer Visibility | Information & Cryptographic Data |
+| :--- | :--- |
+| **CAN LEARN (Public Ledger)** | • `spending_limit`: The maximum authorized cap for a policy.<br>• `total_spent`: The cumulative historic spending total.<br>• `contractAddress`: Deployed Midnight smart contract ID.<br>• `networkId`: Chain network (`preprod` / `preview`). |
+| **CANNOT LEARN (Zero-Knowledge)** | • **Transaction Amounts:** Individual purchase costs remain private ZK witnesses during execution.<br>• **Target Merchants:** Verified via *Private Allowlist Access* ZK proof without broadcasting merchant names.<br>• **Agent Credit & Reputation:** Verified via *Eligibility Gate* ZK proof without disclosing raw metrics.<br>• **Confidential Credentials:** Verified via ZK Proof without leaking raw API key payloads. |
+
+---
+
+## 💡 Implemented Hackathon Privacy Modules
+
+Ghost implements 3 core privacy modules from the approved Midnight list:
+1. **Private Allowlist Access**: Proves merchant inclusion in approved rules in ZK without exposing target merchant names on-chain.
+2. **Age / Eligibility Gate**: Proves agent reputation & credit score $\ge \text{threshold}$ without disclosing raw metrics.
+3. **Confidential Credentials**: Proves agent authorization key validity in ZK without revealing secret key payloads.
+
+---
+
+## 🗄️ Database Architecture (Supabase PostgreSQL)
+
+Ghost is backed by a live **Supabase PostgreSQL Database**:
+- **Project URL:** `https://xdovsqzuedezkigyvxbv.supabase.co`
+- **Tables:** `policies`, `agents`, `approvals`, `audit_events`, `disputes`, `api_keys`.
+- Real-time synchronization persists all audit logs, ZK proof hashes, and policy edits directly to the Supabase cloud database.
+
+---
+
+## 🧪 Testing & CI/CD Pipeline
+
+- **Unit Tests:** 3 passing Vitest tests in `tests/ghost.test.ts` verifying contract limit initialization, valid spend execution, and spending overflow prevention.
+- **CI/CD Workflow:** Automated GitHub Actions pipeline (`.github/workflows/ci.yml`) running test, typecheck, and build on every push.
+
+```text
+✓ tests/ghost.test.ts (3 tests) 49ms
+Test Files  1 passed (1)
+Tests       3 passed (3)
+```
+
+---
+
 ## ✨ Features
 
 - **Safety Rails:** Agents cannot overspend beyond user-defined caps.

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { supabase } from "@/lib/supabase";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -551,6 +552,9 @@ export const useGhostStore = create<GhostStore>()(
           agentCount: 0,
         };
         set((s) => ({ policies: [newPolicy, ...s.policies] }));
+        supabase.from('policies').insert([newPolicy]).then(({ error }) => {
+          if (error) console.error('Supabase policy save error:', error);
+        });
       },
 
       updatePolicy: (id, updates) => {
@@ -624,6 +628,23 @@ export const useGhostStore = create<GhostStore>()(
             id: `evt_${Date.now()}`,
             timestamp: new Date().toISOString(),
           };
+          supabase.from('audit_events').insert([{
+            id: newEvent.id,
+            type: newEvent.type,
+            agent_id: newEvent.agentId || null,
+            agent_name: newEvent.agentName || null,
+            policy_id: newEvent.policyId || null,
+            merchant: newEvent.merchant || null,
+            amount: newEvent.amount || 0,
+            currency: newEvent.currency || 'USD',
+            timestamp: newEvent.timestamp,
+            proof_hash: newEvent.proofHash || null,
+            status: newEvent.status,
+            description: newEvent.description,
+            metadata: newEvent.metadata
+          }]).then(({ error }) => {
+            if (error) console.error('Supabase audit event error:', error);
+          });
           return {
             auditEvents: [newEvent, ...s.auditEvents],
             metrics: {
