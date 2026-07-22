@@ -8,6 +8,43 @@ import { Search, Filter, Download, ChevronRight, X, Terminal, Hash, Activity, Sh
 export default function AuditPage() {
   const { auditEvents } = useGhostStore();
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredEvents = (auditEvents || []).filter((ev: any) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (ev.description && ev.description.toLowerCase().includes(q)) ||
+      (ev.proofHash && ev.proofHash.toLowerCase().includes(q)) ||
+      (ev.agentName && ev.agentName.toLowerCase().includes(q)) ||
+      (ev.merchant && ev.merchant.toLowerCase().includes(q)) ||
+      (ev.type && ev.type.toLowerCase().includes(q))
+    );
+  });
+
+  const handleExportCSV = () => {
+    if (!auditEvents || auditEvents.length === 0) return;
+    const headers = ["ID", "Type", "Agent", "Merchant", "Amount", "Status", "Timestamp", "ProofHash", "Description"];
+    const rows = auditEvents.map((e: any) => [
+      e.id,
+      e.type,
+      e.agentName || e.agent || "",
+      e.merchant || "",
+      e.amount || 0,
+      e.status,
+      e.timestamp || e.time || "",
+      e.proofHash || "",
+      `"${(e.description || "").replace(/"/g, '""')}"`
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `ghost_audit_log_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getEventIcon = (type: string) => {
     switch (type.toLowerCase()) {
@@ -25,8 +62,8 @@ export default function AuditPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Audit Log</h1>
           <p className="text-zinc-400 mt-1">Immutable record of all agent activities and system events.</p>
         </div>
-        <button className="btn-secondary flex items-center space-x-2">
-          <Download className="w-4 h-4" />
+        <button onClick={handleExportCSV} className="btn-secondary flex items-center space-x-2 hover:bg-zinc-800 text-white">
+          <Download className="w-4 h-4 text-emerald-400" />
           <span>Export CSV</span>
         </button>
       </div>
@@ -36,6 +73,8 @@ export default function AuditPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <input 
             type="text" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search events, hashes, or agents..." 
             className="w-full bg-zinc-900 border border-zinc-800 rounded-md py-2 pl-10 pr-4 text-white focus:border-zinc-600 focus:outline-none"
           />
@@ -60,7 +99,7 @@ export default function AuditPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/50">
-            {(auditEvents || []).map((ev: any) => (
+            {(filteredEvents || []).map((ev: any) => (
               <tr 
                 key={ev.id} 
                 onClick={() => setSelectedEvent(ev)}

@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
+import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Play, Pause, ShieldBan, RotateCcw, Plus, X, ShieldAlert, Cpu, Activity, Info } from "lucide-react";
 
 export default function AgentsPage() {
-  const { agents, revokeAgent, pauseAgent } = useGhostStore();
+  const { agents, revokeAgent, pauseAgent, resumeAgent } = useGhostStore();
+  const { spend, walletState } = useMidnight();
   const [filter, setFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newAgentName, setNewAgentName] = useState("");
+  const [newAgentType, setNewAgentType] = useState<"shopping" | "procurement" | "research" | "financial">("shopping");
+  const [newAgentDesc, setNewAgentDesc] = useState("");
+  const [isSpending, setIsSpending] = useState<string | null>(null);
 
   const filteredAgents = agents.filter(agent => {
     if (filter === "All") return true;
@@ -127,27 +133,50 @@ export default function AgentsPage() {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800 flex space-x-2">
-              {agent.status === 'connected' ? (
-                <button onClick={() => pauseAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2">
-                  <Pause className="w-4 h-4" />
-                  <span>Pause</span>
-                </button>
-              ) : (
-                <button className="flex-1 btn-secondary flex justify-center items-center space-x-2 opacity-50 cursor-not-allowed">
-                  <Play className="w-4 h-4" />
-                  <span>Resume</span>
+            <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col space-y-2">
+              {walletState.isConnected && agent.status === 'connected' && (
+                <button 
+                  onClick={async () => {
+                    try {
+                      setIsSpending(agent.id);
+                      await spend(BigInt(25));
+                      alert(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`);
+                    } catch (e: any) {
+                      alert(`Transaction error: ${e.message || String(e)}`);
+                    } finally {
+                      setIsSpending(null);
+                    }
+                  }}
+                  disabled={isSpending === agent.id}
+                  className="w-full bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600/30 border border-emerald-500/30 font-medium text-xs py-2 rounded flex justify-center items-center space-x-1.5 transition-colors disabled:opacity-50"
+                >
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>{isSpending === agent.id ? "Executing ZK Spend..." : "Execute On-Chain Spend"}</span>
                 </button>
               )}
-              
-              <button onClick={() => revokeAgent?.(agent.id)} className="flex-1 btn-danger flex justify-center items-center space-x-2 hover:bg-red-950 hover:text-red-400 hover:border-red-900 transition-colors">
-                <ShieldBan className="w-4 h-4" />
-                <span>Revoke</span>
-              </button>
-              
-              <button className="p-2 border border-zinc-800 rounded hover:bg-zinc-800 text-zinc-400 transition-colors" title="Reset Policy">
-                <RotateCcw className="w-4 h-4" />
-              </button>
+              <div className="flex space-x-2">
+                {agent.status === 'connected' ? (
+                  <button onClick={() => pauseAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2">
+                    <Pause className="w-4 h-4" />
+                    <span>Pause</span>
+                  </button>
+                ) : agent.status === 'paused' ? (
+                  <button onClick={() => resumeAgent?.(agent.id)} className="flex-1 btn-secondary flex justify-center items-center space-x-2 hover:bg-zinc-800 text-white">
+                    <Play className="w-4 h-4 text-emerald-400" />
+                    <span>Resume</span>
+                  </button>
+                ) : (
+                  <button className="flex-1 btn-secondary flex justify-center items-center space-x-2 opacity-50 cursor-not-allowed">
+                    <Play className="w-4 h-4" />
+                    <span>Revoked</span>
+                  </button>
+                )}
+                
+                <button onClick={() => revokeAgent?.(agent.id)} className="flex-1 btn-danger flex justify-center items-center space-x-2 hover:bg-red-950 hover:text-red-400 hover:border-red-900 transition-colors">
+                  <ShieldBan className="w-4 h-4" />
+                  <span>Revoke</span>
+                </button>
+              </div>
             </div>
           </motion.div>
         ))}
@@ -179,34 +208,73 @@ export default function AgentsPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-1">Agent Name</label>
-                  <input type="text" className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none" placeholder="e.g., ProcureBot-X" />
+                  <input 
+                    type="text" 
+                    value={newAgentName}
+                    onChange={(e) => setNewAgentName(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none" 
+                    placeholder="e.g., ProcureBot-X" 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-1">Agent Type</label>
-                  <select className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none">
-                    <option>Shopping</option>
-                    <option>Procurement</option>
-                    <option>Research</option>
-                    <option>Financial</option>
+                  <select 
+                    value={newAgentType}
+                    onChange={(e) => setNewAgentType(e.target.value as any)}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none"
+                  >
+                    <option value="shopping">Shopping</option>
+                    <option value="procurement">Procurement</option>
+                    <option value="research">Research</option>
+                    <option value="financial">Financial</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-1">Description</label>
-                  <textarea className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none" rows={3} placeholder="What will this agent do?"></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-1">Attach Policy</label>
-                  <select className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none">
-                    <option>Standard Shopping (Strict)</option>
-                    <option>SaaS Subscriptions</option>
-                    <option>Travel & Expenses</option>
-                  </select>
+                  <textarea 
+                    value={newAgentDesc}
+                    onChange={(e) => setNewAgentDesc(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-white focus:border-zinc-600 focus:outline-none" 
+                    rows={3} 
+                    placeholder="What will this agent do?"
+                  ></textarea>
                 </div>
               </div>
 
               <div className="mt-8 flex justify-end space-x-3">
                 <button onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancel</button>
-                <button onClick={() => setIsModalOpen(false)} className="btn-primary">Connect Agent</button>
+                <button 
+                  onClick={() => {
+                    if (!newAgentName) return;
+                    useGhostStore.setState((state) => ({
+                      agents: [
+                        {
+                          id: `agt_${Date.now()}`,
+                          name: newAgentName,
+                          type: newAgentType,
+                          status: "connected",
+                          risk: "low",
+                          policyId: "pol_01",
+                          permissions: ["browse", "compare", "purchase"],
+                          lastActivity: "Just now",
+                          totalTransactions: 0,
+                          totalSpent: 0,
+                          blockedAttempts: 0,
+                          connectedAt: new Date().toISOString(),
+                          description: newAgentDesc || "Autonomous AI agent",
+                          version: "1.0.0"
+                        },
+                        ...state.agents
+                      ]
+                    }));
+                    setIsModalOpen(false);
+                    setNewAgentName("");
+                    setNewAgentDesc("");
+                  }} 
+                  className="btn-primary"
+                >
+                  Connect Agent
+                </button>
               </div>
             </motion.div>
           </div>

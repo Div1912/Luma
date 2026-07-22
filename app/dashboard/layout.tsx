@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   { label: "Policies", icon: FileLock, href: "/dashboard/policies" },
   { label: "Approvals", icon: ShieldCheck, href: "/dashboard/approvals", showBadge: true },
   { label: "Audit Log", icon: ActivitySquare, href: "/dashboard/audit" },
-  { label: "Proof Viewer", icon: FileSignature, href: "/dashboard/proofs" },
+  { label: "Proof Viewer", icon: FileSignature, href: "/dashboard/proof" },
   { label: "Disputes", icon: AlertTriangle, href: "/dashboard/disputes" },
   { label: "Developer", icon: TerminalSquare, href: "/dashboard/developer" },
   { label: "Settings", icon: Settings, href: "/dashboard/settings" },

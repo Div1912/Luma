@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
-import { Plus, X, ChevronDown, ChevronRight, Edit2, Copy, Archive, Trash2, Shield, AlertTriangle, Lock, Key, Fingerprint, EyeOff } from "lucide-react";
+import { useMidnight } from "@/lib/midnight/useMidnight";
+import { Plus, X, ChevronDown, ChevronRight, Edit2, Copy, Archive, Trash2, Shield, AlertTriangle, Lock, Key, Fingerprint, EyeOff, Sparkles, Loader2 } from "lucide-react";
 
 export default function PoliciesPage() {
-  const { policies, updatePolicy, createPolicy } = useGhostStore();
+  const { policies, updatePolicy, createPolicy, deletePolicy, archivePolicy } = useGhostStore();
+  const { deploy, walletState } = useMidnight();
   const [filter, setFilter] = useState("Active");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<any | null>(null);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [policyName, setPolicyName] = useState("");
+  const [perTxLimit, setPerTxLimit] = useState(250);
+  const [dailyLimit, setDailyLimit] = useState(1000);
+  const [monthlyLimit, setMonthlyLimit] = useState(5000);
 
   const filteredPolicies = (policies || []).filter((p: any) => {
     if (filter === "All") return true;
@@ -103,10 +110,10 @@ export default function PoliciesPage() {
                       <button onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-white" title="Duplicate">
                         <Copy className="w-4 h-4" />
                       </button>
-                      <button onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-white" title="Archive">
+                      <button onClick={(e) => { e.stopPropagation(); archivePolicy(policy.id); }} className="text-zinc-400 hover:text-white" title="Archive">
                         <Archive className="w-4 h-4" />
                       </button>
-                      <button onClick={(e) => e.stopPropagation()} className="text-red-400 hover:text-red-300" title="Delete">
+                      <button onClick={(e) => { e.stopPropagation(); deletePolicy(policy.id); }} className="text-red-400 hover:text-red-300" title="Delete">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -343,9 +350,57 @@ export default function PoliciesPage() {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-zinc-800 bg-zinc-950 flex justify-end space-x-3">
-                <button onClick={closeDrawer} className="btn-secondary">Cancel</button>
-                <button onClick={closeDrawer} className="btn-primary">Save Policy</button>
+              <div className="p-6 border-t border-zinc-800 bg-zinc-950 flex justify-between items-center">
+                <button 
+                  onClick={async () => {
+                    if (!walletState.isConnected) {
+                      alert("Please connect your Lace wallet first to deploy on-chain!");
+                      return;
+                    }
+                    try {
+                      setIsDeploying(true);
+                      await deploy(BigInt(perTxLimit || 1000));
+                      closeDrawer();
+                    } catch (e: any) {
+                      alert(`Deployment error: ${e.message || String(e)}`);
+                    } finally {
+                      setIsDeploying(false);
+                    }
+                  }} 
+                  disabled={isDeploying}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors disabled:opacity-50"
+                >
+                  {isDeploying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  <span>{isDeploying ? "Deploying on Midnight..." : "Deploy Contract On-Chain"}</span>
+                </button>
+                <div className="flex space-x-3">
+                  <button onClick={closeDrawer} className="btn-secondary">Cancel</button>
+                  <button 
+                    onClick={() => {
+                      if (editingPolicy) {
+                        updatePolicy(editingPolicy.id, { name: policyName || editingPolicy.name, perTransactionLimit: perTxLimit, dailyLimit, monthlyLimit });
+                      } else {
+                        createPolicy({
+                          name: policyName || "Custom Policy",
+                          status: "active",
+                          perTransactionLimit: perTxLimit,
+                          dailyLimit,
+                          monthlyLimit,
+                          categoryRestrictions: ["saas"],
+                          merchantAllowlist: ["AWS", "GitHub"],
+                          merchantBlocklist: ["CryptoBay"],
+                          highRiskThreshold: 200,
+                          requiresApprovalAbove: 150,
+                          emergencyRevoke: true,
+                        });
+                      }
+                      closeDrawer();
+                    }} 
+                    className="btn-primary"
+                  >
+                    Save Policy
+                  </button>
+                </div>
               </div>
             </motion.div>
           </>
@@ -354,4 +409,3 @@ export default function PoliciesPage() {
     </div>
   );
 }
-import React from 'react';

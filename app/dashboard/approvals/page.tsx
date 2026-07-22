@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { useGhostStore } from "@/store/useGhostStore";
-import { Clock, CheckCircle2, XCircle, ShieldAlert, FileText, ExternalLink, Hash, ArrowRight } from "lucide-react";
+import { useMidnight } from "@/lib/midnight/useMidnight";
+import { Clock, CheckCircle2, XCircle, ShieldAlert, FileText, ExternalLink, Hash, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ApprovalsPage() {
   const { approvals: approvalRequests, approveRequest, rejectRequest } = useGhostStore();
+  const { spend, walletState } = useMidnight();
+  const [isApproving, setIsApproving] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(
     approvalRequests?.[0]?.id || null
   );
@@ -133,17 +136,31 @@ export default function ApprovalsPage() {
               <div className="flex space-x-4 pt-6 border-t border-zinc-800">
                 <button 
                   onClick={() => rejectRequest?.(selectedRequest.id)}
-                  className="flex-1 py-4 bg-zinc-900 hover:bg-red-950/40 text-zinc-300 hover:text-red-400 border border-zinc-800 hover:border-red-900 rounded-lg font-medium transition-all flex justify-center items-center space-x-2 group"
+                  disabled={isApproving}
+                  className="flex-1 py-4 bg-zinc-900 hover:bg-red-950/40 text-zinc-300 hover:text-red-400 border border-zinc-800 hover:border-red-900 rounded-lg font-medium transition-all flex justify-center items-center space-x-2 group disabled:opacity-50"
                 >
                   <XCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span>Reject Request</span>
                 </button>
                 <button 
-                  onClick={() => approveRequest?.(selectedRequest.id)}
-                  className="flex-1 py-4 bg-[#b8d4f0]/10 hover:bg-[#b8d4f0]/20 text-[#b8d4f0] border border-[#b8d4f0]/20 hover:border-[#b8d4f0]/40 rounded-lg font-medium transition-all flex justify-center items-center space-x-2 group"
+                  onClick={async () => {
+                    try {
+                      setIsApproving(true);
+                      if (walletState.isConnected) {
+                        await spend(BigInt(Math.floor(selectedRequest.amount || 50)));
+                      }
+                      approveRequest?.(selectedRequest.id);
+                    } catch (e: any) {
+                      alert(`Approval error: ${e.message || String(e)}`);
+                    } finally {
+                      setIsApproving(false);
+                    }
+                  }}
+                  disabled={isApproving}
+                  className="flex-1 py-4 bg-[#b8d4f0]/10 hover:bg-[#b8d4f0]/20 text-[#b8d4f0] border border-[#b8d4f0]/20 hover:border-[#b8d4f0]/40 rounded-lg font-medium transition-all flex justify-center items-center space-x-2 group disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span>Approve & Sign</span>
+                  {isApproving ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5 group-hover:scale-110 transition-transform" />}
+                  <span>{isApproving ? "Executing ZK Spend on Midnight..." : "Approve & Sign On-Chain"}</span>
                 </button>
               </div>
             ) : (
