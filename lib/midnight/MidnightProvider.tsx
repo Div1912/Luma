@@ -45,8 +45,8 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         throw new Error('Lace wallet is installed but not enabled or compatible.');
       }
       
-      // Request connection to preview network
-      const apiInstance = await provider.connect('preview');
+      // Request connection to preprod network
+      const apiInstance = await provider.connect('preprod');
       setApi(apiInstance);
       
       const state = await apiInstance.getUnshieldedAddress();

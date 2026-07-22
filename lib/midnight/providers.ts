@@ -11,7 +11,7 @@ import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-j
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
 
 // Initialize Midnight network
-setNetworkId('preview');
+setNetworkId('preprod');
 
 const compiledGhostContract = CompiledContract.make(
   'ghost', 
