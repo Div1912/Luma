@@ -126,8 +126,18 @@ export default function AuditPage() {
                     {ev.status}
                   </span>
                 </td>
-                <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300">
-                  {ev.proofHash ? <Hash className="w-4 h-4 mx-auto" /> : '-'}
+                <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if(ev.proofHash) e.stopPropagation(); }}>
+                  {ev.proofHash ? (
+                    <a 
+                      href={`https://explore.midnight.network/testnet/tx/${ev.proofHash}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:text-[#b8d4f0] transition-colors inline-block"
+                      title="View on Explorer"
+                    >
+                      <Hash className="w-4 h-4 mx-auto" />
+                    </a>
+                  ) : '-'}
                 </td>
               </tr>
             ))}
@@ -183,7 +193,14 @@ export default function AuditPage() {
                   <div className="space-y-3">
                     <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider">Cryptographic Proof</h4>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 flex justify-between items-center group">
-                      <span className="text-sm font-mono text-[#b8d4f0] break-all mr-4">{selectedEvent.proofHash}</span>
+                      <a 
+                        href={`https://explore.midnight.network/testnet/tx/${selectedEvent.proofHash}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-mono text-[#b8d4f0] hover:text-white hover:underline break-all mr-4 transition-colors"
+                      >
+                        {selectedEvent.proofHash}
+                      </a>
                       <button className="text-zinc-500 group-hover:text-white transition-colors flex-shrink-0">
                         <Copy className="w-4 h-4" />
                       </button>
