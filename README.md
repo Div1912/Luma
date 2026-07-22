@@ -1,5 +1,8 @@
 <div align="center">
   <img src="./Screenshot/Landing Page.png" alt="Ghost Logo" width="100%">
+  <br>
+  <i>Empowering autonomous agents with cryptographic accountability.</i>
+  <br><br>
   
   # Ghost: Zero-Knowledge Autonomy Layer for AI Agents
   
@@ -38,21 +41,50 @@ Public blockchains (like Ethereum) cannot be used for B2B AI commerce because th
 
 ---
 
-## 📸 Product Walkthrough
+## 📸 Product Walkthrough & Features
 
-Ghost is a fully functional product with a beautifully designed, enterprise-ready dashboard.
+Ghost is a fully functional product with a beautifully designed, enterprise-ready architecture. Here is a visual tour of the entire platform:
 
 ### 1. Central Command Dashboard
-Monitor all autonomous agents, pending approvals, and blocked transactions in real-time.
+*Monitor all autonomous agents, pending approvals, and blocked transactions in real-time off-chain.*
 ![Dashboard](./Screenshot/Dashboard.png)
 
 ### 2. Autonomous Agent Management
-Assign specific Zero-Knowledge policies to different agents based on their risk level and required permissions.
+*Assign specific Zero-Knowledge policies to different agents based on their risk level and required permissions.*
 ![Agent Management](./Screenshot/Agent MAnagement.png)
 
 ### 3. ZK Proof Verification & Audit Logs
-Every single action taken by an AI agent is mathematically verified. Ghost keeps an immutable audit trail of every zero-knowledge proof.
+*Every single action taken by an AI agent is mathematically verified. Ghost keeps an immutable audit trail of every zero-knowledge proof.*
 ![Proof Verification](./Screenshot/Proof Verification.png)
+
+### 4. Seamless In-App Contract Deployment
+*Deploy Ghost smart contracts directly from the UI to the Midnight network instantly.*
+![Deployed Contract Via App](./Screenshot/Deployed Contract Via App.png)
+
+### 5. Client-Side Circuit Execution
+*Zero-Knowledge proofs are generated and verified locally in the browser before being broadcasted.*
+![Succesfull Circuit called via App](./Screenshot/Succesfull Circuit called via App.png)
+
+---
+
+## 🔗 Verified On-Chain Transactions
+
+Ghost isn't just a simulation. It generates real zero-knowledge proofs and settles them on the Midnight Preview Testnet.
+
+### Real Transaction Hash
+*The AI agent executed a transaction that was verified by our ZK circuit and permanently settled on the Midnight network.*
+* **Transaction Hash:** [`dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde`](https://preview.midnightexplorer.com/transactions/dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde)
+* **Status:** `SUCCESS` (Verified via ZK Proof)
+![Transaction Hash](./Screenshot/Transaction Hash.png)
+
+### Deployed Smart Contract (via CLI)
+*Deploying the underlying Ghost smart contract through the Midnight development node.*
+![Deployed Contract](./Screenshot/Deployed Contract.png)
+
+### Verified Contract on Explorer
+*Our core ZK Policy Engine is live and fully verifiable on the Midnight Blockchain.*
+* **Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contracts/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
+![Contract on chain](./Screenshot/Contract on chain.png)
 
 ---
 
@@ -69,26 +101,9 @@ Ghost natively implements three advanced privacy-preserving features using Midni
 
 ---
 
-## 🔗 Verified On-Chain Transactions
-
-Ghost isn't just a simulation. It generates real zero-knowledge proofs and settles them on the Midnight Preview Testnet.
-
-### Real Transaction Hash
-The AI agent executed a transaction that was verified by our ZK circuit and settled on the Midnight network. 
-* **Transaction Hash:** [`dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde`](https://preview.midnightexplorer.com/transactions/dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde)
-* **Status:** `SUCCESS` (Verified via ZK Proof)
-![Transaction Hash](./Screenshot/Transaction Hash.png)
-
-### Deployed Smart Contract
-Our core ZK Policy Engine is live on the Midnight Blockchain.
-* **Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contracts/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
-*(Legacy contract ID: `3c40f45d70e20bb8e69d00d07a51552add0d8ff7ea2a1ff245e7963357dccb22`)*
-![Contract on chain](./Screenshot/Contract on chain.png)
-
----
-
 ## 🏗 System Architecture & Tech Stack
 
+*Real-time logging of blockchain state and wallet synchronization.*
 ![Devloper Tool](./Screenshot/Devloper Tool.png)
 
 Ghost is built using a modern, highly scalable stack:
@@ -124,10 +139,16 @@ Luma/
 
 Ghost maintains rigorous code quality standards with automated GitHub Actions workflows. Every push triggers our CI/CD pipeline, ensuring that the Compact smart contracts compile correctly, type-checking passes, and the Next.js app builds flawlessly.
 
+*Automated pipeline successfully validating the repository.*
 ![CI CD](./Screenshot/CI CD.png)
 
 The repository also includes standard unit tests to verify the zero-knowledge logic before it touches the Midnight blockchain.
+
+*Compact compiler successfully generating WASM circuits and proving keys.*
 ![Compiler](./Screenshot/Compiler.png)
+
+*Vitest test suite successfully validating ZK spending limits and logic.*
+![Succesfull Test Files](./Screenshot/Succesfull Test Files.png)
 
 ---
 
