@@ -26,8 +26,8 @@ export async function createGhostContract(api: any, contractAddress: string) {
 
   const privateStateProvider = inMemoryPrivateStateProvider();
   
-  // ZK keys are served via our API routes at /api/keys/* and /api/zkir/*
-  const zkConfigProvider = new FetchZkConfigProvider(`${window.location.origin}/api`, fetch.bind(window));
+  // ZK keys are served statically from the public directory (/keys and /zkir)
+  const zkConfigProvider = new FetchZkConfigProvider(window.location.origin, fetch.bind(window));
   
   const proofProvider = httpClientProofProvider(config.proverServerUri, zkConfigProvider);
   const publicDataProvider = indexerPublicDataProvider(config.indexerUri, config.indexerWsUri, window.WebSocket as any);
@@ -75,8 +75,8 @@ export async function deployGhostContract(api: any, initialLimit: bigint) {
   const config = await api.getConfiguration();
   const shieldedAddresses = await api.getShieldedAddresses();
   const privateStateProvider = inMemoryPrivateStateProvider();
-  // ZK keys are served via our API routes at /api/keys/* and /api/zkir/*
-  const zkConfigProvider = new FetchZkConfigProvider(`${window.location.origin}/api`, fetch.bind(window));
+  // ZK keys are served statically from the public directory (/keys and /zkir)
+  const zkConfigProvider = new FetchZkConfigProvider(window.location.origin, fetch.bind(window));
   const proofProvider = httpClientProofProvider(config.proverServerUri, zkConfigProvider);
   const publicDataProvider = indexerPublicDataProvider(config.indexerUri, config.indexerWsUri, window.WebSocket as any);
 
