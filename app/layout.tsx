@@ -29,6 +29,7 @@ export const metadata: Metadata = {
 };
 
 import { MidnightProvider } from "@/lib/midnight/MidnightProvider";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="antialiased">
         <MidnightProvider>
           {children}
+          <Toaster theme="dark" position="bottom-right" richColors />
         </MidnightProvider>
       </body>
     </html>

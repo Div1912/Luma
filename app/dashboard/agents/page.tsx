@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Play, Pause, ShieldBan, RotateCcw, Plus, X, ShieldAlert, Cpu, Activity, Info } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AgentsPage() {
   const { agents, revokeAgent, pauseAgent, resumeAgent } = useGhostStore();
@@ -140,9 +141,13 @@ export default function AgentsPage() {
                     try {
                       setIsSpending(agent.id);
                       await spend(BigInt(25));
-                      alert(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`);
+                      toast.success(`Successfully executed 25 tDUST on-chain spend for ${agent.name}!`, {
+                        description: "Transaction verified via zero-knowledge proof.",
+                      });
                     } catch (e: any) {
-                      alert(`Transaction error: ${e.message || String(e)}`);
+                      toast.error(`Transaction failed`, {
+                        description: e.message || String(e),
+                      });
                     } finally {
                       setIsSpending(null);
                     }

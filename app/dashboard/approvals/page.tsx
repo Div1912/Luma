@@ -5,6 +5,7 @@ import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Clock, CheckCircle2, XCircle, ShieldAlert, FileText, ExternalLink, Hash, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function ApprovalsPage() {
   const { approvals: approvalRequests, approveRequest, rejectRequest } = useGhostStore();
@@ -124,10 +125,15 @@ export default function ApprovalsPage() {
                     <Hash className="w-4 h-4" />
                     <span className="text-xs font-mono truncate">{selectedRequest.proofHash || '0x7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0'}</span>
                   </div>
-                  <button className="text-xs text-[#b8d4f0] hover:text-white transition-colors flex items-center space-x-1">
+                  <a 
+                    href={`https://explore.midnight.network/testnet/tx/${selectedRequest.proofHash || '0x7f8a9b2c3d'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-[#b8d4f0] hover:text-white transition-colors flex items-center space-x-1"
+                  >
                     <ExternalLink className="w-3 h-3" />
                     <span>View on Explorer</span>
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -150,8 +156,13 @@ export default function ApprovalsPage() {
                         await spend(BigInt(Math.floor(selectedRequest.amount || 50)));
                       }
                       approveRequest?.(selectedRequest.id);
+                      toast.success("Approval Confirmed", {
+                        description: "Transaction has been signed and recorded on Midnight testnet."
+                      });
                     } catch (e: any) {
-                      alert(`Approval error: ${e.message || String(e)}`);
+                      toast.error("Approval Error", {
+                        description: e.message || String(e)
+                      });
                     } finally {
                       setIsApproving(false);
                     }

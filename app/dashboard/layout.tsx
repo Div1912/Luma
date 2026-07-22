@@ -19,9 +19,9 @@ import {
   Search,
   Bell,
   Plus,
-  Ghost
-} from "lucide-react";
+import { Ghost } from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
+import { toast } from "sonner";
 
 const NAV_ITEMS = [
   { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
@@ -151,10 +151,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           
           <div className="flex items-center gap-4">
-            <button className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+            <button onClick={() => toast.info("Search coming soon", { description: "Advanced filtering will be available in v1.1" })} className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
               <Search className="w-5 h-5" />
             </button>
-            <button className="relative p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+            <button onClick={() => toast.info("No new notifications", { description: "You are all caught up." })} className="relative p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#b8d4f0]"></span>
             </button>

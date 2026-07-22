@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Plus, X, ChevronDown, ChevronRight, Edit2, Copy, Archive, Trash2, Shield, AlertTriangle, Lock, Key, Fingerprint, EyeOff, Sparkles, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PoliciesPage() {
   const { policies, updatePolicy, createPolicy, deletePolicy, archivePolicy } = useGhostStore();
@@ -354,15 +355,22 @@ export default function PoliciesPage() {
                 <button 
                   onClick={async () => {
                     if (!walletState.isConnected) {
-                      alert("Please connect your Lace wallet first to deploy on-chain!");
+                      toast.error("Wallet Not Connected", {
+                        description: "Please connect your Lace wallet first to deploy on-chain!"
+                      });
                       return;
                     }
                     try {
                       setIsDeploying(true);
                       await deploy(BigInt(perTxLimit || 1000));
+                      toast.success("Contract Deployed", {
+                        description: "Smart contract successfully deployed to the Midnight testnet."
+                      });
                       closeDrawer();
                     } catch (e: any) {
-                      alert(`Deployment error: ${e.message || String(e)}`);
+                      toast.error("Deployment Error", {
+                        description: e.message || String(e)
+                      });
                     } finally {
                       setIsDeploying(false);
                     }

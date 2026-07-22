@@ -26,6 +26,7 @@ import {
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function DashboardOverview() {
   const { policies, agents, approvals, auditEvents } = useGhostStore();
@@ -51,7 +52,6 @@ export default function DashboardOverview() {
   const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");
 
   useEffect(() => {
@@ -72,9 +72,13 @@ export default function DashboardOverview() {
       // Deploy with a limit of 1,000,000
       await deploy(BigInt(1000000));
       // After deploy, walletState.address has the deployed address
-      setSuccessMessage("Contract Deployed Successfully! Waiting for indexer sync...");
-      setTimeout(() => setSuccessMessage(""), 5000);
-    } catch (err) {
+      toast.success("Contract Deployed Successfully!", {
+        description: "Waiting for indexer sync..."
+      });
+    } catch (err: any) {
+      toast.error("Deployment Error", {
+        description: err.message || String(err)
+      });
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -112,10 +116,14 @@ export default function DashboardOverview() {
         metadata: { txType: "spend", contract: contractAddress },
       });
       
-      setSuccessMessage("ZK Proof Verified & Mined Successfully! 🛡️");
-      setTimeout(() => setSuccessMessage(""), 5000);
+      toast.success("ZK Proof Verified & Mined Successfully! 🛡️", {
+        description: "Transaction executed on Midnight testnet."
+      });
       
-    } catch (err) {
+    } catch (err: any) {
+      toast.error("Transaction Error", {
+        description: err.message || String(err)
+      });
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -323,9 +331,6 @@ export default function DashboardOverview() {
             {walletState.error && (
               <p className="text-[10px] text-red-400/80 text-center mt-2 overflow-hidden text-ellipsis whitespace-nowrap">{walletState.error}</p>
             )}
-            {successMessage && (
-              <p className="text-[12px] text-green-400 font-medium text-center mt-2 animate-pulse">{successMessage}</p>
-            )}
           </div>
         </motion.div>
       </div>
@@ -354,7 +359,15 @@ export default function DashboardOverview() {
                     <span>AGENT: {event.agentName || 'System'}</span>
                     {event.proofHash && (
                       <span className="flex items-center gap-1">
-                        TX: <span className="text-[#b8d4f0]/70">{event.proofHash.slice(0, 8)}...</span>
+                        TX: 
+                        <a 
+                          href={`https://explore.midnight.network/testnet/tx/${event.proofHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#b8d4f0] hover:text-white transition-colors"
+                        >
+                          {event.proofHash.slice(0, 8)}...
+                        </a>
                       </span>
                     )}
                   </div>
