@@ -22,7 +22,7 @@ export default function PoliciesPage() {
 
   const filteredPolicies = (policies || []).filter((p: any) => {
     if (filter === "All") return true;
-    return p.status === filter;
+    return p.status?.toLowerCase() === filter.toLowerCase();
   });
 
   const openDrawer = (policy: any = null) => {
@@ -213,6 +213,7 @@ export default function PoliciesPage() {
                     <input 
                       type="text" 
                       defaultValue={editingPolicy?.name}
+                      onChange={(e) => setPolicyName(e.target.value)}
                       className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:border-zinc-600 focus:outline-none" 
                       placeholder="e.g., Marketing Budget Q3" 
                     />
@@ -227,17 +228,17 @@ export default function PoliciesPage() {
                       <label className="text-sm font-medium text-zinc-400">Per-transaction Limit</label>
                       <span className="text-sm text-zinc-300 font-mono">${editingPolicy?.perTxLimit || 1000}</span>
                     </div>
-                    <input type="range" min="10" max="10000" defaultValue={editingPolicy?.perTxLimit || 1000} className="w-full accent-zinc-500" />
+                    <input type="range" min="10" max="10000" defaultValue={editingPolicy?.perTxLimit || 1000} onChange={(e) => setPerTxLimit(Number(e.target.value))} className="w-full accent-zinc-500" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-zinc-400 mb-1">Daily Limit ($)</label>
-                      <input type="number" defaultValue={editingPolicy?.dailyLimit || 5000} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:border-zinc-600 focus:outline-none" />
+                      <input type="number" defaultValue={editingPolicy?.dailyLimit || 5000} onChange={(e) => setDailyLimit(Number(e.target.value))} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:border-zinc-600 focus:outline-none" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-zinc-400 mb-1">Monthly Limit ($)</label>
-                      <input type="number" defaultValue={editingPolicy?.monthlyLimit || 25000} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:border-zinc-600 focus:outline-none" />
+                      <input type="number" defaultValue={editingPolicy?.monthlyLimit || 25000} onChange={(e) => setMonthlyLimit(Number(e.target.value))} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:border-zinc-600 focus:outline-none" />
                     </div>
                   </div>
                   
@@ -363,6 +364,21 @@ export default function PoliciesPage() {
                     try {
                       setIsDeploying(true);
                       await deploy(BigInt(perTxLimit || 1000));
+                      if (!editingPolicy) {
+                        createPolicy({
+                          name: policyName || "Midnight On-Chain Policy",
+                          status: "active",
+                          perTransactionLimit: perTxLimit,
+                          dailyLimit,
+                          monthlyLimit,
+                          categoryRestrictions: ["saas"],
+                          merchantAllowlist: ["AWS", "GitHub"],
+                          merchantBlocklist: ["CryptoBay"],
+                          highRiskThreshold: 200,
+                          requiresApprovalAbove: 150,
+                          emergencyRevoke: true,
+                        });
+                      }
                       toast.success("Contract Deployed", {
                         description: "Smart contract successfully deployed to the Midnight testnet."
                       });
