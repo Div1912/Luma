@@ -290,7 +290,7 @@ export default function DashboardOverview() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
                 <a 
-                  href={`https://preview.midnightexplorer.com/?search=${contractAddress}`}
+                  href={`https://preview.midnightexplorer.com/transaction/${contractAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-2 text-[#b8d4f0] hover:text-white transition-colors"

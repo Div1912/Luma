@@ -119,7 +119,7 @@ Tests       3 passed (3)
 |----------|----------------------------------|
 | Preview  | 3c40f45d70e20bb8e69d00d07a51552add0d8ff7ea2a1ff245e7963357dccb22 |
 
-(You can track deployed contracts directly on [preview.midnightexplorer.com](https://preview.midnightexplorer.com/?search=3c40f45d70e20bb8e69d00d07a51552add0d8ff7ea2a1ff245e7963357dccb22))
+(You can track deployed contracts directly on [preview.midnightexplorer.com](https://preview.midnightexplorer.com/transaction/3c40f45d70e20bb8e69d00d07a51552add0d8ff7ea2a1ff245e7963357dccb22))
 
 ![Deployed Contract Via App](./Screenshot/Deployed%20Contract%20Via%20App.png)
 *Contract deployed successfully through the Ghost application interface.*
