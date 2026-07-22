@@ -65,17 +65,27 @@ Here is the complete showcase of all 13 components of the Ghost platform, from U
 *Zero-Knowledge proofs are generated and verified locally in the browser before being broadcasted.*
 <img src="./Screenshot/Succesfull%20Circuit%20called%20via%20App.png" alt="Successful Circuit Execution" width="100%" />
 
-### 6. Real On-Chain Transaction Hash
+## 🔗 Verified On-Chain Transactions & Contracts
+
+Ghost is fully integrated with Midnight. It generates real zero-knowledge proofs and settles them on-chain.
+
+> [!NOTE]
+> **Network & Testnet Details:** 
+> - **Primary Verified Deployment:** Midnight Preview Testnet (Contract Address: `e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`).
+> - **Preprod Compatibility:** The Ghost dApp frontend features a dynamic **Network Switcher** allowing instant connection to both **Preprod** and **Preview** networks.
+> - **Faucet Note:** On-chain executions and live transactions were processed on Preview due to testnet tDUST faucet availability during submission.
+
+### Real Transaction Hash
 *The AI agent executed a transaction that was verified by our ZK circuit and permanently settled on the Midnight network.*
 * **Transaction Hash:** [`dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde`](https://preview.midnightexplorer.com/transactions/dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde)
 * **Status:** `SUCCESS` (Verified via ZK Proof)
 <img src="./Screenshot/Transaction%20Hash.png" alt="Transaction Hash" width="100%" />
 
-### 7. Deployed Smart Contract (CLI Deployment)
+### Deployed Smart Contract (CLI Deployment)
 *Deploying the underlying Ghost smart contract through the Midnight development node.*
 <img src="./Screenshot/Deployed%20Contract.png" alt="Deployed Contract CLI" width="100%" />
 
-### 8. Verified Contract on Explorer
+### Verified Contract on Explorer
 *Our core ZK Policy Engine is live and fully verifiable on the Midnight Blockchain Explorer.*
 * **Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contracts/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
 <img src="./Screenshot/Contract%20on%20chain.png" alt="Contract On Chain" width="100%" />
