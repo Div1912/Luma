@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { createGhostContract, deployGhostContract } from "./providers";
 import { ledger } from '../../managed/ghost/contract/index.js';
+import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 export type WalletState = {
   address?: string;
@@ -21,6 +22,8 @@ export interface MidnightContextType {
   spend: (amount: bigint) => Promise<any>;
   ghost: any;
   publicState: { total_spent: bigint; spending_limit: bigint } | null;
+  network: 'preview' | 'preprod';
+  setNetwork: (network: 'preview' | 'preprod') => void;
 }
 
 export const MidnightContext = createContext<MidnightContextType | undefined>(undefined);
@@ -30,6 +33,11 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const [api, setApi] = useState<any>(null);
   const [ghost, setGhost] = useState<any>(null);
   const [publicState, setPublicState] = useState<{ total_spent: bigint; spending_limit: bigint } | null>(null);
+  const [network, setNetwork] = useState<'preview' | 'preprod'>('preview');
+
+  useEffect(() => {
+    setNetworkId(network);
+  }, [network]);
 
   const connectLace = async () => {
     try {
@@ -45,8 +53,8 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         throw new Error('Lace wallet is installed but not enabled or compatible.');
       }
       
-      // Request connection to preview network
-      const apiInstance = await provider.connect('preview');
+      // Request connection to selected network
+      const apiInstance = await provider.connect(network);
       setApi(apiInstance);
       
       const state = await apiInstance.getUnshieldedAddress();
@@ -158,7 +166,9 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       connect,
       spend,
       ghost,
-      publicState
+      publicState,
+      network,
+      setNetwork
     }}>
       {children}
     </MidnightContext.Provider>

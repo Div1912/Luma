@@ -10,7 +10,7 @@ import { useGhostStore } from "@/store/useGhostStore";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { walletState, connectLace } = useMidnight();
+  const { walletState, connectLace, network, setNetwork } = useMidnight();
   const signInWallet = useGhostStore((s) => s.signInWallet);
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -70,6 +70,22 @@ export default function SignInPage() {
               <p className="text-sm text-white/60 text-center">
                 Authenticate securely using your Lace Wallet.
               </p>
+
+              {/* Network Switcher */}
+              <div className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg p-1.5 flex gap-1">
+                <button
+                  onClick={() => setNetwork('preview')}
+                  className={`flex-1 text-xs font-medium py-2.5 rounded-md transition-colors ${network === 'preview' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
+                >
+                  Preview Network
+                </button>
+                <button
+                  onClick={() => setNetwork('preprod')}
+                  className={`flex-1 text-xs font-medium py-2.5 rounded-md transition-colors ${network === 'preprod' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
+                >
+                  Preprod Network
+                </button>
+              </div>
 
               {/* Error Message */}
               <AnimatePresence>
