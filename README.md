@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./Screenshot/Landing Page.png" alt="Ghost Logo" width="100%">
+  <img src="./Screenshot/Landing%20Page.png" alt="Ghost Landing Page" width="100%">
   <br>
   <i>Empowering autonomous agents with cryptographic accountability.</i>
   <br><br>
@@ -41,50 +41,60 @@ Public blockchains (like Ethereum) cannot be used for B2B AI commerce because th
 
 ---
 
-## 📸 Product Walkthrough & Features
+## 📸 Comprehensive Platform Gallery & Screenshots
 
-Ghost is a fully functional product with a beautifully designed, enterprise-ready architecture. Here is a visual tour of the entire platform:
+Here is the complete showcase of all 13 components of the Ghost platform, from UI dashboard features to low-level blockchain and developer tooling.
 
 ### 1. Central Command Dashboard
 *Monitor all autonomous agents, pending approvals, and blocked transactions in real-time off-chain.*
-![Dashboard](./Screenshot/Dashboard.png)
+<img src="./Screenshot/Dashboard.png" alt="Dashboard" width="100%" />
 
 ### 2. Autonomous Agent Management
 *Assign specific Zero-Knowledge policies to different agents based on their risk level and required permissions.*
-![Agent Management](./Screenshot/Agent MAnagement.png)
+<img src="./Screenshot/Agent%20MAnagement.png" alt="Agent Management" width="100%" />
 
 ### 3. ZK Proof Verification & Audit Logs
 *Every single action taken by an AI agent is mathematically verified. Ghost keeps an immutable audit trail of every zero-knowledge proof.*
-![Proof Verification](./Screenshot/Proof Verification.png)
+<img src="./Screenshot/Proof%20Verification.png" alt="Proof Verification" width="100%" />
 
-### 4. Seamless In-App Contract Deployment
+### 4. In-App Contract Deployment
 *Deploy Ghost smart contracts directly from the UI to the Midnight network instantly.*
-![Deployed Contract Via App](./Screenshot/Deployed Contract Via App.png)
+<img src="./Screenshot/Deployed%20Contract%20Via%20App.png" alt="Deployed Contract Via App" width="100%" />
 
 ### 5. Client-Side Circuit Execution
 *Zero-Knowledge proofs are generated and verified locally in the browser before being broadcasted.*
-![Succesfull Circuit called via App](./Screenshot/Succesfull Circuit called via App.png)
+<img src="./Screenshot/Succesfull%20Circuit%20called%20via%20App.png" alt="Successful Circuit Execution" width="100%" />
 
----
-
-## 🔗 Verified On-Chain Transactions
-
-Ghost isn't just a simulation. It generates real zero-knowledge proofs and settles them on the Midnight Preview Testnet.
-
-### Real Transaction Hash
+### 6. Real On-Chain Transaction Hash
 *The AI agent executed a transaction that was verified by our ZK circuit and permanently settled on the Midnight network.*
 * **Transaction Hash:** [`dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde`](https://preview.midnightexplorer.com/transactions/dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde)
 * **Status:** `SUCCESS` (Verified via ZK Proof)
-![Transaction Hash](./Screenshot/Transaction Hash.png)
+<img src="./Screenshot/Transaction%20Hash.png" alt="Transaction Hash" width="100%" />
 
-### Deployed Smart Contract (via CLI)
+### 7. Deployed Smart Contract (CLI Deployment)
 *Deploying the underlying Ghost smart contract through the Midnight development node.*
-![Deployed Contract](./Screenshot/Deployed Contract.png)
+<img src="./Screenshot/Deployed%20Contract.png" alt="Deployed Contract CLI" width="100%" />
 
-### Verified Contract on Explorer
-*Our core ZK Policy Engine is live and fully verifiable on the Midnight Blockchain.*
+### 8. Verified Contract on Explorer
+*Our core ZK Policy Engine is live and fully verifiable on the Midnight Blockchain Explorer.*
 * **Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contracts/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
-![Contract on chain](./Screenshot/Contract on chain.png)
+<img src="./Screenshot/Contract%20on%20chain.png" alt="Contract On Chain" width="100%" />
+
+### 9. Developer Tools & Sync Logs
+*Real-time logging of blockchain state and wallet synchronization.*
+<img src="./Screenshot/Devloper%20Tool.png" alt="Developer Tool" width="100%" />
+
+### 10. Automated CI/CD Pipeline
+*Automated GitHub Actions workflow validating contract compilation, linting, and build.*
+<img src="./Screenshot/CI%20CD.png" alt="CI CD Pipeline" width="100%" />
+
+### 11. Compact Compiler Execution
+*Compact compiler successfully generating WASM circuits and proving keys.*
+<img src="./Screenshot/Compiler.png" alt="Compact Compiler" width="100%" />
+
+### 12. Vitest Test Suite Execution
+*Vitest test suite successfully validating ZK spending limits and contract logic.*
+<img src="./Screenshot/Succesfull%20Test%20Files.png" alt="Successful Test Files" width="100%" />
 
 ---
 
@@ -102,9 +112,6 @@ Ghost natively implements three advanced privacy-preserving features using Midni
 ---
 
 ## 🏗 System Architecture & Tech Stack
-
-*Real-time logging of blockchain state and wallet synchronization.*
-![Devloper Tool](./Screenshot/Devloper Tool.png)
 
 Ghost is built using a modern, highly scalable stack:
 
@@ -132,23 +139,6 @@ Luma/
 ├── store/                      # Zustand State Management (useGhostStore.ts)
 └── Screenshot/                 # Application Screenshots
 ```
-
----
-
-## 🧪 CI/CD & Testing
-
-Ghost maintains rigorous code quality standards with automated GitHub Actions workflows. Every push triggers our CI/CD pipeline, ensuring that the Compact smart contracts compile correctly, type-checking passes, and the Next.js app builds flawlessly.
-
-*Automated pipeline successfully validating the repository.*
-![CI CD](./Screenshot/CI CD.png)
-
-The repository also includes standard unit tests to verify the zero-knowledge logic before it touches the Midnight blockchain.
-
-*Compact compiler successfully generating WASM circuits and proving keys.*
-![Compiler](./Screenshot/Compiler.png)
-
-*Vitest test suite successfully validating ZK spending limits and logic.*
-![Succesfull Test Files](./Screenshot/Succesfull Test Files.png)
 
 ---
 
