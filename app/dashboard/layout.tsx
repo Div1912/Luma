@@ -19,7 +19,8 @@ import {
   Search,
   Bell,
   Plus,
-import { Ghost } from "lucide-react";
+  Ghost
+} from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
 import { toast } from "sonner";
 
