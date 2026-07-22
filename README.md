@@ -115,10 +115,11 @@ Tests       3 passed (3)
 **Live Demo:** https://ghost-agent-midnight.vercel.app/ (Replace with your actual Vercel URL after deployment)
 
 ### Deployed Contract Addresses
-Contracts must be dynamically deployed by the user to their connected Lace wallet.
-1. Connect your Lace wallet (Preprod or Preview).
-2. Click **Deploy New Contract** on the dashboard.
-3. The deployed contract address will appear in the UI and can be tracked on [preview.midnightexplorer.com](https://preview.midnightexplorer.com/).
+| Network  | Address                          |
+|----------|----------------------------------|
+| Preview  | 3c40f45d70e20bb8e69d00d07a51552add0d8ff7ea2a1ff245e7963357dccb22 |
+
+(You can track deployed contracts directly on [preview.midnightexplorer.com](https://preview.midnightexplorer.com/?search=3c40f45d70e20bb8e69d00d07a51552add0d8ff7ea2a1ff245e7963357dccb22))
 
 ![Deployed Contract Via App](./Screenshot/Deployed%20Contract%20Via%20App.png)
 *Contract deployed successfully through the Ghost application interface.*

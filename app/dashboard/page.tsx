@@ -287,7 +287,18 @@ export default function DashboardOverview() {
           {contractAddress && (
             <div className="mb-4 p-2 bg-white/5 rounded border border-white/10 flex flex-col gap-1">
               <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Verifiable Contract Address (Preview)</span>
-              <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
+                <a 
+                  href={`https://preview.midnightexplorer.com/?search=${contractAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-[#b8d4f0] hover:text-white transition-colors"
+                  title="View Contract on Explorer"
+                >
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           )}
 
