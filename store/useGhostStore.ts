@@ -132,6 +132,7 @@ interface GhostStore {
   archivePolicy: (id: string) => void;
 
   // Agent actions
+  createAgent: (agent: Omit<Agent, "id" | "createdAt" | "totalTransactions" | "totalSpent" | "blockedAttempts" | "lastActivity" | "connectedAt">) => void;
   revokeAgent: (id: string) => void;
   pauseAgent: (id: string) => void;
   resumeAgent: (id: string) => void;
@@ -267,10 +268,16 @@ export const useGhostStore = create<GhostStore>()(
             p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p
           ),
         }));
+        supabase.from('policies').update(updates).eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase policy update error:', error);
+        });
       },
 
       deletePolicy: (id) => {
         set((s) => ({ policies: s.policies.filter((p) => p.id !== id) }));
+        supabase.from('policies').delete().eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase policy delete error:', error);
+        });
       },
 
       archivePolicy: (id) => {
@@ -278,12 +285,46 @@ export const useGhostStore = create<GhostStore>()(
       },
 
       // Agent actions
+      createAgent: (agent) => {
+        const newAgent: Agent = {
+          ...agent,
+          id: `agt_${Date.now()}`,
+          lastActivity: "Just now",
+          totalTransactions: 0,
+          totalSpent: 0,
+          blockedAttempts: 0,
+          connectedAt: new Date().toISOString(),
+        };
+        set((s) => ({ agents: [newAgent, ...s.agents] }));
+        supabase.from('agents').insert([{
+          id: newAgent.id,
+          name: newAgent.name,
+          type: newAgent.type,
+          status: newAgent.status,
+          risk: newAgent.risk,
+          policy_id: newAgent.policyId,
+          permissions: newAgent.permissions,
+          last_activity: newAgent.lastActivity,
+          total_transactions: newAgent.totalTransactions,
+          total_spent: newAgent.totalSpent,
+          blocked_attempts: newAgent.blockedAttempts,
+          connected_at: newAgent.connectedAt,
+          description: newAgent.description,
+          version: newAgent.version
+        }]).then(({ error }) => {
+          if (error) console.error('Supabase agent save error:', error);
+        });
+      },
+
       revokeAgent: (id) => {
         set((s) => ({
           agents: s.agents.map((a) =>
             a.id === id ? { ...a, status: "revoked" as AgentStatus, policyId: null, permissions: [] } : a
           ),
         }));
+        supabase.from('agents').update({ status: 'revoked', policy_id: null, permissions: [] }).eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase agent revoke error:', error);
+        });
       },
 
       pauseAgent: (id) => {
@@ -292,6 +333,9 @@ export const useGhostStore = create<GhostStore>()(
             a.id === id ? { ...a, status: "paused" as AgentStatus } : a
           ),
         }));
+        supabase.from('agents').update({ status: 'paused' }).eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase agent pause error:', error);
+        });
       },
 
       resumeAgent: (id) => {
@@ -300,6 +344,9 @@ export const useGhostStore = create<GhostStore>()(
             a.id === id ? { ...a, status: "connected" as AgentStatus } : a
           ),
         }));
+        supabase.from('agents').update({ status: 'connected' }).eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase agent resume error:', error);
+        });
       },
 
       updateAgent: (id, updates) => {
@@ -309,7 +356,12 @@ export const useGhostStore = create<GhostStore>()(
           );
           
           // Try to push to Supabase if it exists in DB
-          supabase.from('agents').update(updates).eq('id', id).then(({ error }) => {
+          const dbUpdates = { ...updates };
+          if (updates.totalSpent !== undefined) (dbUpdates as any).total_spent = updates.totalSpent;
+          if (updates.totalTransactions !== undefined) (dbUpdates as any).total_transactions = updates.totalTransactions;
+          if (updates.lastActivity !== undefined) (dbUpdates as any).last_activity = updates.lastActivity;
+          
+          supabase.from('agents').update(dbUpdates).eq('id', id).then(({ error }) => {
             if (error) console.error('Supabase agent update error:', error);
           });
           
@@ -327,6 +379,9 @@ export const useGhostStore = create<GhostStore>()(
           ),
           metrics: { ...s.metrics, pendingApprovals: Math.max(0, s.metrics.pendingApprovals - 1) },
         }));
+        supabase.from('approvals').update({ status: 'approved', resolved_at: new Date().toISOString() }).eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase approval error:', error);
+        });
       },
 
       rejectRequest: (id) => {
@@ -338,6 +393,9 @@ export const useGhostStore = create<GhostStore>()(
           ),
           metrics: { ...s.metrics, pendingApprovals: Math.max(0, s.metrics.pendingApprovals - 1) },
         }));
+        supabase.from('approvals').update({ status: 'rejected', resolved_at: new Date().toISOString() }).eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase reject error:', error);
+        });
       },
 
       addAuditEvent: (event) => {

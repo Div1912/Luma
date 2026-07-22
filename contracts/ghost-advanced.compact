@@ -1,0 +1,50 @@
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger spending_limit: Uint<32>;
+export ledger total_spent: Uint<32>;
+
+// Feature 1: Age / Eligibility Gate (Agent Reputation Threshold)
+export ledger required_reputation: Uint<32>;
+
+// Feature 2: Private Allowlist Access (Hash of allowed merchant)
+export ledger allowed_merchant_hash: Bytes<32>;
+
+// Feature 3: Confidential Credentials (Hash of the expected API Key)
+export ledger expected_credential_hash: Bytes<32>;
+
+constructor(
+  limit: Uint<32>, 
+  reputation: Uint<32>, 
+  merchant_hash: Bytes<32>,
+  credential_hash: Bytes<32>
+) {
+  spending_limit = disclose(limit);
+  required_reputation = disclose(reputation);
+  allowed_merchant_hash = disclose(merchant_hash);
+  expected_credential_hash = disclose(credential_hash);
+  total_spent = 0 as Uint<32>;
+}
+
+export circuit spend(
+  amount: Uint<32>, 
+  agent_reputation: Uint<32>,
+  secret_merchant_hash: Bytes<32>, 
+  secret_credential_hash: Bytes<32>
+): [] {
+  // 1. Eligibility Gate: Prove threshold without revealing value
+  assert(agent_reputation >= required_reputation, "Agent reputation too low");
+
+  // 2. Private Allowlist Access: Prove membership without revealing identity
+  assert(secret_merchant_hash == allowed_merchant_hash, "Merchant not in allowlist");
+
+  // 3. Confidential Credentials: Prove credential without disclosing it
+  assert(secret_credential_hash == expected_credential_hash, "Invalid confidential credential");
+
+  // 4. Policy Limits
+  assert(total_spent + amount <= spending_limit, "Spending limit exceeded");
+  
+  // Only the final approved amount is disclosed to the public ledger
+  total_spent = (total_spent + disclose(amount)) as Uint<32>;
+}

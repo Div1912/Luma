@@ -8,7 +8,7 @@ import { Play, Pause, ShieldBan, RotateCcw, Plus, X, ShieldAlert, Cpu, Activity,
 import { toast } from "sonner";
 
 export default function AgentsPage() {
-  const { agents, revokeAgent, pauseAgent, resumeAgent } = useGhostStore();
+  const { agents, revokeAgent, pauseAgent, resumeAgent, createAgent } = useGhostStore();
   const updateAgent = useGhostStore(s => s.updateAgent);
   const addAuditEvent = useGhostStore(s => s.addAuditEvent);
   const { spend, walletState } = useMidnight();
@@ -291,27 +291,16 @@ export default function AgentsPage() {
                 <button 
                   onClick={() => {
                     if (!newAgentName) return;
-                    useGhostStore.setState((state) => ({
-                      agents: [
-                        {
-                          id: `agt_${Date.now()}`,
-                          name: newAgentName,
-                          type: newAgentType,
-                          status: "connected",
-                          risk: "low",
-                          policyId: "pol_01",
-                          permissions: ["browse", "compare", "purchase"],
-                          lastActivity: "Just now",
-                          totalTransactions: 0,
-                          totalSpent: 0,
-                          blockedAttempts: 0,
-                          connectedAt: new Date().toISOString(),
-                          description: newAgentDesc || "Autonomous AI agent",
-                          version: "1.0.0"
-                        },
-                        ...state.agents
-                      ]
-                    }));
+                    createAgent({
+                      name: newAgentName,
+                      type: newAgentType,
+                      status: "connected",
+                      risk: "low",
+                      policyId: "pol_01",
+                      permissions: ["browse", "compare", "purchase"],
+                      description: newAgentDesc || "Autonomous AI agent",
+                      version: "1.0.0"
+                    });
                     setIsModalOpen(false);
                     setNewAgentName("");
                     setNewAgentDesc("");
