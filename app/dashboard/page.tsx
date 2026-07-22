@@ -70,10 +70,14 @@ export default function DashboardOverview() {
     try {
       setIsSubmitting(true);
       // Deploy with a limit of 1,000,000
-      await deploy(BigInt(1000000));
+      const address = await deploy(BigInt(1000000));
       // After deploy, walletState.address has the deployed address
       toast.success("Contract Deployed Successfully!", {
-        description: "Waiting for indexer sync..."
+        description: "Waiting for indexer sync...",
+        action: {
+          label: "View Explorer",
+          onClick: () => window.open(`https://preview.midnightexplorer.com/`, "_blank")
+        }
       });
     } catch (err: any) {
       toast.error("Deployment Error", {
@@ -361,7 +365,7 @@ export default function DashboardOverview() {
                       <span className="flex items-center gap-1">
                         TX: 
                         <a 
-                          href={`https://explore.midnight.network/testnet/tx/${event.proofHash}`}
+                          href={`https://preview.midnightexplorer.com/transaction/${event.proofHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[#b8d4f0] hover:text-white transition-colors"

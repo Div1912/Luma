@@ -137,7 +137,7 @@ export default function ProofPage() {
                   {/* Action */}
                   <div className="pt-6 border-t border-zinc-800">
                     <a 
-                      href={`https://explore.midnight.network/testnet/tx/${selectedProof.proofHash}`}
+                      href={`https://preview.midnightexplorer.com/transaction/${selectedProof.proofHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-lg flex items-center justify-center space-x-2 border border-zinc-800 transition-colors"

@@ -17,7 +17,7 @@ export interface MidnightContextType {
   connectLace: () => Promise<void>;
   disconnect: () => Promise<void>;
   api: any;
-  deploy: (limit: bigint) => Promise<void>;
+  deploy: (limit: bigint) => Promise<string>;
   disconnectLace: () => void;
   connect: (contractAddress: string) => Promise<void>;
   spend: (amount: bigint) => Promise<any>;
@@ -109,6 +109,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         metadata: { contractAddress: deployedAddress, limit: Number(limit), network }
       });
       
+      return deployedAddress;
     } catch (err: any) {
       // FiberFailure from Effect-TS: err.cause.failure is the real error
       const failure = err?.cause?.failure ?? err?.cause?.error ?? err?.cause ?? err;

@@ -126,7 +126,7 @@ export default function ApprovalsPage() {
                     <span className="text-xs font-mono truncate">{selectedRequest.proofHash || '0x7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0'}</span>
                   </div>
                   <a 
-                    href={`https://explore.midnight.network/testnet/tx/${selectedRequest.proofHash || '0x7f8a9b2c3d'}`}
+                    href={`https://preview.midnightexplorer.com/transaction/${selectedRequest.proofHash || '0x7f8a9b2c3d'}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-[#b8d4f0] hover:text-white transition-colors flex items-center space-x-1"
