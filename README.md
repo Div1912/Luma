@@ -106,7 +106,10 @@ Ghost is fully integrated with Midnight. It generates real zero-knowledge proofs
 <img src="./Screenshot/Compiler.png" alt="Compact Compiler" width="100%" />
 
 ### 12. Vitest Test Suite Execution
-*Vitest test suite successfully validating ZK spending limits and contract logic.*
+*The test suite contains 3 dedicated functional tests executing locally to cryptographically verify:*
+1. **Circuit Logic:** Ensures the constructor and spend circuits correctly generate valid zero-knowledge proofs.
+2. **State Transitions:** Validates that the public ledger transitions correctly without exceeding spending limits.
+3. **Privacy Behavior:** Ensures the private inputs (e.g., remaining allowance) are strictly enforced locally without leaking sensitive data on-chain.
 <img src="./Screenshot/Succesfull%20Test%20Files.png" alt="Successful Test Files" width="100%" />
 
 ---
