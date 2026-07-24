@@ -1,6 +1,9 @@
 <div align="center">
   <img src="./Screenshot/Landing%20Page.png" alt="Ghost Landing Page" width="100%">
   <br>
+  
+  [![CI](https://github.com/RajdipB/Ghost/actions/workflows/ci.yml/badge.svg)](https://github.com/RajdipB/Ghost/actions/workflows/ci.yml)
+  
   <i>Empowering autonomous agents with cryptographic accountability.</i>
   <br><br>
   

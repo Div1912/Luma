@@ -9,7 +9,7 @@ import {
   Contract,
   type Ledger,
   ledger,
-} from "../managed/ghost/contract/index.js";
+} from "../managed/ghost/contract/index";
 
 export class GhostSimulator {
   readonly contract: Contract<void>;
