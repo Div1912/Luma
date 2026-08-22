@@ -179,9 +179,9 @@ export default function PoliciesPage() {
                   <td className="py-4 px-6 font-mono text-zinc-300">${policy.perTransactionLimit}</td>
                   <td className="py-4 px-6 font-mono text-zinc-300">${policy.dailyLimit}</td>
                   <td className="py-4 px-6 text-zinc-400 flex gap-2">
-                    {policy.merchantAllowlist?.length > 0 && <EyeOff className="w-4 h-4 text-emerald-400" title="Private Allowlist" />}
-                    {policy.splitsConfiguration && policy.splitsConfiguration.length > 0 && <SplitSquareHorizontal className="w-4 h-4 text-blue-400" title="Private Splits" />}
-                    {policy.confidentialCredentials?.length && <Key className="w-4 h-4 text-yellow-400" title="Confidential Credentials" />}
+                    {policy.merchantAllowlist?.length > 0 && <span title="Private Allowlist"><EyeOff className="w-4 h-4 text-emerald-400" /></span>}
+                    {policy.splitsConfiguration && policy.splitsConfiguration.length > 0 && <span title="Private Splits"><SplitSquareHorizontal className="w-4 h-4 text-blue-400" /></span>}
+                    {policy.confidentialCredentials?.length && <span title="Confidential Credentials"><Key className="w-4 h-4 text-yellow-400" /></span>}
                   </td>
                   <td className="py-4 px-6 text-zinc-400">
                     <span className="bg-zinc-800 px-2 py-1 rounded-md text-xs">{policy.agentCount || 0}</span>
