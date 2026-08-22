@@ -191,14 +191,11 @@ export const useGhostStore = create<GhostStore>()(
           });
           return { success: true };
         }
-        if (email && password.length >= 6) {
-          set({
-            isAuthenticated: true,
-            isDemoMode: false,
-            user: { email, name: email.split("@")[0] },
-          });
-          return { success: true };
-        }
+        
+        // In a real production environment, this would call Supabase Auth:
+        // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        // if (error) return { success: false, error: error.message };
+
         return { success: false, error: "Invalid credentials. Try demo@ghost.xyz / ghost2025" };
       },
 

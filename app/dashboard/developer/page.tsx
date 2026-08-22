@@ -24,7 +24,10 @@ export default function AppDeveloperPage() {
 
   const generateKey = () => {
     if (!newKeyName) return;
-    const keyVal = `gh_${newKeyEnv}_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+    const array = new Uint32Array(4);
+    crypto.getRandomValues(array);
+    const secureRandomStr = Array.from(array, dec => dec.toString(36).padStart(7, '0')).join('');
+    const keyVal = `gh_${newKeyEnv}_${secureRandomStr}`;
     setNewlyGeneratedKey(keyVal);
     setKeys([{ id: Date.now().toString(), name: newKeyName, prefix: `gh_${newKeyEnv}_...${keyVal.slice(-4)}`, lastUsed: 'Never' }, ...keys]);
     setNewKeyName("");
