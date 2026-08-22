@@ -45,6 +45,14 @@ export interface Policy {
   spentThisMonth: number;
 }
 
+export interface Fleet {
+  id: string;
+  name: string;
+  description: string;
+  policyId: string | null;
+  agentCount: number;
+}
+
 export interface Agent {
   id: string;
   name: string;
@@ -60,6 +68,8 @@ export interface Agent {
   connectedAt: string;
   description: string;
   version: string;
+  fleetId?: string | null;
+  useFleetPolicy?: boolean;
 }
 
 export interface Approval {
@@ -124,6 +134,7 @@ interface GhostStore {
   // Data
   policies: Policy[];
   agents: Agent[];
+  fleets: Fleet[];
   approvals: Approval[];
   auditEvents: AuditEvent[];
   metrics: DashboardMetrics;
@@ -134,8 +145,14 @@ interface GhostStore {
   deletePolicy: (id: string) => void;
   archivePolicy: (id: string) => void;
 
+  // Fleet actions
+  createFleet: (fleet: Omit<Fleet, "id" | "agentCount">) => void;
+  updateFleet: (id: string, updates: Partial<Fleet>) => void;
+  deleteFleet: (id: string) => void;
+
   // Agent actions
   createAgent: (agent: Omit<Agent, "id" | "createdAt" | "totalTransactions" | "totalSpent" | "blockedAttempts" | "lastActivity" | "connectedAt">) => void;
+  createBulkAgents: (agents: Omit<Agent, "id" | "createdAt" | "totalTransactions" | "totalSpent" | "blockedAttempts" | "lastActivity" | "connectedAt">[]) => void;
   revokeAgent: (id: string) => void;
   pauseAgent: (id: string) => void;
   resumeAgent: (id: string) => void;
@@ -211,6 +228,7 @@ export const useGhostStore = create<GhostStore>()(
       // Data
       policies: [],
       agents: [],
+      fleets: [],
       approvals: [],
       auditEvents: [],
 
@@ -287,6 +305,26 @@ export const useGhostStore = create<GhostStore>()(
         get().updatePolicy(id, { status: "archived" });
       },
 
+      // Fleet actions
+      createFleet: (fleet) => {
+        const newFleet: Fleet = {
+          ...fleet,
+          id: `flt_${Date.now()}`,
+          agentCount: 0,
+        };
+        set((s) => ({ fleets: [newFleet, ...s.fleets] }));
+      },
+
+      updateFleet: (id, updates) => {
+        set((s) => ({
+          fleets: s.fleets.map((f) => (f.id === id ? { ...f, ...updates } : f)),
+        }));
+      },
+
+      deleteFleet: (id) => {
+        set((s) => ({ fleets: s.fleets.filter((f) => f.id !== id) }));
+      },
+
       // Agent actions
       createAgent: (agent) => {
         const newAgent: Agent = {
@@ -317,6 +355,22 @@ export const useGhostStore = create<GhostStore>()(
         }]).then(({ error }) => {
           if (error) console.error('Supabase agent save error:', error);
         });
+      },
+
+      createBulkAgents: (agentsList) => {
+        const newAgents = agentsList.map((agent, i) => ({
+          ...agent,
+          id: `agt_${Date.now()}_${i}`,
+          lastActivity: "Just now",
+          totalTransactions: 0,
+          totalSpent: 0,
+          blockedAttempts: 0,
+          connectedAt: new Date().toISOString(),
+        }));
+        
+        set((s) => ({ agents: [...newAgents, ...s.agents] }));
+        
+        // Batch insert to supabase would be done here in prod, but for demo we just set local state
       },
 
       revokeAgent: (id) => {
@@ -445,6 +499,9 @@ export const useGhostStore = create<GhostStore>()(
         isAuthenticated: state.isAuthenticated,
         isDemoMode: state.isDemoMode,
         user: state.user,
+        fleets: state.fleets,
+        agents: state.agents,
+        policies: state.policies,
       }),
     }
   )
