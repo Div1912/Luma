@@ -59,13 +59,6 @@ export default function DashboardOverview() {
     if (saved) setContractAddress(saved);
   }, []);
 
-  useEffect(() => {
-    if (walletState.isConnected && contractAddress && !ghost) {
-      connect(contractAddress).catch(console.error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletState.isConnected, contractAddress]);
-
   const handleDeploy = async () => {
     try {
       setIsSubmitting(true);
@@ -323,22 +316,20 @@ export default function DashboardOverview() {
               onClick={
                 !walletState.isConnected ? () => connectLace().catch(console.error) 
                 : !contractAddress ? handleDeploy
-                : (walletState.error && !ghost) ? () => connect(contractAddress).catch(console.error)
+                : (!ghost || walletState.error) ? async () => { setIsSubmitting(true); try { await connect(contractAddress); } catch(e) { console.error(e); } finally { setIsSubmitting(false); } }
                 : handleSpend
               }
-              disabled={isSubmitting || (walletState.isConnected && !ghost && !walletState.error && !!contractAddress)}
+              disabled={isSubmitting}
               className="w-full bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
             >
               {isSubmitting ? (
-                <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div> Processing ZK Proof...</>
+                <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div> {(!ghost && contractAddress) ? "Initializing Contract..." : "Processing..."}</>
               ) : !walletState.isConnected ? (
                 <><Bot className="w-4 h-4" /> Reconnect Lace Wallet</>
               ) : !contractAddress ? (
                 <><Check className="w-4 h-4" /> Deploy New Contract</>
-              ) : (walletState.error && !ghost) ? (
-                <><Check className="w-4 h-4" /> Retry Connection</>
-              ) : !ghost ? (
-                <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div> Initializing Contract...</>
+              ) : (!ghost || walletState.error) ? (
+                <><Check className="w-4 h-4" /> Connect to Contract</>
               ) : (
                 <><Check className="w-4 h-4" /> Execute Private Spend</>
               )}
