@@ -35,6 +35,9 @@ export interface Policy {
   highRiskThreshold: number;
   requiresApprovalAbove: number;
   emergencyRevoke: boolean;
+  splitsConfiguration?: { address: string; percentage: number }[];
+  confidentialCredentials?: string[];
+  eligibilityThresholds?: { minReputation: number; maxRisk: string };
   agentCount: number;
   createdAt: string;
   updatedAt: string;

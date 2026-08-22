@@ -1,0 +1,26 @@
+{
+  "models": [
+    {
+      "title": "NVIDIA Nemotron-3 Ultra",
+      "provider": "openai",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "apiBase": "https://integrate.api.nvidia.com/v1",
+      "apiKey": "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",
+      "contextLength": 131072,
+      "completionOptions": {
+        "temperature": 0.7,
+        "top_p": 0.95,
+        "max_tokens": 16384
+      }
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "NVIDIA Nemotron-3 Ultra",
+    "provider": "openai",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "apiBase": "https://integrate.api.nvidia.com/v1",
+    "apiKey": "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"
+  },
+  "allowAnonymousTelemetry": false,
+  "useVsCodeExecuteTerminalCommand": true
+}
