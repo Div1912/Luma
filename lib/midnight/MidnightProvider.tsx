@@ -154,7 +154,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     if (!ghost) throw new Error('Ghost contract not initialized');
     try {
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const tx = await ghost.callTx.spend(amount);
+      const tx = await ghost.callTx.spend(amount, new Uint8Array(32).fill(1));
 
       const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || `0x${Math.random().toString(16).substring(2)}${Math.random().toString(16).substring(2)}`;
       

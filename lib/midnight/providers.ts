@@ -113,7 +113,7 @@ export async function deployGhostContract(api: any, initialLimit: bigint) {
   const ghost = await deployContract(providers as any, {
     privateStateId: 'ghost-deploy',
     compiledContract: compiledGhostContract as any,
-    args: [initialLimit],
+    args: [initialLimit, new Uint8Array(32).fill(1), new Uint8Array(32).fill(2)],
     initialPrivateState: {} as any
   } as any);
 
