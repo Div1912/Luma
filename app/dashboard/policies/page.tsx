@@ -145,28 +145,28 @@ export default function PoliciesPage() {
               }
             }}
             disabled={isRebalancing}
-            className="bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-zinc-200 text-sm font-medium px-3.5 py-2 rounded-lg flex items-center space-x-2 transition-colors disabled:opacity-50"
+            className="btn-liquid btn-liquid-cyan flex items-center gap-2"
             title="Update encrypted ZK spending limit on-chain without redeploying contract"
           >
             {isRebalancing ? <Loader2 className="w-4 h-4 animate-spin text-[#b8d4f0]" /> : <Sparkles className="w-4 h-4 text-[#b8d4f0]" />}
             <span>{isRebalancing ? "Re-balancing On-Chain..." : "Rebalance ZK Threshold"}</span>
           </button>
-          <button onClick={() => openDrawer()} className="btn-primary flex items-center space-x-2">
+          <button onClick={() => openDrawer()} className="btn-liquid btn-liquid-primary flex items-center gap-2">
             <Plus className="w-4 h-4" />
             <span>New Policy</span>
           </button>
         </div>
       </div>
 
-      <div className="flex space-x-2 border-b border-zinc-800 pb-4">
+      <div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl w-fit">
         {["Active", "Paused", "Archived", "All"].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               filter === tab
-                ? "bg-zinc-800 text-white"
-                : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                ? "bg-white/15 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] border border-white/15"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
             {tab}
@@ -174,10 +174,10 @@ export default function PoliciesPage() {
         ))}
       </div>
 
-      <div className="glass-panel overflow-hidden">
+      <div className="glass-liquid overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-zinc-900 border-b border-zinc-800 text-zinc-400 text-sm">
+            <tr className="bg-white/[0.03] border-b border-white/10 text-zinc-400 text-xs uppercase tracking-wider font-mono">
               <th className="py-4 px-6 font-medium w-10"></th>
               <th className="py-4 px-6 font-medium">Policy Name</th>
               <th className="py-4 px-6 font-medium">Status</th>
@@ -188,7 +188,7 @@ export default function PoliciesPage() {
               <th className="py-4 px-6 font-medium text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800">
+          <tbody className="divide-y divide-white/5">
             {filteredPolicies.map((policy) => (
               <React.Fragment key={policy.id}>
                 <tr 

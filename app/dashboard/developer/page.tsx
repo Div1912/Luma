@@ -39,10 +39,10 @@ export default function AppDeveloperPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] text-neutral-200 font-sans p-8 md:p-12 pb-24">
-      <div className="flex justify-between items-center mb-10 border-b border-white/[0.07] pb-6">
+    <div className="min-h-screen text-neutral-200 font-sans p-8 md:p-12 pb-24 space-y-10">
+      <div className="flex justify-between items-center border-b border-white/10 pb-6">
         <div>
-          <h1 className="text-3xl font-medium tracking-tight text-white mb-2">Developer Platform</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Developer Platform</h1>
           <p className="text-sm text-neutral-400">Manage Ghost API keys and integrate ZK compliance into your AI agent frameworks.</p>
         </div>
       </div>
@@ -50,18 +50,20 @@ export default function AppDeveloperPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         
         {/* Left Column - Main configs */}
-        <div className="xl:col-span-2 space-y-10">
+        <div className="xl:col-span-2 space-y-8">
           
           {/* API Keys */}
-          <section className="bg-[rgba(12,12,12,0.7)] backdrop-blur-xl border border-white/[0.07] rounded-lg overflow-hidden">
-            <div className="p-6 flex justify-between items-center border-b border-white/[0.05]">
+          <section className="glass-liquid overflow-hidden">
+            <div className="p-6 flex justify-between items-center border-b border-white/10">
               <div className="flex items-center gap-3">
-                <Key className="w-5 h-5 text-[#b8d4f0]" />
+                <div className="p-2 rounded-lg bg-[#b8d4f0]/10 border border-[#b8d4f0]/20">
+                  <Key className="w-5 h-5 text-[#b8d4f0]" />
+                </div>
                 <h2 className="text-lg font-medium text-white">API Keys</h2>
               </div>
               <button 
                 onClick={() => { setShowKeyModal(true); setNewlyGeneratedKey(null); }}
-                className="flex items-center gap-2 text-xs font-medium bg-white text-black px-3 py-1.5 rounded hover:bg-neutral-200 transition-colors"
+                className="btn-liquid btn-liquid-primary text-xs py-2 px-3.5 flex items-center gap-2"
               >
                 <Plus className="w-3.5 h-3.5" /> Generate New Key
               </button>
@@ -69,7 +71,7 @@ export default function AppDeveloperPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-neutral-300">
-                <thead className="bg-[#111] text-neutral-500 border-b border-white/[0.05] text-xs uppercase tracking-wider">
+                <thead className="bg-white/[0.02] text-neutral-400 border-b border-white/10 text-xs font-mono uppercase tracking-wider">
                   <tr>
                     <th className="px-6 py-3 font-medium">Name</th>
                     <th className="px-6 py-3 font-medium">Prefix</th>
@@ -77,12 +79,12 @@ export default function AppDeveloperPage() {
                     <th className="px-6 py-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.05]">
+                <tbody className="divide-y divide-white/5">
                   {keys.map(k => (
                     <tr key={k.id} className="hover:bg-white/[0.02]">
                       <td className="px-6 py-4 font-medium text-white">{k.name}</td>
-                      <td className="px-6 py-4 font-mono text-xs">{k.prefix}</td>
-                      <td className="px-6 py-4 text-neutral-500">{k.lastUsed}</td>
+                      <td className="px-6 py-4 font-mono text-xs text-[#b8d4f0]">{k.prefix}</td>
+                      <td className="px-6 py-4 text-neutral-400 text-xs font-mono">{k.lastUsed}</td>
                       <td className="px-6 py-4 flex justify-end gap-3">
                         <button onClick={() => setKeys(keys.filter(key => key.id !== k.id))} className="text-neutral-500 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
                       </td>
@@ -99,30 +101,32 @@ export default function AppDeveloperPage() {
           </section>
 
           {/* Webhooks */}
-          <section className="bg-[rgba(12,12,12,0.7)] backdrop-blur-xl border border-white/[0.07] rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
+          <section className="glass-liquid p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
-                <Webhook className="w-5 h-5 text-[#b8d4f0]" />
+                <div className="p-2 rounded-lg bg-[#b8d4f0]/10 border border-[#b8d4f0]/20">
+                  <Webhook className="w-5 h-5 text-[#b8d4f0]" />
+                </div>
                 <h2 className="text-lg font-medium text-white">Webhooks (Enterprise)</h2>
               </div>
-              <button className="text-xs bg-[#111] border border-white/[0.1] px-3 py-1.5 rounded hover:bg-white/[0.05]">Add Endpoint</button>
+              <button className="btn-liquid btn-liquid-secondary text-xs py-1.5 px-3">Add Endpoint</button>
             </div>
 
-            <div className="border border-white/[0.05] rounded p-4 bg-[#0a0a0a]">
+            <div className="border border-white/10 rounded-xl p-4 bg-black/40">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    <span className="font-medium text-sm text-white">https://api.myapp.com/ghost-webhook</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+                    <span className="font-mono text-xs text-white">https://api.myapp.com/ghost-webhook</span>
                   </div>
                   <p className="text-xs text-neutral-500 font-mono">whsec_j9k2...l2o1</p>
                 </div>
-                <button className="text-xs text-neutral-400 hover:text-white border border-white/[0.1] px-2 py-1 rounded">Test</button>
+                <button className="btn-liquid btn-liquid-secondary text-xs py-1 px-2.5">Test</button>
               </div>
-              <div className="flex gap-2">
-                <span className="text-[10px] bg-white/[0.05] text-neutral-300 px-2 py-1 rounded border border-white/[0.05]">policy.evaluated</span>
-                <span className="text-[10px] bg-[#b8d4f0]/[0.1] text-[#b8d4f0] px-2 py-1 rounded border border-[#b8d4f0]/[0.2]">proof.generated</span>
-                <span className="text-[10px] bg-red-400/[0.1] text-red-400 px-2 py-1 rounded border border-red-400/[0.2]">agent.blocked</span>
+              <div className="flex gap-2 font-mono">
+                <span className="text-[10px] bg-white/[0.05] text-neutral-300 px-2 py-0.5 rounded border border-white/10">policy.evaluated</span>
+                <span className="text-[10px] bg-[#b8d4f0]/10 text-[#b8d4f0] px-2 py-0.5 rounded border border-[#b8d4f0]/20">proof.generated</span>
+                <span className="text-[10px] bg-red-400/10 text-red-400 px-2 py-0.5 rounded border border-red-400/20">agent.blocked</span>
               </div>
             </div>
           </section>
@@ -131,10 +135,12 @@ export default function AppDeveloperPage() {
 
         {/* Right Column - Integration */}
         <div className="space-y-6">
-          <section className="bg-[rgba(12,12,12,0.7)] backdrop-blur-xl border border-white/[0.07] rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-6 border-b border-white/[0.05] pb-4">
-              <Blocks className="w-5 h-5 text-[#b8d4f0]" />
-              <h2 className="text-lg font-medium text-white">Framework Integration</h2>
+          <section className="glass-liquid p-6 space-y-6">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+              <div className="p-2 rounded-lg bg-[#b8d4f0]/10 border border-[#b8d4f0]/20">
+                <Blocks className="w-5 h-5 text-[#b8d4f0]" />
+              </div>
+              <h2 className="text-lg font-medium text-white">Framework SDK</h2>
             </div>
             
             <div className="space-y-6">

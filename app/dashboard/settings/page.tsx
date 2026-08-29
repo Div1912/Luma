@@ -210,46 +210,47 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] text-neutral-200 font-sans p-8 md:p-12">
-      <h1 className="text-3xl font-medium tracking-tight text-white mb-8">Settings</h1>
+    <div className="min-h-screen text-neutral-200 font-sans p-8 md:p-12 space-y-8">
+      <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Settings</h1>
       
-      <div className="flex flex-col md:flex-row gap-12">
+      <div className="flex flex-col md:flex-row gap-10">
         {/* Vertical Tabs */}
-        <div className="w-full md:w-56 flex flex-col gap-1 border-r border-white/[0.05] pr-6">
+        <div className="w-full md:w-60 flex flex-col gap-1.5 glass-liquid p-3 h-fit">
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-sm text-sm transition-colors text-left ${activeTab === 'profile' ? 'bg-white/[0.08] text-white font-medium' : 'text-neutral-400 hover:bg-white/[0.03] hover:text-neutral-200'}`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-left ${activeTab === 'profile' ? 'bg-white/15 text-white font-medium shadow-inner border border-white/15' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'}`}
           >
-            <User className="w-4 h-4" /> Profile
+            <User className="w-4 h-4 text-[#b8d4f0]" /> Profile
           </button>
           <button 
             onClick={() => setActiveTab('security')}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-sm text-sm transition-colors text-left ${activeTab === 'security' ? 'bg-white/[0.08] text-white font-medium' : 'text-neutral-400 hover:bg-white/[0.03] hover:text-neutral-200'}`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-left ${activeTab === 'security' ? 'bg-white/15 text-white font-medium shadow-inner border border-white/15' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'}`}
           >
-            <Shield className="w-4 h-4" /> Security
+            <Shield className="w-4 h-4 text-[#b8d4f0]" /> Security
           </button>
           <button 
             onClick={() => setActiveTab('notifications')}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-sm text-sm transition-colors text-left ${activeTab === 'notifications' ? 'bg-white/[0.08] text-white font-medium' : 'text-neutral-400 hover:bg-white/[0.03] hover:text-neutral-200'}`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-left ${activeTab === 'notifications' ? 'bg-white/15 text-white font-medium shadow-inner border border-white/15' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'}`}
           >
-            <Bell className="w-4 h-4" /> Notifications
+            <Bell className="w-4 h-4 text-[#b8d4f0]" /> Notifications
           </button>
           <button 
             onClick={() => setActiveTab('billing')}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-sm text-sm transition-colors text-left ${activeTab === 'billing' ? 'bg-white/[0.08] text-white font-medium' : 'text-neutral-400 hover:bg-white/[0.03] hover:text-neutral-200'}`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-left ${activeTab === 'billing' ? 'bg-white/15 text-white font-medium shadow-inner border border-white/15' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'}`}
           >
-            <CreditCard className="w-4 h-4" /> Billing
+            <CreditCard className="w-4 h-4 text-[#b8d4f0]" /> Billing
           </button>
+          <div className="h-px bg-white/10 my-2" />
           <button 
             onClick={() => setActiveTab('danger')}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-sm text-sm transition-colors text-left mt-6 ${activeTab === 'danger' ? 'bg-red-500/[0.1] text-red-400 font-medium' : 'text-neutral-500 hover:bg-white/[0.03] hover:text-red-400'}`}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all text-left ${activeTab === 'danger' ? 'bg-red-500/20 text-red-300 font-medium border border-red-500/30' : 'text-neutral-500 hover:bg-red-500/10 hover:text-red-400'}`}
           >
             <AlertTriangle className="w-4 h-4" /> Danger Zone
           </button>
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 min-h-[500px]">
+        <div className="flex-1 min-h-[500px] glass-liquid p-8">
           <AnimatePresence mode="wait">
             <div key={activeTab}>
               {renderTabContent()}

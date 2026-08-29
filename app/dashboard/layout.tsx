@@ -77,18 +77,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <div className={`
         fixed md:relative top-0 left-0 h-full w-60 
-        bg-[rgba(8,8,8,0.9)] backdrop-blur-xl border-r border-white/[0.06]
+        bg-black/60 backdrop-blur-2xl border-r border-white/10
         flex flex-col z-40 transition-transform duration-300 ease-in-out
         ${mobileMenuOpen ? "translate-x-0 pt-16 md:pt-0" : "-translate-x-full md:translate-x-0"}
       `}>
         {/* Desktop Logo */}
-        <div className="hidden md:flex h-20 items-center gap-3 px-6 border-b border-white/[0.06]">
+        <div className="hidden md:flex h-20 items-center gap-3 px-6 border-b border-white/10">
           <Ghost className="w-7 h-7 text-white" />
-          <span className="font-medium tracking-[0.15em] text-lg">GHOST</span>
+          <span className="font-semibold tracking-[0.15em] text-lg bg-clip-text text-transparent bg-gradient-to-r from-white via-zinc-200 to-zinc-400">GHOST</span>
         </div>
 
         {/* Nav Links */}
-        <div className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-1">
+        <div className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-1.5">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -97,19 +97,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.href}
                 href={item.href}
                 className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group
+                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group
                   ${isActive 
-                    ? "bg-white/[0.06] text-white border-r-2 border-white/40 rounded-r-none" 
-                    : "text-white/60 hover:bg-white/[0.03] hover:text-white/90"}
+                    ? "bg-white/10 text-white border-l-2 border-[#b8d4f0] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]" 
+                    : "text-zinc-400 hover:bg-white/[0.04] hover:text-white"}
                 `}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-white/50 group-hover:text-white/70"}`} />
+                <Icon className={`w-4 h-4 transition-colors ${isActive ? "text-[#b8d4f0]" : "text-zinc-500 group-hover:text-zinc-300"}`} />
                 <span>{item.label}</span>
                 {item.showBadge && pendingApprovalsCount > 0 && (
                   <span className={`
-                    ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-mono
-                    ${isActive ? "bg-white/20 text-white" : "bg-white/10 text-white/70"}
+                    ml-auto text-[10px] px-2 py-0.5 rounded-full font-mono font-medium
+                    ${isActive ? "bg-[#b8d4f0]/20 text-[#b8d4f0] border border-[#b8d4f0]/30" : "bg-white/10 text-zinc-300"}
                   `}>
                     {pendingApprovalsCount}
                   </span>
@@ -120,20 +120,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* User Card */}
-        <div className="p-4 border-t border-white/[0.06]">
-          <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 flex items-center justify-between">
+        <div className="p-4 border-t border-white/10">
+          <div className="glass-liquid p-3 flex items-center justify-between">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0 text-xs font-mono font-bold text-[#b8d4f0]">
                 {user?.name?.charAt(0) || "U"}
               </div>
               <div className="min-w-0">
-                <div className="text-sm font-medium truncate">{user?.name || "User"}</div>
-                <div className="text-xs text-white/40 truncate">{user?.email || "user@ghost.luma"}</div>
+                <div className="text-xs font-medium text-zinc-200 truncate">{user?.name || "User"}</div>
+                <div className="text-[11px] text-zinc-500 truncate font-mono">{user?.email || "user@ghost.luma"}</div>
               </div>
             </div>
             <button 
               onClick={handleSignOut}
-              className="p-2 text-white/40 hover:text-white transition-colors"
+              className="p-1.5 text-zinc-400 hover:text-white transition-colors"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -145,42 +145,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 md:pt-0 pt-16">
         {/* Top Header */}
-        <header className="h-20 bg-[rgba(8,8,8,0.4)] backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-8 sticky top-0 z-30">
+        <header className="h-20 bg-black/40 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-30">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-medium capitalize">
+            <h1 className="text-xl font-bold tracking-tight capitalize text-white">
               {pathname.split("/").pop() || "Overview"}
             </h1>
-            {/* Breadcrumb would go here if nested */}
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1 text-xs">
-              <span className="text-[10px] text-white/40 uppercase font-mono px-1.5">Net:</span>
+            <div className="flex items-center gap-1.5 bg-black/50 border border-white/10 rounded-xl p-1 text-xs">
+              <span className="text-[10px] text-zinc-400 uppercase font-mono px-2">Net:</span>
               <button 
                 onClick={() => setNetwork('preview')}
-                className={`px-2.5 py-0.5 rounded transition-all font-mono text-xs ${network === 'preview' ? 'bg-[#b8d4f0] text-black font-semibold shadow-sm' : 'text-white/60 hover:text-white'}`}
+                className={`px-3 py-1 rounded-lg transition-all font-mono text-xs ${network === 'preview' ? 'bg-[#b8d4f0] text-black font-semibold shadow-md' : 'text-zinc-400 hover:text-white'}`}
               >
                 Preview
               </button>
               <button 
                 onClick={() => setNetwork('preprod')}
-                className={`px-2.5 py-0.5 rounded transition-all font-mono text-xs ${network === 'preprod' ? 'bg-[#b8d4f0] text-black font-semibold shadow-sm' : 'text-white/60 hover:text-white'}`}
+                className={`px-3 py-1 rounded-lg transition-all font-mono text-xs ${network === 'preprod' ? 'bg-[#b8d4f0] text-black font-semibold shadow-md' : 'text-zinc-400 hover:text-white'}`}
               >
                 Preprod
               </button>
             </div>
-            <button onClick={() => toast.info("Search coming soon", { description: "Advanced filtering will be available in v1.1" })} className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-              <Search className="w-5 h-5" />
+            <button onClick={() => toast.info("Search active", { description: "Filter by agent ID, tx hash, or merchant." })} className="p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-all">
+              <Search className="w-4 h-4" />
             </button>
-            <button onClick={() => toast.info("No new notifications", { description: "You are all caught up." })} className="relative p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#b8d4f0]"></span>
+            <button onClick={() => toast.info("No new notifications", { description: "All autonomous agents compliant." })} className="relative p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-all">
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#b8d4f0] shadow-[0_0_6px_#b8d4f0]"></span>
             </button>
-            <div className="h-6 w-px bg-white/10 mx-2"></div>
-            <button className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/90 transition-colors">
-              <Plus className="w-4 h-4" />
+            <div className="h-6 w-px bg-white/10 mx-1"></div>
+            <Link href="/dashboard/policies" className="btn-liquid btn-liquid-primary flex items-center gap-2 text-xs py-2 px-4">
+              <Plus className="w-3.5 h-3.5" />
               <span>New Policy</span>
-            </button>
+            </Link>
           </div>
         </header>
 
