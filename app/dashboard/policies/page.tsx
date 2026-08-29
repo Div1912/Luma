@@ -9,18 +9,21 @@ import { toast } from "sonner";
 
 export default function PoliciesPage() {
   const { policies, updatePolicy, createPolicy, deletePolicy, archivePolicy } = useGhostStore();
-  const { deploy, walletState } = useMidnight();
+  const { deploy, rebalanceThreshold, walletState, network } = useMidnight();
   const [filter, setFilter] = useState("Active");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
+  const [isRebalancing, setIsRebalancing] = useState(false);
 
   // Form State
   const [policyName, setPolicyName] = useState("");
   const [perTxLimit, setPerTxLimit] = useState(250);
   const [dailyLimit, setDailyLimit] = useState(1000);
   const [monthlyLimit, setMonthlyLimit] = useState(5000);
+  const [multiSigThreshold, setMultiSigThreshold] = useState(50000);
+  const [requiredSigners, setRequiredSigners] = useState("2 of 3 (Enterprise Multi-Sig)");
   const [merchantAllowlist, setMerchantAllowlist] = useState<string>("");
   const [merchantBlocklist, setMerchantBlocklist] = useState<string>("");
   const [minReputation, setMinReputation] = useState<number>(85);
@@ -121,10 +124,38 @@ export default function PoliciesPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Enterprise Policies</h1>
           <p className="text-zinc-400 mt-1">Configure zero-knowledge guardrails and spending boundaries.</p>
         </div>
-        <button onClick={() => openDrawer()} className="btn-primary flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>New Policy</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={async () => {
+              if (!walletState.isConnected) {
+                toast.error("Wallet Not Connected", { description: "Please connect Lace wallet to trigger dynamic on-chain rebalancing." });
+                return;
+              }
+              setIsRebalancing(true);
+              try {
+                const newLimit = BigInt(75000);
+                await rebalanceThreshold(newLimit);
+                toast.success("Dynamic ZK Threshold Re-balanced", {
+                  description: `Successfully broadcasted encrypted commitment update ($75,000 limit) to Midnight ${network}.`
+                });
+              } catch (e: any) {
+                toast.error("Rebalance Error", { description: e.message || String(e) });
+              } finally {
+                setIsRebalancing(false);
+              }
+            }}
+            disabled={isRebalancing}
+            className="bg-zinc-900 border border-zinc-700 hover:border-zinc-500 text-zinc-200 text-sm font-medium px-3.5 py-2 rounded-lg flex items-center space-x-2 transition-colors disabled:opacity-50"
+            title="Update encrypted ZK spending limit on-chain without redeploying contract"
+          >
+            {isRebalancing ? <Loader2 className="w-4 h-4 animate-spin text-[#b8d4f0]" /> : <Sparkles className="w-4 h-4 text-[#b8d4f0]" />}
+            <span>{isRebalancing ? "Re-balancing On-Chain..." : "Rebalance ZK Threshold"}</span>
+          </button>
+          <button onClick={() => openDrawer()} className="btn-primary flex items-center space-x-2">
+            <Plus className="w-4 h-4" />
+            <span>New Policy</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex space-x-2 border-b border-zinc-800 pb-4">
@@ -400,6 +431,34 @@ export default function PoliciesPage() {
                           <option>Low Risk</option>
                           <option>Medium Risk</option>
                           <option>High Risk</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Multi-Party ZK Approvals */}
+                  <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-lg p-5 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <Shield className="w-4 h-4 text-purple-400" />
+                          <h4 className="text-sm font-medium text-zinc-200">5. Multi-Party ZK Approvals (Transactions &gt; $50,000)</h4>
+                        </div>
+                        <p className="text-xs text-zinc-500 mt-1">Enforce mathematical quorum proofs across multiple authorized corporate signers before execution.</p>
+                      </div>
+                      <div className="bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded text-xs border border-purple-500/20">Advanced Compact Circuit</div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-zinc-500 mb-1">Multi-Party Threshold ($)</label>
+                        <input type="number" value={multiSigThreshold} onChange={(e) => setMultiSigThreshold(Number(e.target.value))} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-white focus:border-zinc-600 focus:outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-zinc-500 mb-1">Quorum Requirement</label>
+                        <select value={requiredSigners} onChange={(e) => setRequiredSigners(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-sm text-white focus:border-zinc-600 focus:outline-none">
+                          <option>2 of 3 (Enterprise Multi-Sig)</option>
+                          <option>3 of 5 (Board Authorization)</option>
+                          <option>Strict Unanimous (All Signers)</option>
                         </select>
                       </div>
                     </div>

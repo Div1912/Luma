@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
-import { Clock, CheckCircle2, XCircle, ShieldAlert, FileText, ExternalLink, Hash, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Shield, ShieldAlert, FileText, ExternalLink, Hash, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -84,6 +84,25 @@ export default function ApprovalsPage() {
                 <p className="text-zinc-500">Requested by <span className="text-zinc-300">{selectedRequest.agentName}</span></p>
               </div>
             </div>
+
+            {selectedRequest.amount >= 50000 && (
+              <div className="bg-purple-950/40 border border-purple-800/60 rounded-xl p-6 mb-8">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 bg-purple-500/20 rounded-lg">
+                    <Shield className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-purple-200">Multi-Party ZK Approval Required (&gt; $50,000)</h3>
+                      <span className="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-mono">Quorum: 2/3 Signers</span>
+                    </div>
+                    <p className="text-purple-300/80 text-sm mt-1 leading-relaxed">
+                      This transaction exceeds the enterprise multi-party threshold ($50,000). Compact smart circuit requires cryptographic authorization tokens from at least 2 enterprise signing keys before on-chain settlement.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-8">
               <div className="flex items-start space-x-4">

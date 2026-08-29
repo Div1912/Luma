@@ -138,6 +138,7 @@ export class GhostClient {
     }
 
     const defaultPolicy = (await this.policies.get('pol_default'))!;
+    const requiresMultiParty = amount >= (defaultPolicy.multiSigThresholdUSD || 50000);
 
     // 1. Check Category Restrictions
     if (category && defaultPolicy.categoryRestrictions?.includes(category.toLowerCase())) {
@@ -145,6 +146,7 @@ export class GhostClient {
         approved: false,
         action: 'deny',
         reason: `Transaction category '${category}' is blocked by corporate compliance policy.`,
+        requiresMultiPartyApproval: requiresMultiParty,
         evaluationLatencyMs: Math.round(performance.now() - startTime),
         timestamp: new Date().toISOString(),
       };
@@ -156,36 +158,50 @@ export class GhostClient {
         approved: false,
         action: 'deny',
         reason: `Merchant '${merchant}' is on the organization blocklist.`,
+        requiresMultiPartyApproval: requiresMultiParty,
         evaluationLatencyMs: Math.round(performance.now() - startTime),
         timestamp: new Date().toISOString(),
       };
     }
 
-    // 3. Check Per-Transaction Limit
+    // 3. Multi-Party Approval check for high-value enterprise thresholds ($50,000+)
+    if (requiresMultiParty) {
+      const proofHash = this.zkEngine.generateProofHash(agentId, amount);
+      return {
+        approved: false,
+        action: 'require_approval',
+        reason: `Enterprise transaction ($${amount.toLocaleString()}) exceeds $50,000. Multi-Party ZK approval quorum required.`,
+        proofHash,
+        requiresMultiPartyApproval: true,
+        evaluationLatencyMs: Math.round(performance.now() - startTime),
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    // 4. Check Per-Transaction Limit
     if (amount > defaultPolicy.perTransactionLimit) {
       return {
         approved: false,
         action: 'deny',
         reason: `Amount ($${amount}) exceeds per-transaction limit ($${defaultPolicy.perTransactionLimit}).`,
+        requiresMultiPartyApproval: false,
         evaluationLatencyMs: Math.round(performance.now() - startTime),
         timestamp: new Date().toISOString(),
       };
     }
 
-    // 4. Check Daily Limit
+    // 5. Check Daily Limit
     if (tracking.spentToday + amount > defaultPolicy.dailyLimit) {
       return {
         approved: false,
         action: 'deny',
         reason: `Transaction ($${amount}) exceeds remaining daily allowance ($${defaultPolicy.dailyLimit - tracking.spentToday}).`,
         remainingDailyAllowance: Math.max(0, defaultPolicy.dailyLimit - tracking.spentToday),
+        requiresMultiPartyApproval: false,
         evaluationLatencyMs: Math.round(performance.now() - startTime),
         timestamp: new Date().toISOString(),
       };
     }
-
-    // 5. Multi-Party Approval check for high-value enterprise thresholds ($50,000+)
-    const requiresMultiParty = amount >= (defaultPolicy.multiSigThresholdUSD || 50000);
 
     // 6. Requires Manual Approval threshold
     if (defaultPolicy.requiresApprovalAbove && amount > defaultPolicy.requiresApprovalAbove) {
@@ -195,7 +211,7 @@ export class GhostClient {
         action: 'require_approval',
         reason: `Amount ($${amount}) exceeds automatic threshold ($${defaultPolicy.requiresApprovalAbove}). Approval request queued.`,
         proofHash,
-        requiresMultiPartyApproval: requiresMultiParty,
+        requiresMultiPartyApproval: false,
         evaluationLatencyMs: Math.round(performance.now() - startTime),
         timestamp: new Date().toISOString(),
       };
@@ -209,7 +225,7 @@ export class GhostClient {
       approved: true,
       action: 'allow',
       proofHash,
-      requiresMultiPartyApproval: requiresMultiParty,
+      requiresMultiPartyApproval: false,
       remainingDailyAllowance: defaultPolicy.dailyLimit - tracking.spentToday,
       evaluationLatencyMs: Math.round(performance.now() - startTime),
       timestamp: new Date().toISOString(),
