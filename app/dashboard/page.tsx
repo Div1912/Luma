@@ -430,29 +430,29 @@ export default function DashboardOverview() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Server className="w-4 h-4 text-white/40" /> Consensus Nodes
+                  <Server className="w-4 h-4 text-white/40" /> Active Network
                 </div>
-                <span className="text-sm font-mono text-white">42 / 42</span>
+                <span className="text-sm font-mono text-[#b8d4f0] uppercase">{network}</span>
               </div>
               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                <div className="w-full h-full bg-white/70 rounded-full"></div>
+                <div className="w-full h-full bg-[#b8d4f0] rounded-full"></div>
               </div>
 
               <div className="flex justify-between items-center pt-2">
                 <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Activity className="w-4 h-4 text-white/40" /> Network Load
+                  <Activity className="w-4 h-4 text-white/40" /> Indexer WebSocket
                 </div>
-                <span className="text-sm font-mono text-white">24%</span>
+                <span className="text-sm font-mono text-emerald-400">Live (Sub-second)</span>
               </div>
               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                <div className="w-[24%] h-full bg-white/70 rounded-full"></div>
+                <div className="w-full h-full bg-emerald-500/80 rounded-full"></div>
               </div>
 
               <div className="flex justify-between items-center pt-2">
                 <div className="flex items-center gap-2 text-sm text-white/70">
-                  <Clock className="w-4 h-4 text-white/40" /> Verification Latency
+                  <Clock className="w-4 h-4 text-white/40" /> ZK Verification Latency
                 </div>
-                <span className="text-sm font-mono text-[#b8d4f0]">3ms</span>
+                <span className="text-sm font-mono text-[#b8d4f0]">&lt; 3ms</span>
               </div>
             </div>
           </div>

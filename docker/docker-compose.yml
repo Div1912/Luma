@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # 1. Midnight Local Prover Server (Sub-second Client ZK Generation)
+  ghost-proof-server:
+    image: midnightnetwork/proof-server:latest
+    container_name: ghost-proof-server
+    restart: unless-stopped
+    ports:
+      - "6300:6300"
+    environment:
+      - RUST_LOG=info
+      - BIND_ADDRESS=0.0.0.0:6300
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6300/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # 2. Ghost Production Application Gateway (Next.js 15 + Agent Orchestrator)
+  ghost-gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ghost-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_MIDNIGHT_PREPROD_PROVER=http://ghost-proof-server:6300
+      - NEXT_PUBLIC_MIDNIGHT_PREPROD_INDEXER=https://indexer.preprod.midnight.network/api/v1/graphql
+      - NEXT_PUBLIC_MIDNIGHT_PREPROD_INDEXER_WS=wss://indexer.preprod.midnight.network/api/v1/graphql/ws
+    depends_on:
+      ghost-proof-server:
+        condition: service_healthy
+
+networks:
+  default:
+    name: ghost-production-network

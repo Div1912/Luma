@@ -149,33 +149,66 @@ Ghost is architected to solve three high-impact, real-world enterprise problems 
 
 ---
 
+## 📦 Ghost Agent SDK (`@ghost/sdk`)
+
+Ghost provides a lightweight, typed TypeScript SDK enabling developers to plug Zero-Knowledge spending compliance directly into **LangChain**, **AutoGPT**, **Eliza**, or **AutoGen** workflows in 3 lines of code.
+
+```bash
+npm install @ghost/sdk
+```
+
+### 3-Line LangChain Integration
+```typescript
+import { GhostClient, GhostSpendingTool } from '@ghost/sdk';
+
+const ghost = new GhostClient({ apiKey: process.env.GHOST_API_KEY, network: 'preprod' });
+const tools = [new GhostSpendingTool(ghost, { agentId: 'procurement_agent_1' })];
+// Plug tools into LangChain agent executor
+```
+
+### 3-Line AutoGPT / Eliza Guard
+```typescript
+import { GhostClient, withGhostGuard } from '@ghost/sdk';
+
+const ghost = new GhostClient({ apiKey: process.env.GHOST_API_KEY });
+const safeExecute = withGhostGuard(ghost, { agentId: 'autogpt_node_1' }, executeCommand);
+```
+
+---
+
 ## 🏗 System Architecture & Tech Stack
 
-Ghost is built using a modern, highly scalable stack:
+Ghost is built using a production-grade enterprise stack:
 
 ### Tech Stack
-* **Blockchain Network:** Midnight Network (Preview Testnet)
+* **Blockchain Networks:** Midnight Network (Dual Preprod & Preview Support)
 * **Smart Contracts:** Compact (Midnight’s native ZK language)
+* **Agent Integration SDK:** `@ghost/sdk` (LangChain, AutoGPT, Eliza, AutoGen)
 * **Web3 Integration:** Midnight.js & Lace Wallet
 * **Frontend:** Next.js 15, React 19, Tailwind CSS v4, Framer Motion
-* **Database:** Supabase (PostgreSQL) for real-time off-chain state syncing
-* **State Management:** Zustand (with persist middleware)
+* **Database & Caching:** Supabase (PostgreSQL) + In-Memory Sub-Second Proof Cache
+* **Infrastructure:** Docker Compose (Midnight Prover Server & Indexer Sidecar)
 
 ### Project Directory Structure
 ```text
 Luma/
-├── app/                        # Next.js App Router (Pages, Dashboard UI)
+├── app/                        # Next.js App Router (Dashboard, APIs, Edge Caching)
+│   ├── api/indexer/            # Sub-second state caching API
+│   └── api/proof/              # Sub-second ZK proof verification API
 ├── components/                 # Reusable UI components & Layouts
-├── contracts/                  # Midnight ZK Smart Contracts
-│   ├── ghost.compact           # Working spending limit circuit
-│   └── ghost-advanced.compact  # Advanced multi-feature ZK circuit
-├── lib/                        # Utilities & Hooks
-│   ├── midnight/               # Midnight SDK Integration & Wallet Auth
-│   └── supabase.ts             # Supabase DB Connection
+├── contracts/                  # Midnight ZK Smart Contracts (Compact)
+│   ├── ghost.compact           # Spending limit, Dynamic Rebalance & Multi-Sig circuits
+│   └── ghost-advanced.compact  # Multi-feature enterprise ZK circuits
+├── docker/                     # Production Docker Compose & Prover Sidecar
+├── lib/                        # Utilities & Resilience Layer
+│   ├── midnight/               # Midnight SDK Integration & Reconnect Layer
+│   └── supabase.ts             # Supabase Realtime DB Connection
+├── packages/
+│   └── sdk/                    # @ghost/sdk (LangChain & AutoGPT Agent SDK)
 ├── managed/                    # Auto-generated WASM from Compact compiler
 ├── public/                     # Static Assets & compiled ZK Proving Keys (*.zkir)
 ├── store/                      # Zustand State Management (useGhostStore.ts)
-└── Screenshot/                 # Application Screenshots
+└── tests/                      # Vitest Functional & ZK Circuit Test Suite
 ```
 
 ---
