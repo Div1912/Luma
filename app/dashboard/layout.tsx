@@ -13,6 +13,7 @@ import {
   AlertTriangle, 
   TerminalSquare, 
   Settings,
+  User,
   LogOut,
   Menu,
   X,
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { label: "Audit Log", icon: ActivitySquare, href: "/dashboard/audit" },
   { label: "Proof Viewer", icon: FileSignature, href: "/dashboard/proof" },
   { label: "Disputes", icon: AlertTriangle, href: "/dashboard/disputes" },
+  { label: "Profile", icon: User, href: "/dashboard/profile" },
   { label: "Developer", icon: TerminalSquare, href: "/dashboard/developer" },
   { label: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
@@ -125,19 +127,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* User Card */}
         <div className="p-4 border-t border-white/10">
-          <div className="glass-liquid p-3 flex items-center justify-between">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0 text-xs font-mono font-bold text-[#b8d4f0]">
-                {user?.name?.charAt(0) || "U"}
+          <div className="glass-liquid p-3 flex items-center justify-between group hover:border-white/20 transition-all">
+            <Link href="/dashboard/profile" className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0 text-xs font-mono font-bold text-[#b8d4f0] group-hover:bg-[#b8d4f0]/20 transition-colors">
+                {user?.name?.charAt(0) || "A"}
               </div>
               <div className="min-w-0">
-                <div className="text-xs font-medium text-zinc-200 truncate">{user?.name || "User"}</div>
-                <div className="text-[11px] text-zinc-500 truncate font-mono">{user?.email || "user@ghost.luma"}</div>
+                <div className="text-xs font-medium text-zinc-200 truncate group-hover:text-white transition-colors">{user?.name || "Alex Morgan"}</div>
+                <div className="text-[11px] text-zinc-500 truncate font-mono">{user?.email || "alex@ghost.xyz"}</div>
               </div>
-            </div>
+            </Link>
             <button 
               onClick={handleSignOut}
-              className="p-1.5 text-zinc-400 hover:text-white transition-colors"
+              className="p-1.5 text-zinc-400 hover:text-white transition-colors ml-1"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

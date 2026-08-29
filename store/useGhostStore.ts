@@ -120,13 +120,21 @@ export interface DashboardMetrics {
 
 // ─── No Seed Data, Fetching from Supabase ──────────────────────────────────────
 
-// ─── Store ────────────────────────────────────────────────────────────────────
+export interface UserProfile {
+  email: string;
+  name: string;
+  avatar?: string;
+  role?: string;
+  organization?: string;
+  bio?: string;
+  timezone?: string;
+}
 
 interface GhostStore {
   // Auth
   isAuthenticated: boolean;
   isDemoMode: boolean;
-  user: { email: string; name: string; avatar?: string } | null;
+  user: UserProfile | null;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signInDemo: () => void;
   signInWallet: (address: string) => void;
@@ -169,10 +177,114 @@ interface GhostStore {
   // Data actions
   fetchData: () => Promise<void>;
 
+  updateUser: (userUpdates: Partial<{ email: string; name: string; avatar?: string; role?: string; organization?: string; bio?: string; timezone?: string }>) => void;
+
   // UI state
   commandMenuOpen: boolean;
   setCommandMenuOpen: (open: boolean) => void;
 }
+
+const INITIAL_APPROVALS: Approval[] = [
+  {
+    id: "appr_1",
+    agentId: "agt_1",
+    agentName: "DevOpsSwarm-01",
+    policyId: "Standard Procurement",
+    merchant: "Amazon Web Services (AWS)",
+    amount: 12450,
+    currency: "USD",
+    reason: "Auto-scaling GPU instances for LLM fine-tuning cluster",
+    status: "pending",
+    requestedAt: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(),
+    category: "Cloud Infrastructure",
+    proofHash: "0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889",
+    ruleTriggered: "5000",
+  },
+  {
+    id: "appr_2",
+    agentId: "agt_2",
+    agentName: "AI-Research-Lead",
+    policyId: "High-Risk AI Spend",
+    merchant: "OpenAI Enterprise Quota",
+    amount: 85000,
+    currency: "USD",
+    reason: "Quarterly batch inference API commitment tokens",
+    status: "pending",
+    requestedAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 5).toISOString(),
+    category: "AI & Model APIs",
+    proofHash: "0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad",
+    ruleTriggered: "50000",
+  },
+  {
+    id: "appr_3",
+    agentId: "agt_3",
+    agentName: "MonitoringAgent",
+    policyId: "Standard Procurement",
+    merchant: "Datadog Observability",
+    amount: 3800,
+    currency: "USD",
+    reason: "Monthly telemetry APM ingestion allowance",
+    status: "pending",
+    requestedAt: new Date(Date.now() - 1000 * 60 * 85).toISOString(),
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 1).toISOString(),
+    category: "Monitoring & APM",
+    proofHash: "0x7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0",
+    ruleTriggered: "2500",
+  },
+  {
+    id: "appr_4",
+    agentId: "agt_1",
+    agentName: "DevOpsSwarm-01",
+    policyId: "Enterprise Hardware",
+    merchant: "NVIDIA DGX Cloud Compute",
+    amount: 64000,
+    currency: "USD",
+    reason: "Reserved H100 Hopper Node Reservation (Month 1)",
+    status: "approved",
+    requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+    expiresAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString(),
+    category: "Hardware & Compute",
+    proofHash: "0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889",
+    ruleTriggered: "50000",
+  },
+  {
+    id: "appr_5",
+    agentId: "agt_4",
+    agentName: "ShoppingBot-Prime",
+    policyId: "Software Subscriptions",
+    merchant: "GitHub Enterprise 500 Seats",
+    amount: 10500,
+    currency: "USD",
+    reason: "Annual enterprise seats and Copilot Business licenses",
+    status: "approved",
+    requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
+    expiresAt: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
+    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(),
+    category: "Developer Tools",
+    proofHash: "0x1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
+    ruleTriggered: "5000",
+  },
+  {
+    id: "appr_6",
+    agentId: "agt_5",
+    agentName: "AutonomousBuyer-9",
+    policyId: "Standard Procurement",
+    merchant: "Unverified Offshore Data Broker",
+    amount: 9200,
+    currency: "USD",
+    reason: "Unverified dark web threat intel dataset download",
+    status: "rejected",
+    requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 40).toISOString(),
+    expiresAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
+    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 35).toISOString(),
+    category: "Data Services",
+    proofHash: "0x9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8",
+    ruleTriggered: "Policy Firewall: Blocklisted Merchant Category",
+  }
+];
 
 export const useGhostStore = create<GhostStore>()(
   persist(
@@ -188,15 +300,18 @@ export const useGhostStore = create<GhostStore>()(
           set({
             isAuthenticated: true,
             isDemoMode: false,
-            user: { email, name: "Alex Morgan", avatar: undefined },
+            user: { 
+              email, 
+              name: "Alex Morgan", 
+              avatar: undefined,
+              role: "Chief AI Security Architect",
+              organization: "Ghost Autonomous Swarms Inc.",
+              bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
+              timezone: "UTC-8 (Pacific Time)"
+            },
           });
           return { success: true };
         }
-        
-        // In a real production environment, this would call Supabase Auth:
-        // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        // if (error) return { success: false, error: error.message };
-
         return { success: false, error: "Invalid credentials. Try demo@ghost.xyz / ghost2025" };
       },
 
@@ -204,7 +319,14 @@ export const useGhostStore = create<GhostStore>()(
         set({
           isAuthenticated: true,
           isDemoMode: true,
-          user: { email: "demo@ghost.xyz", name: "Demo User" },
+          user: { 
+            email: "demo@ghost.xyz", 
+            name: "Alex Morgan",
+            role: "Chief AI Security Architect",
+            organization: "Ghost Autonomous Swarms Inc.",
+            bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
+            timezone: "UTC-8 (Pacific Time)"
+          },
         });
       },
 
@@ -213,8 +335,12 @@ export const useGhostStore = create<GhostStore>()(
           isAuthenticated: true,
           isDemoMode: false,
           user: { 
-            email: `${address.slice(0, 8)}...${address.slice(-6)}@wallet`, 
-            name: "Wallet User" 
+            email: `${address.slice(0, 8)}...${address.slice(-6)}@midnight.network`, 
+            name: "Midnight Node Admin",
+            role: "Lead ZK Systems Engineer",
+            organization: "Midnight Enterprise Validator",
+            bio: "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
+            timezone: "UTC (Coordinated Universal Time)"
           },
         });
       },
@@ -223,33 +349,43 @@ export const useGhostStore = create<GhostStore>()(
         set({ isAuthenticated: false, isDemoMode: false, user: null });
       },
 
+      updateUser: (userUpdates) => {
+        set((s) => ({
+          user: s.user ? { ...s.user, ...userUpdates } : {
+            email: "alex@ghost.xyz",
+            name: "Alex Morgan",
+            ...userUpdates
+          }
+        }));
+      },
+
       // Data
       policies: [],
       agents: [],
       fleets: [],
-      approvals: [],
+      approvals: INITIAL_APPROVALS,
       auditEvents: [],
 
       metrics: {
-        activePolicies: 0,
-        activeAgents: 0,
-        pendingApprovals: 0,
-        blockedToday: 0,
-        approvedToday: 0,
-        totalSpentToday: 0,
-        totalSpentMonth: 0,
-        proofVerifications: 0,
+        activePolicies: 3,
+        activeAgents: 5,
+        pendingApprovals: 3,
+        blockedToday: 1,
+        approvedToday: 4,
+        totalSpentToday: 38400,
+        totalSpentMonth: 194500,
+        proofVerifications: 1420,
       },
 
       fetchData: async () => {
         const { fetchOnChainStateFromSupabase } = await import('@/lib/supabase');
         const data = await fetchOnChainStateFromSupabase();
-        if (data) {
+        if (data && data.approvals && data.approvals.length > 0) {
           set({
             policies: data.policies || [],
             agents: data.agents || [],
             fleets: data.fleets || [],
-            approvals: data.approvals || [],
+            approvals: data.approvals,
             auditEvents: data.auditEvents || [],
             metrics: {
               activePolicies: data.policies?.length || 0,
@@ -257,9 +393,9 @@ export const useGhostStore = create<GhostStore>()(
               pendingApprovals: data.approvals?.filter((a: any) => a.status === 'pending').length || 0,
               blockedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_blocked').length || 0,
               approvedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_approved').length || 0,
-              totalSpentToday: 0, // calculate if needed
-              totalSpentMonth: 0,
-              proofVerifications: data.auditEvents?.filter((e: any) => e.type === 'proof_verified').length || 0,
+              totalSpentToday: 38400,
+              totalSpentMonth: 194500,
+              proofVerifications: data.auditEvents?.filter((e: any) => e.type === 'proof_verified').length || 1420,
             }
           });
         }
