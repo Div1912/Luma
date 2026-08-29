@@ -175,11 +175,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Bell className="w-4 h-4" />
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#b8d4f0] shadow-[0_0_6px_#b8d4f0]"></span>
             </button>
-            <div className="h-6 w-px bg-white/10 mx-1"></div>
-            <Link href="/dashboard/policies" className="btn-liquid btn-liquid-primary flex items-center gap-2 text-xs py-2 px-4">
-              <Plus className="w-3.5 h-3.5" />
-              <span>New Policy</span>
-            </Link>
           </div>
         </header>
 

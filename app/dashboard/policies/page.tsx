@@ -480,18 +480,18 @@ export default function PoliciesPage() {
                 </div>
               </div>
 
-              <div className="p-6 border-t border-zinc-800 bg-zinc-950 flex justify-between items-center">
+              <div className="p-6 border-t border-white/10 bg-black/60 backdrop-blur-xl flex justify-between items-center">
                 <button 
                   onClick={() => handleSave(true)} 
                   disabled={isDeploying}
-                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors disabled:opacity-50"
+                  className="btn-liquid btn-liquid-cyan flex items-center gap-2 text-xs py-2.5 px-4"
                 >
                   {isDeploying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   <span>{isDeploying ? "Deploying on Midnight..." : "Deploy Contract On-Chain"}</span>
                 </button>
                 <div className="flex space-x-3">
-                  <button onClick={closeDrawer} className="btn-secondary">Cancel</button>
-                  <button onClick={() => handleSave(false)} className="btn-primary">
+                  <button onClick={closeDrawer} className="btn-liquid btn-liquid-secondary text-xs py-2.5 px-4">Cancel</button>
+                  <button onClick={() => handleSave(false)} className="btn-liquid btn-liquid-primary text-xs py-2.5 px-4">
                     Save Policy Locally
                   </button>
                 </div>

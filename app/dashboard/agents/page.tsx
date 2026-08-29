@@ -8,12 +8,19 @@ import { Play, Pause, ShieldBan, Plus, X, ShieldAlert, Cpu, Activity, Network, L
 import { toast } from "sonner";
 
 export default function AgentsPage() {
-  const { agents, fleets, policies, createFleet, createBulkAgents, revokeAgent, pauseAgent, resumeAgent, updateAgent, addAuditEvent } = useGhostStore();
+  const { agents, fleets, policies, createAgent, createFleet, createBulkAgents, revokeAgent, pauseAgent, resumeAgent, updateAgent, addAuditEvent } = useGhostStore();
   const { spend, walletState } = useMidnight();
   
   const [activeTab, setActiveTab] = useState<"fleets" | "agents">("fleets");
   
   // Modal States
+  const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const [newAgentName, setNewAgentName] = useState("");
+  const [newAgentType, setNewAgentType] = useState<string>("procurement");
+  const [newAgentDesc, setNewAgentDesc] = useState("");
+  const [newAgentPolicy, setNewAgentPolicy] = useState("");
+  const [newAgentFleetId, setNewAgentFleetId] = useState("");
+
   const [isFleetModalOpen, setIsFleetModalOpen] = useState(false);
   const [newFleetName, setNewFleetName] = useState("");
   const [newFleetDesc, setNewFleetDesc] = useState("");
@@ -25,6 +32,31 @@ export default function AgentsPage() {
   const [provisionCount, setProvisionCount] = useState<number>(100);
   
   const [isSpending, setIsSpending] = useState<string | null>(null);
+
+  const handleConnectAgent = () => {
+    if (!newAgentName) {
+      toast.error("Please provide an agent name.");
+      return;
+    }
+    createAgent({
+      name: newAgentName,
+      type: (newAgentType as any) || "procurement",
+      status: "connected",
+      risk: "low",
+      policyId: newAgentPolicy || null,
+      fleetId: newAgentFleetId || null,
+      permissions: ["execute"],
+      description: newAgentDesc || "Autonomous enterprise AI agent",
+      version: "1.0.0"
+    });
+    setIsConnectModalOpen(false);
+    setNewAgentName("");
+    setNewAgentType("procurement");
+    setNewAgentDesc("");
+    setNewAgentPolicy("");
+    setNewAgentFleetId("");
+    toast.success(`Agent "${newAgentName}" connected successfully!`);
+  };
 
   const handleCreateFleet = () => {
     if (!newFleetName || !newFleetPolicy) {
@@ -80,12 +112,19 @@ export default function AgentsPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Multi-Agent Orchestration</h1>
           <p className="text-zinc-400 mt-1">Deploy fleets of autonomous agents and assign hierarchical ZK policies.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsFleetModalOpen(true)}
+            onClick={() => setIsConnectModalOpen(true)}
             className="btn-liquid btn-liquid-primary flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
+            <span>Connect Agent</span>
+          </button>
+          <button
+            onClick={() => setIsFleetModalOpen(true)}
+            className="btn-liquid btn-liquid-secondary flex items-center gap-2"
+          >
+            <Layers className="w-4 h-4" />
             <span>Create Fleet</span>
           </button>
         </div>
@@ -322,6 +361,62 @@ export default function AgentsPage() {
           )}
         </div>
       )}
+
+      {/* Connect Agent Modal */}
+      <AnimatePresence>
+        {isConnectModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setIsConnectModalOpen(false)} />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="glass-liquid-panel p-6 max-w-md w-full relative z-10 space-y-6">
+              <div className="flex justify-between items-center border-b border-white/10 pb-4">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-[#b8d4f0]" /> Connect New Agent
+                </h2>
+                <button onClick={() => setIsConnectModalOpen(false)} className="text-zinc-400 hover:text-white"><X className="w-5 h-5" /></button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-mono text-zinc-400 mb-1.5">Agent Name</label>
+                  <input type="text" value={newAgentName} onChange={e => setNewAgentName(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 text-sm" placeholder="e.g. FinanceBot-01" />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-mono text-zinc-400 mb-1.5">Agent Type</label>
+                  <select value={newAgentType} onChange={e => setNewAgentType(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 text-sm cursor-pointer">
+                    <option value="procurement">Procurement</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="research">Research</option>
+                    <option value="financial">Financial</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-mono text-zinc-400 mb-1.5">Description</label>
+                  <textarea rows={2} value={newAgentDesc} onChange={e => setNewAgentDesc(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 text-sm resize-none" placeholder="Autonomous role and function" />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-mono text-zinc-400 mb-1.5">Assign Policy (Optional)</label>
+                  <select value={newAgentPolicy} onChange={e => setNewAgentPolicy(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 text-sm cursor-pointer">
+                    <option value="">None / Custom</option>
+                    {policies.map(p => <option key={p.id} value={p.id}>{p.name} (Limit: ${p.perTransactionLimit})</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-mono text-zinc-400 mb-1.5">Assign to Fleet (Optional)</label>
+                  <select value={newAgentFleetId} onChange={e => setNewAgentFleetId(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 text-sm cursor-pointer">
+                    <option value="">Standalone Agent</option>
+                    {fleets.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-white/10">
+                <button onClick={() => setIsConnectModalOpen(false)} className="btn-liquid btn-liquid-secondary flex-1 py-2.5">Cancel</button>
+                <button onClick={handleConnectAgent} className="btn-liquid btn-liquid-primary flex-1 py-2.5">Connect Agent</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Fleet Creation Modal */}
       <AnimatePresence>
