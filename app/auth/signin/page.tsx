@@ -93,12 +93,14 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#030307] text-white flex overflow-hidden justify-center items-center p-6">
-      {/* Ambient Cosmic Liquid Glass Radial Glow */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.22),rgba(15,23,42,0.65)_55%,rgba(3,3,8,0.95)_100%)]" />
-
+    <div className="relative min-h-screen bg-[#03040a] text-white flex overflow-hidden justify-center items-center p-6">
       {/* 3D Liquid Glass Particle Wave Background */}
-      <ParticleWave className="opacity-90" transparent={true} />
+      <ParticleWave className="opacity-95" transparent={true} />
+
+      {/* Luminous Ambient Glowing Light Orbs */}
+      <div className="fixed -top-32 left-1/4 w-[650px] h-[650px] bg-gradient-to-br from-[#b8d4f0]/20 via-sky-600/15 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="fixed -bottom-20 right-1/4 w-[550px] h-[550px] bg-gradient-to-tl from-indigo-600/20 via-[#b8d4f0]/15 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.15),rgba(15,23,42,0.5)_55%,rgba(3,4,10,0.92)_100%)]" />
 
       {/* Centered Connect Form */}
       <div className="w-full max-w-md z-10 relative">
