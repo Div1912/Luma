@@ -22,6 +22,7 @@ import {
   Ghost
 } from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
+import { useMidnight } from "@/lib/midnight/useMidnight";
 import { toast } from "sonner";
 
 const NAV_ITEMS = [
@@ -40,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
+  const { network, setNetwork } = useMidnight();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -152,6 +154,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1 text-xs">
+              <span className="text-[10px] text-white/40 uppercase font-mono px-1.5">Net:</span>
+              <button 
+                onClick={() => setNetwork('preview')}
+                className={`px-2.5 py-0.5 rounded transition-all font-mono text-xs ${network === 'preview' ? 'bg-[#b8d4f0] text-black font-semibold shadow-sm' : 'text-white/60 hover:text-white'}`}
+              >
+                Preview
+              </button>
+              <button 
+                onClick={() => setNetwork('preprod')}
+                className={`px-2.5 py-0.5 rounded transition-all font-mono text-xs ${network === 'preprod' ? 'bg-[#b8d4f0] text-black font-semibold shadow-sm' : 'text-white/60 hover:text-white'}`}
+              >
+                Preprod
+              </button>
+            </div>
             <button onClick={() => toast.info("Search coming soon", { description: "Advanced filtering will be available in v1.1" })} className="p-2 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
               <Search className="w-5 h-5" />
             </button>

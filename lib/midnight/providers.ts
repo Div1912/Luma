@@ -10,9 +10,6 @@ import { UnboundTransaction } from '@midnight-ntwrk/midnight-js-types';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
 
-// Initialize Midnight network
-setNetworkId('preview');
-
 const compiledGhostContract = CompiledContract.make(
   'ghost', 
   Contract as any
@@ -20,7 +17,8 @@ const compiledGhostContract = CompiledContract.make(
   CompiledContract.withWitnesses({} as never)
 );
 
-export async function createGhostContract(api: any, contractAddress: string) {
+export async function createGhostContract(api: any, contractAddress: string, targetNetwork: string = 'preview') {
+  setNetworkId(targetNetwork as any);
   const config = await api.getConfiguration();
   const shieldedAddresses = await api.getShieldedAddresses();
 
@@ -71,7 +69,8 @@ export async function createGhostContract(api: any, contractAddress: string) {
   return { providers, contract, ghost };
 }
 
-export async function deployGhostContract(api: any, initialLimit: bigint) {
+export async function deployGhostContract(api: any, initialLimit: bigint, targetNetwork: string = 'preview') {
+  setNetworkId(targetNetwork as any);
   const config = await api.getConfiguration();
   const shieldedAddresses = await api.getShieldedAddresses();
   const privateStateProvider = inMemoryPrivateStateProvider();

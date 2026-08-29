@@ -35,11 +35,23 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const [api, setApi] = useState<any>(null);
   const [ghost, setGhost] = useState<any>(null);
   const [publicState, setPublicState] = useState<{ total_spent: bigint; spending_limit: bigint } | null>(null);
-  const [network, setNetwork] = useState<'preview' | 'preprod'>('preview');
+  const [network, setNetworkState] = useState<'preview' | 'preprod'>('preprod');
 
   useEffect(() => {
-    setNetworkId(network);
-  }, [network]);
+    const savedNetwork = localStorage.getItem('ghost_network') as 'preview' | 'preprod' | null;
+    if (savedNetwork && (savedNetwork === 'preview' || savedNetwork === 'preprod')) {
+      setNetworkState(savedNetwork);
+      setNetworkId(savedNetwork);
+    } else {
+      setNetworkId('preprod');
+    }
+  }, []);
+
+  const setNetwork = (newNetwork: 'preview' | 'preprod') => {
+    setNetworkState(newNetwork);
+    setNetworkId(newNetwork);
+    localStorage.setItem('ghost_network', newNetwork);
+  };
 
   const connectLace = async () => {
     try {
@@ -86,8 +98,9 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const deploy = async (limit: bigint) => {
     if (!api) throw new Error('Wallet not connected');
     try {
+      setNetworkId(network);
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const { ghost: g, address: deployedAddress, providers } = await deployGhostContract(api, limit);
+      const { ghost: g, address: deployedAddress, providers } = await deployGhostContract(api, limit, network);
       setGhost(g);
       setWalletState(prev => ({ ...prev, address: deployedAddress }));
 
@@ -124,8 +137,9 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const connect = async (contractAddress: string) => {
     if (!api) throw new Error('Wallet not connected');
     try {
+      setNetworkId(network);
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const { ghost: g, providers } = await createGhostContract(api, contractAddress);
+      const { ghost: g, providers } = await createGhostContract(api, contractAddress, network);
       setGhost(g);
       setWalletState(prev => ({ ...prev, address: contractAddress }));
 
@@ -138,6 +152,18 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       });
     } catch (err: any) {
       const errMsg = err.message || String(err);
+      console.error("Contract connect error:", err);
+      
+      // If error indicates network mismatch, try to auto-detect and suggest fix
+      if (errMsg.includes('Expected preview address, got preprod one')) {
+        setNetwork('preprod');
+        setWalletState(prev => ({ ...prev, error: 'Switched network to Preprod. Please click Connect to Contract again.' }));
+        return;
+      } else if (errMsg.includes('Expected preprod address, got preview one')) {
+        setNetwork('preview');
+        setWalletState(prev => ({ ...prev, error: 'Switched network to Preview. Please click Connect to Contract again.' }));
+        return;
+      }
       console.error("Contract connect error:", err);
       
       // If the extension killed the channel, we must reconnect

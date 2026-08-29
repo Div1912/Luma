@@ -49,7 +49,7 @@ export default function DashboardOverview() {
   });
 
   
-  const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace, network } = useMidnight();
+  const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace, network, setNetwork } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contractAddress, setContractAddress] = useState<string>("");
@@ -66,7 +66,7 @@ export default function DashboardOverview() {
       const address = await deploy(BigInt(1000000));
       // After deploy, walletState.address has the deployed address
       toast.success("Contract Deployed Successfully!", {
-        description: "Waiting for indexer sync...",
+        description: `Waiting for indexer sync on ${network}...`,
         action: {
           label: "View Explorer",
           onClick: () => window.open(`https://${network}.midnightexplorer.com/contracts/${address}`, "_blank")
@@ -86,7 +86,6 @@ export default function DashboardOverview() {
   useEffect(() => {
     if (ghost && walletState.address && walletState.address !== contractAddress) {
       // MidnightProvider sets walletState.address to the contract address upon connect/deploy
-      // wait, we only want to save if it looks like a contract address (length > 50)
       if (walletState.address.length > 50) {
         setContractAddress(walletState.address);
         localStorage.setItem('ghost_contract_address', walletState.address);
@@ -105,22 +104,35 @@ export default function DashboardOverview() {
         type: "purchase_approved",
         agentId: "agt_01",
         agentName: "Wallet User",
-        merchant: "Midnight Preprod",
+        merchant: `Midnight ${network.toUpperCase()}`,
         amount: Number(spendAmount),
-        currency: "USDC",
+        currency: "tDUST",
         status: "success",
-        description: "Private spend transaction executed on-chain",
-        metadata: { txType: "spend", contract: contractAddress },
+        description: `Private spend transaction executed on-chain (${network})`,
+        metadata: { txType: "spend", contract: contractAddress, network },
       });
       
       toast.success("ZK Proof Verified & Mined Successfully! 🛡️", {
-        description: "Transaction executed on Midnight testnet."
+        description: `Transaction executed on Midnight ${network} network.`
       });
       
     } catch (err: any) {
-      toast.error("Transaction Error", {
-        description: err.message || String(err)
-      });
+      const errMsg = err.message || String(err);
+      if (errMsg.includes('Expected preview address, got preprod one')) {
+        setNetwork('preprod');
+        toast.info("Network Auto-Adjusted to Preprod", {
+          description: "Detected Preprod contract address. Network has been switched to Preprod. Retrying connection..."
+        });
+      } else if (errMsg.includes('Expected preprod address, got preview one')) {
+        setNetwork('preview');
+        toast.info("Network Auto-Adjusted to Preview", {
+          description: "Detected Preview contract address. Network has been switched to Preview. Retrying connection..."
+        });
+      } else {
+        toast.error("Transaction Error", {
+          description: errMsg
+        });
+      }
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -256,30 +268,46 @@ export default function DashboardOverview() {
         <motion.div variants={itemVariants} className="bg-[rgba(12,12,12,0.7)] backdrop-blur-xl border border-white/[0.07] rounded-2xl p-6 flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-base font-medium">Submit Agent Transaction</h3>
-            {contractAddress && (
-              <button 
-                onClick={() => {
-                  localStorage.removeItem('ghost_contract_address');
-                  window.location.reload();
-                }}
-                className="text-xs text-red-400 hover:text-red-300 bg-red-400/10 px-2 py-1 rounded"
-              >
-                Reset Contract
-              </button>
-            )}
-            {walletState.isConnected && (
-              <button 
-                onClick={() => disconnectLace()}
-                className="text-xs text-white/50 hover:text-white px-2 py-1 rounded"
-              >
-                Disconnect Wallet
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-0.5 text-xs">
+                <button
+                  onClick={() => setNetwork('preview')}
+                  className={`px-2 py-0.5 rounded transition-all font-mono text-[10px] ${network === 'preview' ? 'bg-[#b8d4f0] text-black font-semibold' : 'text-white/60 hover:text-white'}`}
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={() => setNetwork('preprod')}
+                  className={`px-2 py-0.5 rounded transition-all font-mono text-[10px] ${network === 'preprod' ? 'bg-[#b8d4f0] text-black font-semibold' : 'text-white/60 hover:text-white'}`}
+                >
+                  Preprod
+                </button>
+              </div>
+              {contractAddress && (
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('ghost_contract_address');
+                    window.location.reload();
+                  }}
+                  className="text-xs text-red-400 hover:text-red-300 bg-red-400/10 px-2 py-1 rounded"
+                >
+                  Reset Contract
+                </button>
+              )}
+              {walletState.isConnected && (
+                <button 
+                  onClick={() => disconnectLace()}
+                  className="text-xs text-white/50 hover:text-white px-2 py-1 rounded"
+                >
+                  Disconnect Wallet
+                </button>
+              )}
+            </div>
           </div>
           
           {contractAddress && (
             <div className="mb-4 p-2 bg-white/5 rounded border border-white/10 flex flex-col gap-1">
-              <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Verifiable Contract Address (Preview)</span>
+              <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Verifiable Contract Address ({network.toUpperCase()})</span>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
                 <a 
