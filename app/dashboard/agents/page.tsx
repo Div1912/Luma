@@ -18,6 +18,7 @@ export default function AgentsPage() {
   const [newFleetName, setNewFleetName] = useState("");
   const [newFleetDesc, setNewFleetDesc] = useState("");
   const [newFleetPolicy, setNewFleetPolicy] = useState("");
+  const [newParentFleetId, setNewParentFleetId] = useState("");
   
   const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
   const [provisionFleetId, setProvisionFleetId] = useState("");
@@ -34,11 +35,13 @@ export default function AgentsPage() {
       name: newFleetName,
       description: newFleetDesc || "Autonomous Agent Fleet",
       policyId: newFleetPolicy,
+      parentFleetId: newParentFleetId || null,
     });
     setIsFleetModalOpen(false);
     setNewFleetName("");
     setNewFleetDesc("");
     setNewFleetPolicy("");
+    setNewParentFleetId("");
     toast.success("Fleet created successfully");
   };
 
@@ -116,18 +119,35 @@ export default function AgentsPage() {
               <p className="text-sm max-w-md text-center">Create a fleet to orchestrate multiple agents under a single master policy.</p>
             </div>
           ) : (
-            fleets.map(fleet => {
+            (() => {
+              const orderedFleets: any[] = [];
+              const topLevel = fleets.filter(f => !f.parentFleetId);
+              topLevel.forEach(tl => {
+                orderedFleets.push(tl);
+                const children = fleets.filter(f => f.parentFleetId === tl.id);
+                orderedFleets.push(...children);
+              });
+              const remaining = fleets.filter(f => !orderedFleets.includes(f));
+              orderedFleets.push(...remaining);
+              return orderedFleets;
+            })().map(fleet => {
               const fleetAgents = agents.filter(a => a.fleetId === fleet.id);
               const masterPolicy = policies.find(p => p.id === fleet.policyId);
               
               return (
-                <div key={fleet.id} className="glass-panel p-6 border border-zinc-800 space-y-6">
+                <div key={fleet.id} className="glass-panel p-6 border border-zinc-800 space-y-6" style={{ marginLeft: fleet.parentFleetId ? '3rem' : '0', borderLeft: fleet.parentFleetId ? '4px solid #b8d4f0' : '' }}>
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <Network className="w-6 h-6 text-[#b8d4f0]" />
                         <h2 className="text-2xl font-bold text-white">{fleet.name}</h2>
                         <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-xs">Active</span>
+                        {fleet.parentFleetId && (
+                          <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
+                            <Layers className="w-3 h-3" />
+                            Child of: {fleets.find(f => f.id === fleet.parentFleetId)?.name || 'Unknown'}
+                          </span>
+                        )}
                       </div>
                       <p className="text-zinc-400 text-sm">{fleet.description}</p>
                     </div>
@@ -318,6 +338,13 @@ export default function AgentsPage() {
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-1">Description</label>
                   <textarea value={newFleetDesc} onChange={e => setNewFleetDesc(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:outline-none" placeholder="What does this fleet do?" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-1">Parent Fleet (Optional Hierarchy)</label>
+                  <select value={newParentFleetId} onChange={e => setNewParentFleetId(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2.5 text-white focus:outline-none">
+                    <option value="">None (Top Level)</option>
+                    {fleets.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-zinc-400 mb-1">Assign Master Policy (Inherited by all agents)</label>

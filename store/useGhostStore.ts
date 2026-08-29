@@ -51,6 +51,7 @@ export interface Fleet {
   description: string;
   policyId: string | null;
   agentCount: number;
+  parentFleetId?: string | null;
 }
 
 export interface Agent {
@@ -247,6 +248,7 @@ export const useGhostStore = create<GhostStore>()(
           set({
             policies: data.policies || [],
             agents: data.agents || [],
+            fleets: data.fleets || [],
             approvals: data.approvals || [],
             auditEvents: data.auditEvents || [],
             metrics: {

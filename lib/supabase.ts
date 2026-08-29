@@ -23,8 +23,9 @@ export async function fetchOnChainStateFromSupabase() {
     const { data: auditEvents } = await supabase.from('audit_events').select('*').order('timestamp', { ascending: false });
     const { data: policies } = await supabase.from('policies').select('*');
     const { data: agents } = await supabase.from('agents').select('*');
+    const { data: fleets } = await supabase.from('fleets').select('*');
     const { data: approvals } = await supabase.from('approvals').select('*');
-    return { auditEvents, policies, agents, approvals };
+    return { auditEvents, policies, agents, fleets, approvals };
   } catch (e) {
     console.error('Supabase fetch error:', e);
     return null;
