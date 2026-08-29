@@ -63,6 +63,15 @@ export default function Navbar() {
 
           {/* Right: Actions (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
+            <a
+              href="https://x.com/Ghostmidnight1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/70 hover:text-white transition-colors text-xs font-mono flex items-center gap-1.5 border border-white/10 rounded px-3 py-1.5 bg-white/[0.03] hover:bg-white/[0.08]"
+              title="Official X: @Ghostmidnight1"
+            >
+              <span>𝕏 @Ghostmidnight1</span>
+            </a>
             <Link
               href="/dashboard"
               className="h-9 px-5 flex items-center justify-center text-sm font-medium bg-white text-black rounded hover:bg-[#b8d4f0] transition-colors"
@@ -121,6 +130,15 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              <a
+                href="https://x.com/Ghostmidnight1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-lg font-medium text-[#b8d4f0] hover:text-white transition-colors flex items-center gap-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span>𝕏 Follow @Ghostmidnight1</span>
+              </a>
               <div className="h-px w-full bg-white/[0.06] my-4" />
               <Link
                 href="/dashboard"

@@ -373,12 +373,18 @@ export default function LandingPage() {
               </span>
             </Link>
             
-            <div className="flex flex-wrap gap-x-8 gap-y-4">
-              {["Product", "Docs", "Pricing", "Privacy", "Terms", "Contact", "GitHub", "X", "Status"].map(link => (
-                <Link key={link} href={`/${link.toLowerCase()}`} className="text-sm text-white/50 hover:text-white transition-colors">
-                  {link}
-                </Link>
-              ))}
+            <div className="flex flex-wrap gap-x-8 gap-y-4 items-center">
+              <Link href="#product" className="text-sm text-white/50 hover:text-white transition-colors">Product</Link>
+              <Link href="/docs" className="text-sm text-white/50 hover:text-white transition-colors">Docs</Link>
+              <Link href="/pricing" className="text-sm text-white/50 hover:text-white transition-colors">Pricing</Link>
+              <Link href="/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms</Link>
+              <Link href="/contact" className="text-sm text-white/50 hover:text-white transition-colors">Contact</Link>
+              <a href="https://github.com/Div1912/Luma" target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">GitHub</a>
+              <a href="https://x.com/Ghostmidnight1" target="_blank" rel="noopener noreferrer" className="text-sm text-[#b8d4f0] hover:text-white transition-colors font-medium flex items-center gap-1">
+                <span>X (@Ghostmidnight1)</span>
+              </a>
+              <Link href="/dashboard" className="text-sm text-white/50 hover:text-white transition-colors">Status</Link>
             </div>
           </div>
           

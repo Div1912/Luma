@@ -14,9 +14,12 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20%26%20Preview-blueviolet)](https://midnight.network/)
   [![SDK](https://img.shields.io/badge/@ghost/sdk-v1.0.0-blue)](./packages/sdk)
+  [![Official X](https://img.shields.io/badge/Follow%20on%20X-%40Ghostmidnight1-000000?style=flat&logo=x&logoColor=white)](https://x.com/Ghostmidnight1)
   [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
   [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)](#)
 </div>
+
+> 🐦 **Official X (Twitter):** Follow [@Ghostmidnight1](https://x.com/Ghostmidnight1) for live updates, protocol releases, and Midnight Zero-Knowledge agent network announcements.
 
 ---
 

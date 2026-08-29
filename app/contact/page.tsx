@@ -80,6 +80,17 @@ export default function ContactPage() {
                 <p className="text-sm text-neutral-400">Understand our ZK proof generation and network mechanics.</p>
               </div>
             </div>
+
+            <div className="pt-6 border-t border-white/[0.08]">
+              <a 
+                href="https://x.com/Ghostmidnight1" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-2 text-sm text-[#b8d4f0] hover:text-white transition-colors font-mono"
+              >
+                <span>𝕏 Follow updates on X: @Ghostmidnight1 &rarr;</span>
+              </a>
+            </div>
           </div>
         </motion.div>
 
@@ -120,6 +131,7 @@ export default function ContactPage() {
                   <label className="text-xs font-medium text-neutral-400">Email</label>
                   <input 
                     {...register('email')}
+                    type="email"
                     className="w-full bg-[#111] border border-white/[0.07] rounded-sm px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/[0.2] transition-colors"
                     placeholder="jane@company.com"
                   />
@@ -141,12 +153,12 @@ export default function ContactPage() {
                   <label className="text-xs font-medium text-neutral-400">Role</label>
                   <select 
                     {...register('role')}
-                    className="w-full bg-[#111] border border-white/[0.07] rounded-sm px-4 py-3 text-sm text-neutral-300 focus:outline-none focus:border-white/[0.2] transition-colors appearance-none"
+                    className="w-full bg-[#111] border border-white/[0.07] rounded-sm px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/[0.2] transition-colors"
                   >
-                    <option value="">Select a role...</option>
-                    <option value="engineering">Engineering</option>
-                    <option value="product">Product</option>
-                    <option value="security">Security</option>
+                    <option value="">Select role...</option>
+                    <option value="eng_lead">Engineering Lead</option>
+                    <option value="security">Security / Risk Officer</option>
+                    <option value="product">Product Manager</option>
                     <option value="founder">Founder / Exec</option>
                     <option value="other">Other</option>
                   </select>
@@ -180,7 +192,7 @@ export default function ContactPage() {
 
           <div className="mt-8 text-center border-t border-white/[0.05] pt-6">
             <span className="text-neutral-500 text-sm">Already have an account? </span>
-            <Link href="/login" className="text-white text-sm hover:underline underline-offset-4">Sign in</Link>
+            <Link href="/auth/signin" className="text-white text-sm hover:underline underline-offset-4">Sign in</Link>
           </div>
         </motion.div>
 
