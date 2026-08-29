@@ -1,0 +1,44 @@
+{
+  "name": "@ghost/sdk",
+  "version": "1.0.0",
+  "description": "Zero-Knowledge Policy Compliance & Spending Guardrails for Autonomous AI Agents (LangChain, AutoGPT, Eliza, AutoGen)",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./langchain": {
+      "types": "./src/integrations/langchain.ts",
+      "import": "./src/integrations/langchain.ts",
+      "default": "./src/integrations/langchain.ts"
+    },
+    "./autogpt": {
+      "types": "./src/integrations/autogpt.ts",
+      "import": "./src/integrations/autogpt.ts",
+      "default": "./src/integrations/autogpt.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "ghost",
+    "midnight",
+    "zero-knowledge",
+    "zk-proofs",
+    "ai-agents",
+    "langchain",
+    "autogpt",
+    "eliza",
+    "guardrails",
+    "spending-policy",
+    "autonomous-agents"
+  ],
+  "author": "Ghost Network",
+  "license": "MIT"
+}

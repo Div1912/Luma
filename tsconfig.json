@@ -36,6 +36,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@ghost/sdk": [
+        "./packages/sdk/src/index.ts"
+      ],
+      "@ghost/sdk/*": [
+        "./packages/sdk/src/*"
       ]
     },
     "incremental": true
