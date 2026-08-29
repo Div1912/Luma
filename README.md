@@ -20,6 +20,8 @@
 </div>
 
 > 🐦 **Official X (Twitter):** Follow [@Ghostmidnight1](https://x.com/Ghostmidnight1) for live updates, protocol releases, and Midnight Zero-Knowledge agent network announcements.
+> 
+> 📺 **Watch Demo:** [See Ghost in Action (YouTube)](https://youtu.be/xtTsfs0GKTA)
 
 ---
 
