@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Shield, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
+import { ParticleWave } from "@/components/ui/particle-wave";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -36,14 +37,19 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: SignUpValues) => {
-    // Simulate creating account and signing in
     await new Promise(resolve => setTimeout(resolve, 1000));
     await signIn(data.email, data.password);
     router.push("/dashboard");
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex overflow-hidden justify-center items-center p-6">
+    <div className="relative min-h-screen bg-[#030307] text-white flex overflow-hidden justify-center items-center p-6">
+      {/* Ambient Cosmic Liquid Glass Radial Glow */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.22),rgba(15,23,42,0.65)_55%,rgba(3,3,8,0.95)_100%)]" />
+
+      {/* 3D Liquid Glass Particle Wave Background */}
+      <ParticleWave className="opacity-90" transparent={true} />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -52,23 +58,26 @@ export default function SignUpPage() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[rgba(12,12,12,0.7)] backdrop-blur-xl border border-white/[0.07] flex items-center justify-center mb-3">
-            <Shield className="w-6 h-6 text-white" />
+          <div className="w-14 h-14 rounded-2xl glass-liquid-panel border border-white/20 flex items-center justify-center mb-3 shadow-2xl">
+            <Shield className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-xl font-medium tracking-[0.2em] text-white/90">GHOST</h1>
+          <h1 className="text-xl font-bold tracking-[0.2em] text-white">
+            <span className="text-[#b8d4f0]">/</span> GHOST
+          </h1>
+          <p className="text-xs text-zinc-400 font-mono mt-1">Enterprise Fleet Access</p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-[rgba(12,12,12,0.7)] backdrop-blur-xl border border-white/[0.07] rounded-2xl p-8 shadow-2xl">
-          <h2 className="text-xl font-medium mb-6">Request Access</h2>
+        <div className="glass-liquid-panel p-8 shadow-2xl">
+          <h2 className="text-xl font-bold text-white mb-6 text-center">Request Enterprise Access</h2>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">Full Name</label>
+              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-1.5">Full Name</label>
               <div className="relative">
                 <input
                   {...register("name")}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 focus:bg-black/60 transition-colors"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#b8d4f0]/50 transition-colors"
                   placeholder="Satoshi Nakamoto"
                 />
                 {errors.name && <p className="text-red-400 text-xs mt-1 absolute -bottom-5 left-0">{errors.name.message}</p>}
@@ -76,31 +85,31 @@ export default function SignUpPage() {
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">Email</label>
+              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-1.5">Work Email</label>
               <div className="relative">
                 <input
                   {...register("email")}
                   type="email"
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 focus:bg-black/60 transition-colors"
-                  placeholder="satoshi@company.com"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#b8d4f0]/50 transition-colors"
+                  placeholder="satoshi@enterprise.xyz"
                 />
                 {errors.email && <p className="text-red-400 text-xs mt-1 absolute -bottom-5 left-0">{errors.email.message}</p>}
               </div>
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">Password</label>
+              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-1.5">Password</label>
               <div className="relative">
                 <input
                   {...register("password")}
                   type={showPassword ? "text" : "password"}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 focus:bg-black/60 transition-colors"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#b8d4f0]/50 transition-colors"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -109,35 +118,35 @@ export default function SignUpPage() {
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">Confirm Password</label>
+              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-1.5">Confirm Password</label>
               <div className="relative">
                 <input
                   {...register("confirmPassword")}
                   type="password"
-                  className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 focus:bg-black/60 transition-colors"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#b8d4f0]/50 transition-colors"
                   placeholder="••••••••"
                 />
                 {errors.confirmPassword && <p className="text-red-400 text-xs mt-1 absolute -bottom-5 left-0">{errors.confirmPassword.message}</p>}
               </div>
             </div>
 
-            <div className="pt-6">
+            <div className="pt-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm rounded-lg py-2.5 flex justify-center items-center transition-colors"
+                className="btn-liquid btn-liquid-primary w-full py-3 font-bold text-sm flex justify-center items-center shadow-xl"
               >
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Account"}
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Enterprise Account"}
               </button>
             </div>
           </form>
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-xs text-white/40">
-            Already have access?{" "}
-            <Link href="/auth/signin" className="text-white/70 hover:text-white underline underline-offset-4 transition-colors">
-              Sign in
+        <div className="mt-6 text-center">
+          <p className="text-xs text-zinc-400 font-mono">
+            Already have credentials?{" "}
+            <Link href="/auth/signin" className="text-[#b8d4f0] hover:text-white underline underline-offset-4 transition-colors">
+              Sign In
             </Link>
           </p>
         </div>

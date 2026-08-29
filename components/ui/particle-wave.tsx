@@ -29,40 +29,52 @@ const ParticleWave: React.FC<ParticleWaveProps> = ({ className = '', transparent
   // Function to get background color based on theme
   const getBackgroundColor = (theme: string) => {
     return theme === 'dark' 
-      ? new THREE.Color(0x000000) // Black background for dark theme
+      ? new THREE.Color(0x050811) // Deep midnight navy for dark theme
       : new THREE.Color(0xffffff); // White background for light theme
   };
 
-  // Function to get particle color based on theme (Ice-blue & white blend for liquid glass)
+  // Function to get particle color based on theme (Ice-blue & glowing cyan blend)
   const getParticleColor = (theme: string) => {
     return theme === 'dark' 
-      ? new THREE.Vector3(0.72, 0.83, 0.94) // Subtle Ice Blue (#b8d4f0)
-      : new THREE.Vector3(0.0, 0.0, 0.0);
+      ? new THREE.Vector3(0.72, 0.88, 1.0) // Luminous Ice Blue
+      : new THREE.Vector3(0.1, 0.1, 0.1);
   };
 
   const particleVertex = `
     attribute float scale;
     uniform float uTime;
+    varying float vHeight;
     void main() {
       vec3 p = position;
       float s = scale;
-      p.y += (sin(p.x + uTime) * 0.5) + (cos(p.y + uTime) * 0.1) * 2.0;
-      p.x += (sin(p.y + uTime) * 0.5);
-      s += (sin(p.x + uTime) * 0.5) + (cos(p.y + uTime) * 0.1) * 2.0;
+      
+      // Undulating double wave equation across 3D space
+      float elevation = sin(p.x * 0.28 + uTime * 1.2) * 1.7 + cos(p.z * 0.28 + uTime * 0.9) * 1.5;
+      p.y += elevation;
+      
+      vHeight = (elevation + 3.2) / 6.4; // Normalized 0-1 for color blending
+      
       vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-      gl_PointSize = s * 16.0 * (1.0 / -mvPosition.z);
+      gl_PointSize = clamp(s * 45.0 * (1.0 / -mvPosition.z), 1.5, 12.0);
       gl_Position = projectionMatrix * mvPosition;
     }
   `;
 
   const particleFragment = `
     uniform vec3 uColor;
+    varying float vHeight;
     void main() {
       vec2 coord = gl_PointCoord - vec2(0.5);
       float dist = length(coord);
       if (dist > 0.5) discard;
-      float alpha = (1.0 - dist * 2.0) * 0.4;
-      gl_FragColor = vec4(uColor, alpha);
+      
+      // Soft radial glow falloff
+      float glow = smoothstep(0.5, 0.05, dist);
+      
+      // Crest color highlights (white at wave peaks, ice blue in troughs)
+      vec3 crestColor = mix(uColor, vec3(1.0, 1.0, 1.0), vHeight * 0.6);
+      
+      gl_FragColor = vec4(crestColor, glow * 0.85);
     }
   `;
 
@@ -74,9 +86,10 @@ const ParticleWave: React.FC<ParticleWaveProps> = ({ className = '', transparent
     const winHeight = window.innerHeight;
     const aspectRatio = winWidth / winHeight;
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.01, 1000);
-    camera.position.set(0, 5.5, 4.8);
+    // Camera angled to see sweeping 3D landscape of particles
+    const camera = new THREE.PerspectiveCamera(65, aspectRatio, 0.01, 1000);
+    camera.position.set(0, 8.5, 14.5);
+    camera.lookAt(0, -1.0, 0);
 
     // Scene
     const scene = new THREE.Scene();
@@ -86,6 +99,7 @@ const ParticleWave: React.FC<ParticleWaveProps> = ({ className = '', transparent
       canvas,
       antialias: true,
       alpha: transparent,
+      powerPreference: "high-performance"
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(winWidth, winHeight);
@@ -98,10 +112,10 @@ const ParticleWave: React.FC<ParticleWaveProps> = ({ className = '', transparent
       renderer.setClearColor(0x000000, 0);
     }
 
-    // Particles
-    const gap = 0.32;
-    const amountX = 180;
-    const amountY = 180;
+    // Particles - Dense grid spanning horizon
+    const gap = 0.35;
+    const amountX = 160;
+    const amountY = 160;
     const particleNum = amountX * amountY;
     const particlePositions = new Float32Array(particleNum * 3);
     const particleScales = new Float32Array(particleNum);
@@ -112,8 +126,8 @@ const ParticleWave: React.FC<ParticleWaveProps> = ({ className = '', transparent
       for (let iy = 0; iy < amountY; iy++) {
         particlePositions[i] = ix * gap - ((amountX * gap) / 2);
         particlePositions[i + 1] = 0;
-        particlePositions[i + 2] = iy * gap - ((amountX * gap) / 2);
-        particleScales[j] = 1;
+        particlePositions[i + 2] = iy * gap - ((amountY * gap) / 2);
+        particleScales[j] = 1.0;
         i += 3;
         j++;
       }

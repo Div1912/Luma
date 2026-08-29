@@ -65,9 +65,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white flex overflow-hidden">
+    <div className="relative min-h-screen bg-[#030307] text-white flex overflow-hidden">
+      {/* Ambient Cosmic Liquid Glass Radial Glow */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.18),rgba(15,23,42,0.6)_55%,rgba(3,3,8,0.95)_100%)]" />
+
       {/* 3D Liquid Glass Particle Wave Background */}
-      <ParticleWave className="opacity-65" transparent={true} />
+      <ParticleWave className="opacity-90" transparent={true} />
 
       {/* Mobile Header (Hidden on Desktop) */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[rgba(8,8,8,0.9)] backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-4 z-50">
