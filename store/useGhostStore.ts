@@ -293,26 +293,30 @@ export const useGhostStore = create<GhostStore>()(
       isAuthenticated: false,
       isDemoMode: false,
       user: null,
-
       signIn: async (email, password) => {
-        await new Promise((r) => setTimeout(r, 800));
-        if (email === "demo@ghost.xyz" && password === "ghost2025") {
-          set({
-            isAuthenticated: true,
-            isDemoMode: false,
-            user: { 
-              email, 
-              name: "Alex Morgan", 
-              avatar: undefined,
-              role: "Chief AI Security Architect",
-              organization: "Ghost Autonomous Swarms Inc.",
-              bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
-              timezone: "UTC-8 (Pacific Time)"
-            },
-          });
-          return { success: true };
+        await new Promise((r) => setTimeout(r, 400));
+        if (!email || !password) {
+          return { success: false, error: "Please enter your email and password" };
         }
-        return { success: false, error: "Invalid credentials. Try demo@ghost.xyz / ghost2025" };
+        if (password.length < 6) {
+          return { success: false, error: "Password must be at least 6 characters" };
+        }
+        const namePart = email.split("@")[0];
+        const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+        set({
+          isAuthenticated: true,
+          isDemoMode: false,
+          user: { 
+            email, 
+            name: email === "demo@ghost.xyz" ? "Alex Morgan" : formattedName, 
+            avatar: undefined,
+            role: "Chief AI Security Architect",
+            organization: "Ghost Autonomous Swarms Inc.",
+            bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
+            timezone: "UTC-8 (Pacific Time)"
+          },
+        });
+        return { success: true };
       },
 
       signInDemo: () => {

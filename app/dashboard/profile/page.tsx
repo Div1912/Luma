@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
@@ -35,7 +36,8 @@ import {
 import { toast } from "sonner";
 
 export default function ProfilePage() {
-  const { user, updateUser, metrics, policies, fleets } = useGhostStore();
+  const router = useRouter();
+  const { user, updateUser, metrics, policies, fleets, signOut } = useGhostStore();
   const { walletState, network, connectLace, disconnectLace } = useMidnight();
 
   const [firstName, setFirstName] = useState(user?.name?.split(" ")[0] || "Alex");
@@ -138,10 +140,22 @@ export default function ProfilePage() {
             <button 
               onClick={handleSaveProfile} 
               disabled={isSaving}
-              className="btn-liquid btn-liquid-primary flex-1 md:flex-initial flex items-center justify-center gap-2 py-2.5 px-6 font-semibold"
+              className="btn-liquid btn-liquid-primary flex-1 md:flex-initial flex items-center justify-center gap-2 py-2.5 px-5 font-semibold text-xs"
             >
               {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+            </button>
+            <button 
+              onClick={() => {
+                disconnectLace();
+                signOut();
+                toast.info("Signed Out", { description: "Administrative session terminated." });
+                router.replace("/auth/signin");
+              }}
+              className="btn-liquid btn-liquid-secondary flex-1 md:flex-initial flex items-center justify-center gap-2 py-2.5 px-4 text-xs text-red-400 hover:text-red-300 font-mono"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
             </button>
           </div>
         </div>

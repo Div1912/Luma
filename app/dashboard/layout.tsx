@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
-  const { network, setNetwork } = useMidnight();
+  const { network, setNetwork, disconnectLace } = useMidnight();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pendingApprovalsCount = approvals.filter(a => a.status === "pending").length;
 
   const handleSignOut = () => {
+    disconnectLace();
     signOut();
+    toast.info("Signed out successfully");
     router.replace("/auth/signin");
   };
 
