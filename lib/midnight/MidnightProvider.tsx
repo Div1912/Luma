@@ -43,7 +43,9 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       setNetworkState(savedNetwork);
       setNetworkId(savedNetwork);
     } else {
+      setNetworkState('preprod');
       setNetworkId('preprod');
+      localStorage.setItem('ghost_network', 'preprod');
     }
   }, []);
 
@@ -67,13 +69,48 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         throw new Error('Lace wallet is installed but not enabled or compatible.');
       }
       
-      // Request connection to selected network
-      const apiInstance = await provider.connect(network);
+      // Attempt to auto-detect network from provider or saved state
+      let activeNetwork: 'preview' | 'preprod' = network;
+      try {
+        if (typeof provider.getNetworkId === 'function') {
+          const detected = await provider.getNetworkId();
+          if (detected === 'preview' || detected === 'preprod') {
+            activeNetwork = detected;
+            setNetwork(detected);
+          }
+        }
+      } catch (e) {
+        // ignore detection failure
+      }
+
+      // Request connection to active network
+      const apiInstance = await provider.connect(activeNetwork);
       setApi(apiInstance);
+
+      try {
+        if (typeof apiInstance.getNetworkId === 'function') {
+          const detected = await apiInstance.getNetworkId();
+          if (detected === 'preview' || detected === 'preprod') {
+            activeNetwork = detected;
+            setNetwork(detected);
+          }
+        }
+      } catch (e) {
+        // ignore detection failure
+      }
       
       const state = await apiInstance.getUnshieldedAddress();
+      const unshieldedAddr = state?.unshieldedAddress || '';
+
+      // Auto-detect network from address prefix or tag if available
+      if (unshieldedAddr.includes('preprod') || unshieldedAddr.startsWith('mn_preprod') || unshieldedAddr.startsWith('preprod')) {
+        setNetwork('preprod');
+      } else if (unshieldedAddr.includes('preview') || unshieldedAddr.startsWith('mn_preview') || unshieldedAddr.startsWith('preview')) {
+        setNetwork('preview');
+      }
+
       setWalletState({
-        address: state.unshieldedAddress,
+        address: unshieldedAddr,
         isConnected: true,
         error: undefined
       });

@@ -62,8 +62,17 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     const saved = localStorage.getItem('ghost_contract_address');
-    if (saved) setContractAddress(saved);
-  }, []);
+    const preprodDefault = '0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad';
+    const previewDefault = 'e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70';
+
+    if (saved && saved !== preprodDefault && saved !== previewDefault) {
+      setContractAddress(saved);
+    } else {
+      const activeAddress = network === 'preprod' ? preprodDefault : previewDefault;
+      setContractAddress(activeAddress);
+      localStorage.setItem('ghost_contract_address', activeAddress);
+    }
+  }, [network]);
 
   const handleDeploy = async () => {
     try {
@@ -72,10 +81,10 @@ export default function DashboardOverview() {
       const address = await deploy(BigInt(1000000));
       // After deploy, walletState.address has the deployed address
       toast.success("Contract Deployed Successfully!", {
-        description: `Waiting for indexer sync on ${network}...`,
+        description: `Waiting for indexer sync on ${network || 'preprod'}...`,
         action: {
           label: "View Explorer",
-          onClick: () => window.open(`https://${network}.midnightexplorer.com/contracts/${address}`, "_blank")
+          onClick: () => window.open(`https://${network || 'preprod'}.midnightexplorer.com/contracts/${address}`, "_blank")
         }
       });
     } catch (err: any) {
@@ -260,7 +269,7 @@ export default function DashboardOverview() {
                 <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold font-mono">Verifiable Contract Address ({network.toUpperCase()})</span>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
-                  <a href={`https://${network}.midnightexplorer.com/contracts/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-[#b8d4f0] hover:text-white transition-colors"><ArrowUpRight className="w-4 h-4" /></a>
+                  <a href={`https://${network || 'preprod'}.midnightexplorer.com/contracts/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-[#b8d4f0] hover:text-white transition-colors" title={`View on Midnight ${(network || 'preprod').toUpperCase()} Explorer`}><ArrowUpRight className="w-4 h-4" /></a>
                 </div>
               </div>
             )}

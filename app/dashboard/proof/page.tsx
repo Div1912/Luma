@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
+import { useMidnight } from "@/lib/midnight/useMidnight";
 import { ShieldCheck, Hash, ExternalLink, Activity, Clock, Box, X } from "lucide-react";
 
 export default function ProofPage() {
   const { auditEvents } = useGhostStore();
+  const { network } = useMidnight();
   const [selectedProof, setSelectedProof] = useState<any | null>(null);
 
   // Filter only events that have a proof hash
@@ -145,13 +147,13 @@ export default function ProofPage() {
                   {/* Action */}
                   <div className="pt-4 border-t border-white/10">
                     <a 
-                      href={`https://${(selectedProof.metadata?.network as string) || 'preview'}.midnightexplorer.com/${selectedProof.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedProof.proofHash}`}
+                      href={`https://${(selectedProof.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${selectedProof.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedProof.proofHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-liquid btn-liquid-cyan w-full py-3 flex items-center justify-center gap-2"
+                      className="btn-liquid btn-liquid-cyan w-full py-3 flex items-center justify-center gap-2 font-mono text-xs"
                     >
                       <ExternalLink className="w-4 h-4" />
-                      <span>View on Midnight Explorer</span>
+                      <span>View on Midnight {((selectedProof.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer</span>
                     </a>
                   </div>
                 </div>

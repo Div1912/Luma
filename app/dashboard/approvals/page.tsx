@@ -146,13 +146,14 @@ export default function ApprovalsPage() {
                       <span className="text-[11px] font-mono truncate">{selectedRequest.proofHash || '0x7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0'}</span>
                     </div>
                     <a 
-                      href={`https://${network || 'preview'}.midnightexplorer.com/transactions/${selectedRequest.proofHash || '0x7f8a9b2c3d'}`}
+                      href={`https://${((selectedRequest as any).metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/transactions/${selectedRequest.proofHash || '0x7f8a9b2c3d'}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-[#b8d4f0] hover:text-white transition-colors flex items-center space-x-1 font-mono"
+                      title={`View on Midnight ${(((selectedRequest as any).metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
                     >
                       <ExternalLink className="w-3 h-3" />
-                      <span>View on Midnight Explorer</span>
+                      <span>View on Midnight {(((selectedRequest as any).metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer</span>
                     </a>
                   </div>
                 </div>

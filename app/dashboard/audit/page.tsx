@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
+import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Search, Filter, Download, ChevronRight, X, Terminal, Hash, Activity, ShieldCheck, Copy } from "lucide-react";
 
 export default function AuditPage() {
   const { auditEvents } = useGhostStore();
+  const { network } = useMidnight();
   const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -136,11 +138,11 @@ export default function AuditPage() {
                   <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if(ev.proofHash) e.stopPropagation(); }}>
                     {ev.proofHash ? (
                       <a 
-                        href={`https://${(ev.metadata?.network as string) || 'preview'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${ev.proofHash}`} 
+                        href={`https://${(ev.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${ev.proofHash}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="hover:text-[#b8d4f0] transition-colors inline-block"
-                        title="View on Explorer"
+                        title={`View on Midnight ${((ev.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
                       >
                         <Hash className="w-4 h-4 mx-auto" />
                       </a>
@@ -199,13 +201,14 @@ export default function AuditPage() {
 
                 {selectedEvent.proofHash && (
                   <div className="space-y-3">
-                    <h4 className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Cryptographic Proof</h4>
+                    <h4 className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Cryptographic Proof ({((selectedEvent.metadata?.network as string) || network || 'preprod').toUpperCase()})</h4>
                     <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex justify-between items-center group">
                       <a 
-                        href={`https://${(selectedEvent.metadata?.network as string) || 'preview'}.midnightexplorer.com/${selectedEvent.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedEvent.proofHash}`}
+                        href={`https://${(selectedEvent.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${selectedEvent.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedEvent.proofHash}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-xs font-mono text-[#b8d4f0] hover:text-white break-all mr-4 transition-colors"
+                        title={`View on Midnight ${((selectedEvent.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
                       >
                         {selectedEvent.proofHash}
                       </a>
