@@ -68,13 +68,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="relative min-h-screen bg-[#03040a] text-white flex overflow-hidden">
-      {/* 3D Liquid Glass Particle Wave Background */}
-      <ParticleWave className="opacity-95" transparent={true} />
-
-      {/* Luminous Ambient Glowing Light Orbs */}
+      {/* Luminous Ambient Glowing Light Orbs (Must be behind wave) */}
       <div className="fixed -top-32 left-1/3 w-[650px] h-[650px] bg-gradient-to-br from-[#b8d4f0]/20 via-sky-600/15 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="fixed -bottom-20 right-1/4 w-[550px] h-[550px] bg-gradient-to-tl from-indigo-600/20 via-[#b8d4f0]/15 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
-      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.15),rgba(15,23,42,0.5)_55%,rgba(3,4,10,0.92)_100%)]" />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.15),rgba(15,23,42,0.4)_55%,rgba(3,4,10,0.85)_100%)]" />
+
+      {/* 3D Liquid Glass Particle Wave Background */}
+      <ParticleWave className="opacity-100" transparent={true} />
 
       {/* Mobile Header (Hidden on Desktop) */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[rgba(8,8,8,0.9)] backdrop-blur-md border-b border-white/[0.06] flex items-center justify-between px-4 z-50">
