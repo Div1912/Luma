@@ -140,7 +140,7 @@ export default function AuditPage() {
                   <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if(ev.proofHash) e.stopPropagation(); }}>
                     {ev.proofHash ? (
                       <a 
-                        href={`https://preview.midnightexplorer.com/transactions/${ev.proofHash}`} 
+                        href={`https://${(ev.metadata?.network as string) || 'preview'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${ev.proofHash}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="hover:text-[#b8d4f0] transition-colors inline-block"
@@ -206,7 +206,7 @@ export default function AuditPage() {
                     <h4 className="text-sm font-medium text-zinc-500 uppercase tracking-wider">Cryptographic Proof</h4>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 flex justify-between items-center group">
                       <a 
-                        href={`https://preview.midnightexplorer.com/transactions/${selectedEvent.proofHash}`}
+                        href={`https://${(selectedEvent.metadata?.network as string) || 'preview'}.midnightexplorer.com/${selectedEvent.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedEvent.proofHash}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-sm font-mono text-[#b8d4f0] hover:text-white hover:underline break-all mr-4 transition-colors"

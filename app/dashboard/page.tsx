@@ -49,7 +49,7 @@ export default function DashboardOverview() {
   });
 
   
-  const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace } = useMidnight();
+  const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace, network } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contractAddress, setContractAddress] = useState<string>("");
@@ -69,7 +69,7 @@ export default function DashboardOverview() {
         description: "Waiting for indexer sync...",
         action: {
           label: "View Explorer",
-          onClick: () => window.open(`https://preview.midnightexplorer.com/contracts/${address}`, "_blank")
+          onClick: () => window.open(`https://${network}.midnightexplorer.com/contracts/${address}`, "_blank")
         }
       });
     } catch (err: any) {
@@ -283,7 +283,7 @@ export default function DashboardOverview() {
               <div className="flex items-center justify-between">
                 <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
                 <a 
-                  href={`https://preview.midnightexplorer.com/contracts/${contractAddress}`}
+                  href={`https://${network}.midnightexplorer.com/contracts/${contractAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-2 text-[#b8d4f0] hover:text-white transition-colors"
@@ -365,9 +365,9 @@ export default function DashboardOverview() {
                     <span>AGENT: {event.agentName || 'System'}</span>
                     {event.proofHash && (
                       <span className="flex items-center gap-1">
-                        TX: 
+                        {event.type === 'policy_created' ? 'CONTRACT:' : 'TX:'}
                         <a 
-                          href={`https://preview.midnightexplorer.com/transactions/${event.proofHash}`}
+                          href={`https://${(event.metadata?.network as string) || 'preview'}.midnightexplorer.com/${event.type === 'policy_created' ? 'contracts' : 'transactions'}/${event.proofHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-[#b8d4f0] hover:text-white transition-colors"
