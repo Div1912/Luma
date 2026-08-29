@@ -75,20 +75,27 @@ Ghost is fully integrated with Midnight. It generates real zero-knowledge proofs
 > [!NOTE]
 > **Network & Testnet Details:** 
 > - **Primary Verified Deployment:** Midnight Preview Testnet (Contract Address: `e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`).
+> - **Preprod Verified Deployment:** Midnight Preprod Network (Contract Address: `0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`).
 > - **Preprod Compatibility:** The Ghost dApp frontend features a dynamic **Network Switcher** allowing instant connection to both **Preprod** and **Preview** networks.
-> - **Faucet Note:** On-chain executions and live transactions were processed on Preview due to testnet tDUST faucet availability during submission.
+> - **Faucet Note:** On-chain executions and live transactions were processed on Preview due to testnet tDUST faucet availability during submission, and successfully transitioned to Preprod.
 
-### Real Transaction Hash
+### Real Transaction Hash (Preview)
 *The AI agent executed a transaction that was verified by our ZK circuit and permanently settled on the Midnight network.*
 * **Transaction Hash:** [`dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde`](https://preview.midnightexplorer.com/transactions/dac35704d1124c5c7bd884e97376040b40b37c02ccfe544da8bc1029e01debde)
 * **Status:** `SUCCESS` (Verified via ZK Proof)
 <img src="./Screenshot/Transaction%20Hash.png" alt="Transaction Hash" width="100%" />
 
+### Preprod Network Execution (Contract & Transaction)
+*Ghost operating on the Midnight Preprod Network with full ZK verification.*
+* **Contract Address:** [`0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+* **Transaction Hash:** [`0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889`](https://preprod.midnightexplorer.com/transactions/0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889)
+<img src="./Screenshot/Preprod%20Deployed%20Contract.png" alt="Preprod Deployed Contract" width="100%" />
+
 ### Deployed Smart Contract (CLI Deployment)
 *Deploying the underlying Ghost smart contract through the Midnight development node.*
 <img src="./Screenshot/Deployed%20Contract.png" alt="Deployed Contract CLI" width="100%" />
 
-### Verified Contract on Explorer
+### Verified Contract on Explorer (Preview)
 *Our core ZK Policy Engine is live and fully verifiable on the Midnight Blockchain Explorer.*
 * **Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contracts/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
 <img src="./Screenshot/Contract%20on%20chain.png" alt="Contract On Chain" width="100%" />
