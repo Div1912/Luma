@@ -11,11 +11,21 @@ import { WitnessSynthesizer } from '../midnight/witness.js';
 import { HeadlessMidnightWallet } from '../midnight/wallet.js';
 import { HeadlessMidnightProver } from '../midnight/prover.js';
 
+import { VelocityCircuitBreaker } from './circuit-breaker.js';
+import { ApprovalGateway } from '../hitl/deferred.js';
+import { TelemetryLogger } from '../telemetry/logger.js';
+
 export const globalPreflight = new PreflightEngine();
 export const globalWitness = new WitnessSynthesizer();
+export const globalCircuitBreaker = new VelocityCircuitBreaker();
+export const globalApprovalGateway = new ApprovalGateway();
+export const globalLogger = new TelemetryLogger();
 
 export function resetGlobalPreflight(): void {
   globalPreflight.clear();
+  globalCircuitBreaker.reset();
+  globalApprovalGateway.clear();
+  globalLogger.clear();
 }
 
 /**
@@ -133,7 +143,10 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
       context = defaultExtractContext(callArgs);
     }
 
-    // 2. Sub-5ms Optimistic In-Memory Preflight Check
+    // 2. Velocity Circuit Breaker Check (Loop & Anomaly Protection)
+    globalCircuitBreaker.recordAndAssert(agentId, context);
+
+    // 3. Sub-5ms Optimistic In-Memory Preflight Check
     const preflight = globalPreflight.evaluate(context, config.localPolicy, agentId);
 
     if (!preflight.approved) {
@@ -147,6 +160,13 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
         }
       );
 
+      globalLogger.log('warn', 'policy_violation_blocked', {
+        agentId,
+        policyId: config.policyId,
+        context,
+        error: violationError.message,
+      });
+
       if (config.onBlock) {
         return await config.onBlock(violationError, context);
       }
@@ -154,23 +174,41 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
       throw violationError;
     }
 
-    // 3. Synthesize Midnight ZK Witness
+    // 4. Asynchronous Human-in-the-Loop Escalation (if required by threshold)
+    if (preflight.requiresHumanApproval) {
+      globalLogger.log('info', 'human_approval_required', {
+        agentId,
+        policyId: config.policyId,
+        context,
+      });
+
+      // Suspends agent execution cleanly until human signs off or timeout expires
+      await globalApprovalGateway.requestApproval(agentId, context, {
+        policyId: config.policyId,
+        timeoutMs: config.timeoutMs,
+      });
+    }
+
+    // 5. Synthesize Midnight ZK Witness
     const witness = globalWitness.synthesize(context, agentId);
 
-    // 4. Generate Proof via Headless Midnight Prover
+    // 6. Generate Proof via Headless Midnight Prover
     const receipt = await prover.proveSpend(witness, wallet, context);
 
-    // 5. Advance in-memory daily spend tracking upon successful proof
+    // 7. Advance in-memory daily spend tracking upon successful proof
     globalPreflight.recordSpend(agentId, config.policyId || 'default', context.amount);
 
-    // 6. Fire audit callback if registered
+    // 8. Log structured enterprise audit receipt
+    globalLogger.audit('tool_execution_verified', receipt, agentId);
+
+    // 9. Fire audit callback if registered
     if (config.onProofGenerated) {
       Promise.resolve(config.onProofGenerated(receipt)).catch((err) =>
         console.error('[Ghost Guard] onProofGenerated callback error:', err)
       );
     }
 
-    // 7. Safe to execute original tool logic
+    // 10. Safe to execute original tool logic
     return await originalFn.apply(thisArg, callArgs);
   }
 

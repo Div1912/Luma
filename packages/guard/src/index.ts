@@ -5,10 +5,29 @@
  */
 
 // Core Wrapper & Functions
-export { withGhostGuard, defaultExtractContext, resetGlobalPreflight, globalPreflight } from './core/interceptor.js';
+export {
+  withGhostGuard,
+  defaultExtractContext,
+  resetGlobalPreflight,
+  globalPreflight,
+  globalApprovalGateway,
+  globalCircuitBreaker,
+  globalLogger,
+} from './core/interceptor.js';
 
-// Preflight Engine
+// Preflight Engine & Circuit Breakers
 export { PreflightEngine } from './core/preflight.js';
+export { VelocityCircuitBreaker } from './core/circuit-breaker.js';
+export type { CircuitState, CircuitBreakerConfig } from './core/circuit-breaker.js';
+
+// Human-in-the-Loop Escalation
+export { ApprovalGateway, DeferredPromise } from './hitl/deferred.js';
+export type { ApprovalTicket, TicketStatus } from './hitl/deferred.js';
+
+// Telemetry & Cryptographic Receipts
+export { ReceiptValidator } from './telemetry/receipt.js';
+export { TelemetryLogger } from './telemetry/logger.js';
+export type { StructuredLogPayload, LogLevel } from './telemetry/logger.js';
 
 // Errors Hierarchy
 export {
