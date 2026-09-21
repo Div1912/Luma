@@ -6,6 +6,7 @@ import { useGhostStore, Fleet, Agent } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Play, Pause, ShieldBan, Plus, X, ShieldAlert, Cpu, Activity, Network, Layers, Copy, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { SwarmTelemetry } from "@/components/agents/SwarmTelemetry";
 
 export default function AgentsPage() {
   const { agents, fleets, policies, createAgent, createFleet, createBulkAgents, revokeAgent, pauseAgent, resumeAgent, updateAgent, addAuditEvent } = useGhostStore();
@@ -106,13 +107,20 @@ export default function AgentsPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="p-8 max-w-7xl mx-auto space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Multi-Agent Orchestration</h1>
-          <p className="text-zinc-400 mt-1">Deploy fleets of autonomous agents and assign hierarchical ZK policies.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Autonomous Swarms</h2>
+          <p className="text-sm text-zinc-400">Manage agent networks, provision node fleets, and monitor cryptographic telemetry.</p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsFleetModalOpen(true)}
+            className="btn-liquid bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center gap-2"
+          >
+            <Layers className="w-4 h-4" />
+            <span>New Fleet</span>
+          </button>
           <button
             onClick={() => setIsConnectModalOpen(true)}
             className="btn-liquid btn-liquid-primary flex items-center gap-2"
@@ -129,6 +137,9 @@ export default function AgentsPage() {
           </button>
         </div>
       </div>
+
+      {/* Advanced Swarm Telemetry Component */}
+      <SwarmTelemetry />
 
       <div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl w-fit">
         <button
