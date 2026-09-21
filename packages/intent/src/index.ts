@@ -1,7 +1,7 @@
 /**
  * @file packages/intent/src/index.ts
  * Main entry point for @ghost/intent.
- * Cryptographic Intent-Binding & Prompt-Injection Firewall for Autonomous AI Agents.
+ * Cryptographic Intent-Binding & Prompt-Injection Firewall for Autonomous AI Agents on Midnight.
  */
 
 // Intent Compiler
@@ -13,6 +13,21 @@ export { computeIntentCommitment } from './crypto/commitment.js';
 export { IntentSigningEnclave } from './crypto/signer.js';
 export { IntentTokenManager } from './crypto/token.js';
 
+// Midnight ZK Prover & Compact Contract Client
+export { IntentWitnessSynthesizer, computeCategoryHash } from './midnight/prover.js';
+export {
+  GhostIntentContractClient,
+  type IntentLedgerState,
+  type IntentSettlementTransactionResult,
+} from './midnight/contract.js';
+
+// Prompt-Injection Firewall & Evaluator
+export { IntentFirewallEvaluator } from './firewall/evaluator.js';
+export {
+  GhostPromptInjectionDetectedError,
+  type PromptInjectionTelemetryPayload,
+} from './firewall/errors.js';
+
 // Types & Contracts
 export type {
   CommerceScope,
@@ -20,4 +35,10 @@ export type {
   StandardCommerceCategory,
   IntentCompilerOptions,
   IntentCompilationResult,
+  PromptInjectionDivergenceType,
+  ProposedCommerceAction,
+  IntentWitness,
+  IntentZkProof,
+  IntentSettlementReceipt,
+  IntentFirewallEvaluationResult,
 } from './types.js';

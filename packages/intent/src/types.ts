@@ -50,3 +50,67 @@ export interface IntentCompilationResult {
   extractedMerchantPattern?: string;
   confidenceScore: number;
 }
+
+export type PromptInjectionDivergenceType =
+  | 'CATEGORY_DIVERGENCE'
+  | 'BUDGET_ESCALATION'
+  | 'MERCHANT_HIJACK'
+  | 'REPLAY_VIOLATION'
+  | 'SIGNATURE_INVALID'
+  | 'EXPIRED_INTENT';
+
+export interface ProposedCommerceAction {
+  amount: number;
+  currency?: string;
+  merchant: string;
+  category?: string;
+  merchantDomain?: string;
+  rawPromptSnippet?: string;
+  orderDescription?: string;
+}
+
+export interface IntentWitness {
+  checkoutAmount: number;
+  intentMaxBudget: number;
+  checkoutCategoryHash: string;
+  intentCategoryHash: string;
+  intentNonce: string;
+  humanSignatureToken: string;
+  merchantDomain: string;
+  intentMerchantPattern: string;
+}
+
+export interface IntentZkProof {
+  proofHash: string;
+  witnessCommitment: string;
+  contractAddress: string;
+  intentCommitment: string;
+  publicOutputs: {
+    settledAmount: number;
+    consumedNonce: string;
+    timestamp: string;
+  };
+}
+
+export interface IntentSettlementReceipt {
+  receiptId: string;
+  verified: boolean;
+  scopeId: string;
+  agentId: string;
+  amount: number;
+  currency: string;
+  merchant: string;
+  category: StandardCommerceCategory;
+  proof: IntentZkProof;
+  txDigest: string;
+  settledAt: string;
+}
+
+export interface IntentFirewallEvaluationResult {
+  verified: boolean;
+  action: ProposedCommerceAction;
+  scope: CommerceScope;
+  proof: IntentZkProof;
+  receipt: IntentSettlementReceipt;
+}
+

@@ -52,8 +52,8 @@ export class SemanticIntentCompiler {
       confidence += 0.2;
     }
 
-    // 3. Extract domain pattern if present
-    const domainMatch = cleaned.match(/(?:at|from|on|via|merchant:?)\s+([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
+    // 3. Extract domain pattern if present (e.g. *.united.com, aws.amazon.com)
+    const domainMatch = cleaned.match(/(?:at|from|on|via|merchant:?)\s+([*a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
     const extractedMerchantPattern = domainMatch ? domainMatch[1].toLowerCase().trim() : undefined;
 
     // 4. Synthesize unique 32-byte cryptographic nonce
