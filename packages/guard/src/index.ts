@@ -26,6 +26,29 @@ export type { CompactSpendWitness } from './midnight/witness.js';
 export type { HeadlessWalletState } from './midnight/wallet.js';
 export type { ProverConfig } from './midnight/prover.js';
 
+// Framework Adapters
+export {
+  wrapLangChainTool,
+  wrapVercelTool,
+  wrapElizaAction,
+} from './adapters/index.js';
+export type {
+  LangChainToolLike,
+  VercelToolLike,
+  ElizaActionLike,
+} from './adapters/index.js';
+
+// Replay Protection & Concurrency Management
+export { NonceManager } from './core/nonce-manager.js';
+export type { ExecutionDigestPayload } from './core/nonce-manager.js';
+
+// Midnight Compact Contract & Circuit Binding
+export { GhostCompactContractClient } from './midnight/contract.js';
+export type {
+  CompactContractLedgerState,
+  SpendCircuitWitness,
+} from './midnight/contract.js';
+
 // Types & Contracts
 export type {
   GhostNetwork,
