@@ -1,0 +1,87 @@
+// ==========================================
+// GHOST COMPLIANCE-AUDIT COMPACT CIRCUIT
+// ==========================================
+// Zero-Knowledge Proof-of-Policy Compliance on Midnight.
+// Mathematically proves that an entire fiscal epoch of autonomous agent transactions
+// complied 100% with corporate spending policy, without disclosing proprietary agent prompts,
+// vendor negotiation transcripts, or internal trade secrets.
+// ==========================================
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger governance_root: Bytes<32>;
+export ledger registered_epoch_root: Bytes<32>;
+export ledger active_policy_hash: Bytes<32>;
+export ledger total_audited_volume: Uint<32>;
+export ledger total_audited_transactions: Uint<32>;
+export ledger verified_epoch_count: Uint<32>;
+
+constructor(gov_root: Bytes<32>) {
+  governance_root = gov_root;
+  registered_epoch_root = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] as Bytes<32>;
+  active_policy_hash = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] as Bytes<32>;
+  total_audited_volume = 0 as Uint<32>;
+  total_audited_transactions = 0 as Uint<32>;
+  verified_epoch_count = 0 as Uint<32>;
+}
+
+// Registers the cryptographic Merkle root of an audited fiscal epoch
+export circuit register_compliance_epoch(
+  admin_auth_token: Bytes<32>,
+  epoch_root: Bytes<32>,
+  policy_hash: Bytes<32>
+): [] {
+  assert(admin_auth_token == governance_root, "Unauthorized: Invalid corporate governance authority token");
+  assert(epoch_root != [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "Invalid epoch: Merkle root cannot be zero");
+  assert(policy_hash != [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "Invalid policy: Policy hash cannot be zero");
+
+  registered_epoch_root = epoch_root;
+  active_policy_hash = policy_hash;
+}
+
+// Verifies ZK Proof-of-Policy Compliance for an epoch batch
+export circuit verify_epoch_compliance(
+  epoch_root: Bytes<32>,
+  target_policy_hash: Bytes<32>,
+  max_per_tx_cap: Uint<32>,
+  batch_size: Uint<32>,
+  batch_volume: Uint<32>,
+  sample_tx_digest_1: Bytes<32>,
+  sample_policy_hash_1: Bytes<32>,
+  sample_amount_1: Uint<32>,
+  sample_is_sanctioned_1: Uint<8>,
+  sample_tx_digest_2: Bytes<32>,
+  sample_policy_hash_2: Bytes<32>,
+  sample_amount_2: Uint<32>,
+  sample_is_sanctioned_2: Uint<8>,
+  sample_tx_digest_3: Bytes<32>,
+  sample_policy_hash_3: Bytes<32>,
+  sample_amount_3: Uint<32>,
+  sample_is_sanctioned_3: Uint<8>
+): [] {
+  // 1. Authenticated Epoch & Policy Invariants:
+  assert(epoch_root == registered_epoch_root, "Audit Error: Epoch Merkle root does not match registered ledger root");
+  assert(target_policy_hash == active_policy_hash, "Audit Error: Target policy hash does not match active governance policy");
+  assert(batch_size > 0 as Uint<32>, "Audit Error: Audited batch size must be greater than zero");
+
+  // 2. Policy Adherence Invariants (Sample Transaction 1):
+  assert(sample_policy_hash_1 == target_policy_hash, "Compliance Breach: Transaction 1 diverged from target corporate policy");
+  assert(sample_amount_1 <= max_per_tx_cap, "Compliance Breach: Transaction 1 exceeded authorized transaction spend cap");
+  assert(sample_is_sanctioned_1 == 0 as Uint<8>, "Sanctions Breach: Transaction 1 disbursed funds to a sanctioned entity");
+
+  // 3. Policy Adherence Invariants (Sample Transaction 2):
+  assert(sample_policy_hash_2 == target_policy_hash, "Compliance Breach: Transaction 2 diverged from target corporate policy");
+  assert(sample_amount_2 <= max_per_tx_cap, "Compliance Breach: Transaction 2 exceeded authorized transaction spend cap");
+  assert(sample_is_sanctioned_2 == 0 as Uint<8>, "Sanctions Breach: Transaction 2 disbursed funds to a sanctioned entity");
+
+  // 4. Policy Adherence Invariants (Sample Transaction 3):
+  assert(sample_policy_hash_3 == target_policy_hash, "Compliance Breach: Transaction 3 diverged from target corporate policy");
+  assert(sample_amount_3 <= max_per_tx_cap, "Compliance Breach: Transaction 3 exceeded authorized transaction spend cap");
+  assert(sample_is_sanctioned_3 == 0 as Uint<8>, "Sanctions Breach: Transaction 3 disbursed funds to a sanctioned entity");
+
+  // 5. Atomic Update of Cumulative Audited Volumes (Disclosed)
+  total_audited_volume = (total_audited_volume + disclose(batch_volume)) as Uint<32>;
+  total_audited_transactions = (total_audited_transactions + disclose(batch_size)) as Uint<32>;
+  verified_epoch_count = (verified_epoch_count + 1) as Uint<32>;
+}

@@ -48,6 +48,12 @@
       ],
       "@ghost/quorum/*": [
         "./packages/quorum/src/*"
+      ],
+      "@ghost/audit": [
+        "./packages/audit/src/index.ts"
+      ],
+      "@ghost/audit/*": [
+        "./packages/audit/src/*"
       ]
     },
     "incremental": true
