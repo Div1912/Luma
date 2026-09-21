@@ -42,6 +42,12 @@
       ],
       "@ghost/sdk/*": [
         "./packages/sdk/src/*"
+      ],
+      "@ghost/quorum": [
+        "./packages/quorum/src/index.ts"
+      ],
+      "@ghost/quorum/*": [
+        "./packages/quorum/src/*"
       ]
     },
     "incremental": true
