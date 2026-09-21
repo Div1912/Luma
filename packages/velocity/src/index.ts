@@ -29,6 +29,18 @@ export {
   type VelocitySettlementResult,
 } from './midnight/contract.js';
 
+// Emergency Notification Dispatcher & Unfreeze Enclave
+export { EmergencyNotificationDispatcher } from './emergency/dispatcher.js';
+export { SupervisorUnfreezeEnclave } from './emergency/unfreeze.js';
+
+// Drop-In Tool Middleware & Errors
+export {
+  withVelocityDampening,
+  defaultExtractAmount,
+  type VelocityDampeningOptions,
+} from './guard/middleware.js';
+export { GhostVelocityCircuitTrippedError } from './guard/errors.js';
+
 // Types & Contracts
 export type {
   CircuitBreakerState,
@@ -45,4 +57,6 @@ export type {
   EWMASnapshot,
   AnomalyDetectorConfig,
   DampenerConfig,
+  EmergencyAlertDossier,
+  EmergencyDispatcherConfig,
 } from './types.js';

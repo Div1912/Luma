@@ -137,3 +137,33 @@ export interface DampenerConfig {
   detectorConfig?: AnomalyDetectorConfig;
 }
 
+export interface EmergencyAlertDossier {
+  alertId: string;
+  agentId: string;
+  anomalyType: AnomalyType;
+  severity: AnomalySeverity;
+  instantaneousRate: number;
+  baselineRate: number;
+  spikeRatio: number;
+  attemptedAmount: number;
+  remainingTokens: number;
+  cooldownSeconds: number;
+  unfreezeUrl?: string;
+  timestamp: string;
+  channelsSent: ('push' | 'sms' | 'webhook')[];
+  summaryMessage: string;
+}
+
+export interface EmergencyDispatcherConfig {
+  agentId?: string;
+  enablePush?: boolean;
+  enableSms?: boolean;
+  enableWebhook?: boolean;
+  pushEndpoint?: string;
+  smsPhoneNumber?: string;
+  webhookUrl?: string;
+  unfreezeBaseUrl?: string;
+  onAlertDispatched?: (dossier: EmergencyAlertDossier) => void;
+}
+
+

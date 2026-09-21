@@ -85,3 +85,10 @@ export {
   type IntentBindingOptions,
 } from '../../intent/src/index.js';
 
+// Velocity Dampening Middleware Integration
+export {
+  withVelocityDampening,
+  type VelocityDampeningOptions,
+} from '../../velocity/src/index.js';
+
+

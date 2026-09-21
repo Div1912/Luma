@@ -90,4 +90,8 @@ export interface GhostGuardConfig {
   intentToken?: any;
   /** Optional callback fired when an intent divergence or prompt injection is detected */
   onIntentViolation?: (error: any, context: ToolSpendContext) => Promise<any> | any;
+  /** Optional AdaptiveVelocityDampener instance to enforce token-bucket limits and EWMA anomaly dampening */
+  velocityDampener?: any;
+  /** Optional callback fired when velocity circuit breaker trips */
+  onVelocityTripped?: (error: any, context: ToolSpendContext) => Promise<any> | any;
 }

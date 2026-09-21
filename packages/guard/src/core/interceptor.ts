@@ -182,6 +182,36 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
       }
     }
 
+    // 2.6 Dynamic Token-Bucket & EWMA Anomaly Velocity Dampener (if configured)
+    if (config.velocityDampener && context.amount > 0) {
+      const velResult = config.velocityDampener.evaluate(context.amount);
+      if (!velResult.permitted) {
+        globalCircuitBreaker.trip();
+        globalLogger.log('error', 'velocity_anomaly_blocked', {
+          agentId,
+          context,
+          error: `Velocity Anomaly (${velResult.assessment.anomalyType || 'BURST'}): ${velResult.reason}`,
+        });
+
+        const error = new GhostPolicyViolationError(
+          `[Ghost Guard] Velocity Anomaly Blocked: ${velResult.reason}`,
+          {
+            code: 'POLICY_FROZEN',
+            context,
+            policyId: 'velocity_dampener_active',
+          }
+        );
+
+        if (config.onVelocityTripped) {
+          return await config.onVelocityTripped(error, context);
+        }
+        if (config.onBlock) {
+          return await config.onBlock(error, context);
+        }
+        throw error;
+      }
+    }
+
     // 3. Sub-5ms Optimistic In-Memory Preflight Check
     const preflight = globalPreflight.evaluate(context, config.localPolicy, agentId);
 
