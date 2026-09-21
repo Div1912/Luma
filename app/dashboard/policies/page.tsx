@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore, Policy } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
-import { Plus, X, ChevronDown, ChevronRight, Edit2, Copy, Archive, Trash2, Shield, AlertTriangle, Lock, Key, Fingerprint, EyeOff, Sparkles, Loader2, SplitSquareHorizontal } from "lucide-react";
+import { Plus, X, ChevronDown, ChevronRight, Edit2, Copy, Archive, Trash2, Shield, AlertTriangle, Lock, Key, Fingerprint, EyeOff, Sparkles, Loader2, SplitSquareHorizontal, Activity } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PoliciesPage() {
   const { policies, updatePolicy, createPolicy, deletePolicy, archivePolicy } = useGhostStore();
-  const { deploy, rebalanceThreshold, walletState, network } = useMidnight();
+  const { deploy, rebalanceThreshold, walletState, network, ghost, publicState } = useMidnight();
   const [filter, setFilter] = useState("Active");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -230,6 +230,7 @@ export default function PoliciesPage() {
             {tab}
           </button>
         ))}
+        </div>
       </div>
 
       <div className="glass-liquid overflow-hidden">
