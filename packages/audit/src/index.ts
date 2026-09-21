@@ -15,8 +15,16 @@ export {
   EMPTY_LEAF_ROOT,
 } from './tree/accumulator.js';
 
-// Hierarchical Viewing Key Enclave
+// Hierarchical Viewing Key & Selective Disclosure Encryption
 export { ViewingKeyEnclave } from './crypto/keys.js';
+export { SelectiveDisclosureEnclave } from './crypto/encryption.js';
+
+// Batch Proof-of-Policy Engine & Auditor Verifier
+export {
+  ProofOfPolicyEngine,
+  type ProofOfPolicyEngineConfig,
+} from './engine/proof-of-policy.js';
+export { AuditorVerifier } from './verifier/auditor.js';
 
 // Midnight ZK Compliance Prover & Contract Client
 export { AuditWitnessSynthesizer } from './midnight/prover.js';
@@ -33,4 +41,7 @@ export type {
   ComplianceAuditProof,
   ComplianceLedgerState,
   ComplianceContractConfig,
+  EpochComplianceCertificate,
+  AuditVerificationResult,
+  EncryptedPayloadEnvelope,
 } from './types.js';

@@ -91,3 +91,51 @@ export interface ComplianceContractConfig {
   governanceRoot?: string;
   contractAddress?: string;
 }
+
+export interface EpochComplianceCertificate {
+  certificateId: string;
+  epochId: string;
+  policyId: string;
+  policyHash: string;
+  epochRoot: string;
+  transactionCount: number;
+  totalVolume: number;
+  maxPerTxCap: number;
+  proof: ComplianceAuditProof;
+  certifiedAt: string;
+  issuer: string;
+  complianceStatement: string;
+}
+
+export interface AuditVerificationResult {
+  verified: boolean;
+  certificateId: string;
+  epochId: string;
+  policyId: string;
+  auditedTransactionsCount: number;
+  totalAuditedVolume: number;
+  zkProofValid: boolean;
+  viewingKeyAuthorized: boolean;
+  privacyPreserved: boolean;
+  verifiedAt: string;
+  summary: string;
+  reason?: string;
+}
+
+export interface EncryptedPayloadEnvelope {
+  envelopeId: string;
+  txDigest: string;
+  encryptedData: string;
+  iv: string;
+  authTag: string;
+  algorithm: 'aes-256-gcm';
+  auditableMetadata: {
+    amount: number;
+    currency: string;
+    merchantId: string;
+    policyId: string;
+    policyHash: string;
+    ofacCleared: boolean;
+    timestamp: string;
+  };
+}
