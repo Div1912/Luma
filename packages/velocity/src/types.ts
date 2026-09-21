@@ -73,3 +73,67 @@ export interface SupervisorUnfreezeReceipt {
   txDigest: string;
   timestamp: string;
 }
+
+export type AnomalyType =
+  | 'BURST_WINDOW_EXCEEDED'
+  | 'EWMA_SPIKE_ANOMALY'
+  | 'RECURSIVE_LOOP_DETECTED'
+  | 'DRAIN_ATTACK'
+  | 'BUCKET_EXHAUSTION';
+
+export type AnomalySeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface AnomalyAssessment {
+  isAnomaly: boolean;
+  anomalyType?: AnomalyType;
+  severity?: AnomalySeverity;
+  spikeRatio: number;
+  currentRate: number;
+  baselineRate: number;
+  zScore: number;
+  recommendedCooldownSeconds: number;
+  details?: string;
+  timestamp: string;
+}
+
+export interface EWMAConfig {
+  /** Smoothing factor alpha between 0.01 and 0.99 (default: 0.15) */
+  alpha?: number;
+  /** Initial baseline rate in tokens/sec (default: 1.0) */
+  initialBaselineRate?: number;
+  /** Minimum observations before anomaly checks trigger (default: 3) */
+  minObservationsForAnomaly?: number;
+  /** Initial timestamp ms (default: Date.now()) */
+  initialTimestampMs?: number;
+}
+
+export interface EWMASnapshot {
+  mean: number;
+  variance: number;
+  stdDev: number;
+  sampleCount: number;
+  lastTimestampMs: number;
+}
+
+export interface AnomalyDetectorConfig {
+  /** Maximum number of transactions allowed in sliding burst window (default: 3) */
+  maxBurstCount?: number;
+  /** Duration of sliding burst window in seconds (default: 120s) */
+  burstWindowSeconds?: number;
+  /** Velocity spike ratio multiplier over baseline considered anomalous (default: 5.0 = 500%) */
+  spikeRatioThreshold?: number;
+  /** Statistical Z-Score threshold (default: 3.0) */
+  zScoreThreshold?: number;
+  /** Minimum interval in milliseconds between transactions to flag recursive loop (default: 200ms) */
+  microBurstThresholdMs?: number;
+  /** EWMA baseline configuration */
+  ewmaConfig?: EWMAConfig;
+}
+
+export interface DampenerConfig {
+  /** Underlying token bucket configuration */
+  tokenBucketConfig: TokenBucketConfig;
+  /** Statistical anomaly detector configuration */
+  detectorConfig?: AnomalyDetectorConfig;
+}
+

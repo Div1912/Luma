@@ -13,6 +13,14 @@ export {
   computeExponentialCooldown,
 } from './token-bucket/math.js';
 
+// Statistical Anomaly Engine
+export { EWMABaselineTracker } from './anomaly/ewma.js';
+export { VelocityAnomalyDetector } from './anomaly/detector.js';
+export {
+  AdaptiveVelocityDampener,
+  type DampenerEvaluationResult,
+} from './anomaly/dampener.js';
+
 // Midnight Prover & Compact Contract Client
 export { VelocityWitnessSynthesizer } from './midnight/prover.js';
 export {
@@ -30,4 +38,11 @@ export type {
   VelocityZkProof,
   VelocitySettlementReceipt,
   SupervisorUnfreezeReceipt,
+  AnomalyType,
+  AnomalySeverity,
+  AnomalyAssessment,
+  EWMAConfig,
+  EWMASnapshot,
+  AnomalyDetectorConfig,
+  DampenerConfig,
 } from './types.js';
