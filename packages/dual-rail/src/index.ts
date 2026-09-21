@@ -29,6 +29,26 @@ export type { WebhookPayload } from './fiat/webhook.js';
 export { MidnightCardEscrowClient } from './escrow/client.js';
 export type { EscrowLockReceipt, EscrowLedgerState } from './escrow/client.js';
 
+// Dual-Rail Universal Router
+export { DualRailRouter } from './router.js';
+export type {
+  PaymentIntent,
+  DualRailPaymentResult,
+  PaymentRail,
+} from './router.js';
+
+// Browser Form Checkout Enclave
+export { BrowserCheckoutEnclave } from './browser/autofill.js';
+export type {
+  FormSelectorMap,
+  FormInjectionResult,
+  PageLike,
+} from './browser/autofill.js';
+
+// Escrow Reconciliation
+export { EscrowReconciler } from './escrow/reconciler.js';
+export type { ReconciliationReport } from './escrow/reconciler.js';
+
 // Protocol Types
 export type {
   X402Challenge,
