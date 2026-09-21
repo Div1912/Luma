@@ -17,7 +17,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { walletState, connectLace, disconnect } = useMidnight();
+  const { walletState, connect1AM, disconnect } = useMidnight();
 
   useEffect(() => {
     const handleScroll = () => {

@@ -47,9 +47,9 @@ export default function SignInPage() {
     setIsSubmitting(true);
     try {
       await connectLace();
-      // connectLace will set walletState
+      // connect1AM will set walletState
     } catch (err: any) {
-      setError(err.message || "Failed to connect Lace wallet. Ensure Lace is installed and unlocked.");
+      setError(err.message || "Failed to connect 1AM wallet. Ensure 1AM is installed and unlocked.");
       setIsSubmitting(false);
     }
   };
@@ -133,7 +133,7 @@ export default function SignInPage() {
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Lace Wallet</span>
+                <span>1AM Wallet</span>
               </button>
               <button
                 type="button"
@@ -168,7 +168,7 @@ export default function SignInPage() {
                 <div className="text-center">
                   <h2 className="text-base font-bold text-white">Midnight Zero-Knowledge Access</h2>
                   <p className="text-xs text-zinc-400 mt-1">
-                    Connect your cryptographic identity via Lace Wallet.
+                    Connect your cryptographic identity via 1AM Wallet.
                   </p>
                 </div>
 
@@ -208,12 +208,12 @@ export default function SignInPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-black" />
-                      <span>Connecting Lace Wallet...</span>
+                      <span>Connecting 1AM Wallet...</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 text-black" />
-                      <span>Connect with Lace Wallet</span>
+                      <span>Connect with 1AM Wallet</span>
                     </>
                   )}
                 </button>

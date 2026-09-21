@@ -109,10 +109,11 @@ export async function deployGhostContract(api: any, initialLimit: bigint, target
   const contract = new Contract({} as any);
   
   // Actually perform the deployment transaction
+  // The compiled initialState(context, limit_0: bigint) accepts exactly 1 user argument.
   const ghost = await deployContract(providers as any, {
     privateStateId: 'ghost-deploy',
     compiledContract: compiledGhostContract as any,
-    args: [initialLimit, new Uint8Array(32).fill(1), new Uint8Array(32).fill(2)],
+    args: [initialLimit],
     initialPrivateState: {} as any
   } as any);
 

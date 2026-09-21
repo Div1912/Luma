@@ -38,7 +38,7 @@ import { toast } from "sonner";
 export default function ProfilePage() {
   const router = useRouter();
   const { user, updateUser, metrics, policies, fleets, signOut } = useGhostStore();
-  const { walletState, network, connectLace, disconnectLace } = useMidnight();
+  const { walletState, network, connect1AM, disconnect1AM } = useMidnight();
 
   const [firstName, setFirstName] = useState(user?.name?.split(" ")[0] || "Alex");
   const [lastName, setLastName] = useState(user?.name?.split(" ")[1] || "Morgan");
@@ -147,7 +147,7 @@ export default function ProfilePage() {
             </button>
             <button 
               onClick={() => {
-                disconnectLace();
+                disconnect1AM();
                 signOut();
                 toast.info("Signed Out", { description: "Administrative session terminated." });
                 router.replace("/auth/signin");
@@ -411,20 +411,20 @@ export default function ProfilePage() {
               {walletState.isConnected ? (
                 <button
                   onClick={() => {
-                    disconnectLace();
+                    disconnect1AM();
                     toast.info("Wallet Disconnected");
                   }}
                   className="btn-liquid btn-liquid-secondary w-full py-2.5 text-xs text-red-400 hover:text-red-300 flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>Disconnect Lace Wallet</span>
+                  <span>Disconnect 1AM Wallet</span>
                 </button>
               ) : (
                 <button
                   onClick={async () => {
                     try {
-                      await connectLace();
-                      toast.success("Lace Wallet Connected!");
+                      await connect1AM();
+                      toast.success("1AM Wallet Connected!");
                     } catch (e: any) {
                       toast.error("Connection Failed", { description: e.message || String(e) });
                     }
@@ -432,7 +432,7 @@ export default function ProfilePage() {
                   className="btn-liquid btn-liquid-primary w-full py-2.5 text-xs flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Connect Lace Wallet</span>
+                  <span>Connect 1AM Wallet</span>
                 </button>
               )}
             </div>

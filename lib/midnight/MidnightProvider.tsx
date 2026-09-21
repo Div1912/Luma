@@ -14,13 +14,15 @@ export type WalletState = {
 
 export interface MidnightContextType {
   walletState: WalletState;
-  connectLace: () => Promise<void>;
+  connect1AM: () => Promise<void>;
+  connectLace: () => Promise<void>; // alias for backward-compat
   disconnect: () => Promise<void>;
+  disconnect1AM: () => void;
+  disconnectLace: () => void; // alias for backward-compat
   api: any;
   deploy: (limit: bigint) => Promise<string>;
-  disconnectLace: () => void;
   connect: (contractAddress: string) => Promise<void>;
-  spend: (amount: bigint, multiPartyToken?: Uint8Array) => Promise<any>;
+  spend: (amount: bigint) => Promise<any>;
   rebalanceThreshold: (newLimit: bigint) => Promise<any>;
   ghost: any;
   publicState: { total_spent: bigint; spending_limit: bigint } | null;
@@ -55,20 +57,24 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('ghost_network', newNetwork);
   };
 
-  const connectLace = async () => {
+  const connect1AM = async () => {
     try {
       const midnight = (window as any).midnight;
       if (!midnight) {
-        throw new Error('No Midnight wallet detected. Please install Lace.');
+        throw new Error('No Midnight wallet detected. Please install 1AM wallet.');
       }
-      
-      const wallets = Object.values(midnight) as any[];
-      const provider = wallets.find(w => w && typeof w === 'object' && 'apiVersion' in w && typeof w.connect === 'function');
-      
+
+      // Target 1AM wallet explicitly; fall back to any compatible Midnight provider
+      let provider: any = midnight['1am'] ?? null;
+      if (!provider || typeof provider.connect !== 'function') {
+        const wallets = Object.values(midnight) as any[];
+        provider = wallets.find(w => w && typeof w === 'object' && 'apiVersion' in w && typeof w.connect === 'function') ?? null;
+      }
+
       if (!provider) {
-        throw new Error('Lace wallet is installed but not enabled or compatible.');
+        throw new Error('1AM wallet is not installed or not enabled. Please install 1AM wallet from midnight.network.');
       }
-      
+
       // Attempt to auto-detect network from provider or saved state
       let activeNetwork: 'preview' | 'preprod' = network;
       try {
@@ -98,7 +104,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         // ignore detection failure
       }
-      
+
       const state = await apiInstance.getUnshieldedAddress();
       const unshieldedAddr = state?.unshieldedAddress || '';
 
@@ -114,7 +120,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         isConnected: true,
         error: undefined
       });
-      
+
     } catch (err: any) {
       setWalletState({
         isConnected: false,
@@ -124,13 +130,18 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const disconnectLace = () => {
+  // Alias for backward-compat
+  const connectLace = connect1AM;
+
+  const disconnect1AM = () => {
     setApi(null);
     setWalletState({ isConnected: false });
     setGhost(null);
     setPublicState(null);
     localStorage.removeItem('ghost_contract_address');
   };
+
+  const disconnectLace = disconnect1AM;
 
   const deploy = async (limit: bigint) => {
     if (!api) throw new Error('Wallet not connected');
@@ -214,18 +225,16 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const spend = async (amount: bigint, multiPartyToken?: Uint8Array) => {
+  const spend = async (amount: bigint) => {
     if (!ghost) throw new Error('Ghost contract not initialized');
     try {
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const token = multiPartyToken || new Uint8Array(32).fill(1);
-      const tx = await (ghost.callTx.spend.length >= 2 
-        ? ghost.callTx.spend(amount, token) 
-        : ghost.callTx.spend(amount));
+      // The compiled spend circuit accepts exactly 1 user argument: amount (bigint Uint<32>)
+      const tx = await ghost.callTx.spend(amount);
 
       const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || `0x${crypto.randomUUID().replace(/-/g, '')}`;
       const isMultiSig = amount >= 50000n;
-      
+
       // Record real on-chain transaction event in store
       useGhostStore.getState().addAuditEvent({
         type: "purchase_approved",
@@ -236,10 +245,10 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         proofHash: String(txId),
         status: "success",
         description: `Executed on-chain ZK spend circuit of ${amount} tDUST on ${network}${isMultiSig ? ' (Multi-Party ZK Approved)' : ''}`,
-        metadata: { 
-          contractAddress: walletState.address || '', 
-          network, 
-          circuit: isMultiSig ? "spend_v2_multisig" : "spend",
+        metadata: {
+          contractAddress: walletState.address || '',
+          network,
+          circuit: "spend",
           multiSigVerified: isMultiSig
         }
       });
@@ -298,8 +307,10 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   return (
     <MidnightContext.Provider value={{
       walletState,
+      connect1AM,
       connectLace,
       disconnect,
+      disconnect1AM,
       disconnectLace,
       api,
       deploy,

@@ -55,7 +55,7 @@ export default function DashboardOverview() {
   }));
 
   
-  const { walletState, connect, spend, publicState, ghost, connectLace, deploy, disconnectLace, network, setNetwork } = useMidnight();
+  const { walletState, connect, spend, publicState, ghost, connect1AM, deploy, disconnect1AM, network, setNetwork } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contractAddress, setContractAddress] = useState<string>("");
@@ -287,7 +287,7 @@ export default function DashboardOverview() {
 
           <div className="pt-6">
             <button 
-              onClick={!walletState.isConnected ? () => connectLace().catch(console.error) : !contractAddress ? handleDeploy : (!ghost || walletState.error) ? async () => { setIsSubmitting(true); try { await connect(contractAddress); } catch(e) { console.error(e); } finally { setIsSubmitting(false); } } : handleSpend}
+              onClick={!walletState.isConnected ? () => connect1AM().catch(console.error) : !contractAddress ? handleDeploy : (!ghost || walletState.error) ? async () => { setIsSubmitting(true); try { await connect(contractAddress); } catch(e) { console.error(e); } finally { setIsSubmitting(false); } } : handleSpend}
               disabled={isSubmitting}
               className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
             >

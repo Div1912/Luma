@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
-  const { network, setNetwork, disconnectLace, connectLace, walletState } = useMidnight();
+  const { network, setNetwork, disconnect1AM, connect1AM, walletState } = useMidnight();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAttemptingReconnect, setIsAttemptingReconnect] = useState(false);
 
@@ -53,11 +53,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.replace("/auth/signin");
     } else {
       fetchData(); // Fetch real data from Supabase
-      
-      // Auto-reconnect Lace if they authenticated via wallet previously but session is lost on reload
+
+      // Auto-reconnect 1AM if they authenticated via wallet previously but session is lost on reload
       if (user?.authType === 'wallet' && !walletState.isConnected && !isAttemptingReconnect) {
         setIsAttemptingReconnect(true);
-        connectLace().catch((err) => {
+        connect1AM().catch((err) => {
           console.error("Failed to auto-reconnect wallet:", err);
           toast.error("Wallet Connection Lost", {
             description: "Please sign in again to re-authenticate your session."
@@ -67,14 +67,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         });
       }
     }
-  }, [isAuthenticated, user?.authType, walletState.isConnected, router, fetchData, connectLace, signOut, isAttemptingReconnect]);
+  }, [isAuthenticated, user?.authType, walletState.isConnected, router, fetchData, connect1AM, signOut, isAttemptingReconnect]);
 
   if (!isAuthenticated) return null;
 
   const pendingApprovalsCount = approvals.filter(a => a.status === "pending").length;
 
   const handleSignOut = () => {
-    disconnectLace();
+    disconnect1AM();
     signOut();
     toast.info("Signed out successfully");
     router.replace("/auth/signin");
