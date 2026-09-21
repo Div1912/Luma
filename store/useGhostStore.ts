@@ -354,6 +354,21 @@ export const useGhostStore = create<GhostStore>()(
       },
 
       signOut: () => {
+        // Synchronously nuke the persisted auth from localStorage so the next
+        // page load never rehydrates as authenticated. We cannot rely on the
+        // Zustand persist flush timing being fast enough before router.replace fires.
+        try {
+          const raw = localStorage.getItem('ghost-store');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.state) {
+              parsed.state.isAuthenticated = false;
+              parsed.state.user = null;
+              localStorage.setItem('ghost-store', JSON.stringify(parsed));
+            }
+          }
+          localStorage.removeItem('ghost_contract_address');
+        } catch (_) { /* ignore */ }
         set({ isAuthenticated: false, isDemoMode: false, user: null });
       },
 

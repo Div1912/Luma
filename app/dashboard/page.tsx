@@ -55,7 +55,7 @@ export default function DashboardOverview() {
   }));
 
   
-  const { walletState, connect, spend, publicState, ghost, connect1AM, deploy, disconnect1AM, network, setNetwork } = useMidnight();
+  const { walletState, connect, spend, publicState, ghost, connect1AM, deploy, disconnect1AM, api, network, setNetwork } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contractAddress, setContractAddress] = useState<string>("");
@@ -259,7 +259,7 @@ export default function DashboardOverview() {
                   <button onClick={() => setNetwork('preprod')} className={`px-2 py-0.5 rounded transition-all font-mono text-[10px] ${network === 'preprod' ? 'bg-[#b8d4f0] text-black font-semibold' : 'text-white/60 hover:text-white'}`}>Preprod</button>
                 </div>
                 {contractAddress && (
-                  <button onClick={() => { localStorage.removeItem('ghost_contract_address'); window.location.reload(); }} className="text-[10px] text-red-400 hover:text-red-300 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md font-mono">Reset</button>
+                  <button onClick={() => { localStorage.removeItem('ghost_contract_address'); setContractAddress(''); }} className="text-[10px] text-red-400 hover:text-red-300 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md font-mono">Reset</button>
                 )}
               </div>
             </div>
@@ -285,14 +285,47 @@ export default function DashboardOverview() {
             </div>
           </div>
 
-          <div className="pt-6">
-            <button 
-              onClick={!walletState.isConnected ? () => connect1AM().catch(console.error) : !contractAddress ? handleDeploy : (!ghost || walletState.error) ? async () => { setIsSubmitting(true); try { await connect(contractAddress); } catch(e) { console.error(e); } finally { setIsSubmitting(false); } } : handleSpend}
-              disabled={isSubmitting}
-              className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin"></div> Processing...</> : <><Activity className="w-4 h-4" /> Execute Private Spend</>}
-            </button>
+          <div className="pt-6 space-y-2">
+            {/* Step 1: Connect 1AM wallet */}
+            {!api && (
+              <button
+                onClick={() => connect1AM().catch((e: any) => toast.error("Wallet Error", { description: e.message || String(e) }))}
+                disabled={isSubmitting}
+                className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
+              >
+                <Activity className="w-4 h-4" /> Connect 1AM Wallet
+              </button>
+            )}
+            {/* Step 2: Deploy contract (wallet connected, no contract yet) */}
+            {api && !ghost && !contractAddress && (
+              <button
+                onClick={handleDeploy}
+                disabled={isSubmitting}
+                className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Deploying...</> : <><Activity className="w-4 h-4" /> Deploy Ghost Contract</>}
+              </button>
+            )}
+            {/* Step 3: Connect to existing contract */}
+            {api && !ghost && contractAddress && (
+              <button
+                onClick={async () => { setIsSubmitting(true); try { await connect(contractAddress); } catch(e: any) { toast.error("Connect Error", { description: e.message || String(e) }); } finally { setIsSubmitting(false); } }}
+                disabled={isSubmitting}
+                className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Connecting...</> : <><Activity className="w-4 h-4" /> Connect to Contract</>}
+              </button>
+            )}
+            {/* Step 4: Execute spend (fully connected) */}
+            {api && ghost && (
+              <button
+                onClick={handleSpend}
+                disabled={isSubmitting}
+                className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Processing...</> : <><Activity className="w-4 h-4" /> Execute Private Spend</>}
+              </button>
+            )}
           </div>
         </motion.div>
       </div>

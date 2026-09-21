@@ -134,6 +134,12 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const connectLace = connect1AM;
 
   const disconnect1AM = () => {
+    // Tell the 1AM wallet extension to revoke its session if it exposes disconnect
+    try {
+      if (api && typeof api.disconnect === 'function') {
+        api.disconnect();
+      }
+    } catch (_) { /* ignore — extension may not support it */ }
     setApi(null);
     setWalletState({ isConnected: false });
     setGhost(null);
