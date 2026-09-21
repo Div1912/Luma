@@ -59,6 +59,21 @@ export {
   type QuorumCoordinatorConfig,
 } from './consensus/coordinator.js';
 
+// Drop-In Tool Middleware & Errors
+export {
+  withQuorumProtection,
+  defaultExtractAmount,
+  defaultExtractOrderIntent,
+  type QuorumProtectionOptions,
+} from './guard/middleware.js';
+export { GhostQuorumConsensusRejectedError } from './guard/errors.js';
+
+// SOX 404 & SOC 2 Type II Audit Dossier
+export {
+  SOXAuditDossierGenerator,
+  type SOXAuditDossier,
+} from './audit/dossier.js';
+
 // Midnight ZK Prover & Compact Client
 export { QuorumWitnessSynthesizer } from './midnight/prover.js';
 export { GhostQuorumContractClient } from './midnight/contract.js';

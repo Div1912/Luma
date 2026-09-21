@@ -91,4 +91,13 @@ export {
   type VelocityDampeningOptions,
 } from '../../velocity/src/index.js';
 
+// Multi-Agent Quorum Consensus Middleware Integration
+export {
+  withQuorumProtection,
+  GhostQuorumConsensusRejectedError,
+  QuorumCoordinator,
+  type QuorumProtectionOptions,
+  type QuorumConsensusReceipt,
+} from '../../quorum/src/index.js';
+
 

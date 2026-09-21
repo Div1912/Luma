@@ -4,6 +4,7 @@
  * Wraps arbitrary agent tools across LangChain, Vercel AI SDK, ElizaOS, and raw async functions.
  */
 
+import { randomBytes } from 'node:crypto';
 import { GhostGuardConfig, ToolSpendContext } from './types.js';
 import { GhostPolicyViolationError } from './errors.js';
 import { PreflightEngine } from './preflight.js';
@@ -210,6 +211,65 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
         }
         throw error;
       }
+    }
+
+    // 2.7 Multi-Agent Segregation of Duties (M-of-N ZK Quorum) for High-Value Spends
+    const quorumThreshold = config.quorumThresholdAmount ?? 1000;
+    if (config.quorumCoordinator && context.amount >= quorumThreshold) {
+      const orderIntent = {
+        orderId: (context.metadata?.orderId as string) || `po_${agentId}_${Date.now()}`,
+        amount: context.amount,
+        currency: context.currency || 'USD',
+        merchantId: context.merchant || 'vendor_aws_cloud',
+        category: context.category || 'CLOUD_INFRASTRUCTURE',
+        department: (context.metadata?.department as string) || 'ENG_INFRA',
+        justification: context.purpose || 'Guarded autonomous agent requisition',
+        lineItems: (context.metadata?.lineItems as any[]) || [
+          {
+            sku: `sku_${context.merchant || 'item'}_01`,
+            description: context.purpose || 'Autonomous purchase',
+            quantity: 1,
+            unitPrice: context.amount,
+            totalPrice: context.amount,
+            category: context.category || 'CLOUD_INFRASTRUCTURE',
+          },
+        ],
+        nonce: (context.metadata?.nonce as string) || '0x' + randomBytes(32).toString('hex'),
+        timestamp: new Date().toISOString(),
+        metadata: context.metadata,
+      };
+
+      const quorumReceipt = await config.quorumCoordinator.evaluateOrder(orderIntent);
+      if (quorumReceipt.status === 'REJECTED') {
+        globalLogger.log('error', 'quorum_consensus_rejected', {
+          agentId,
+          context,
+          error: `Multi-Agent Quorum Rejection (${quorumReceipt.rejectionDetails?.failedRole || 'SoD'}): ${quorumReceipt.rejectionDetails?.reason}`,
+        });
+
+        const error = new GhostPolicyViolationError(
+          `[Ghost Guard] Multi-Agent Quorum REJECTED: ${quorumReceipt.rejectionDetails?.reason || 'Consensus not achieved'}`,
+          {
+            code: 'QUORUM_REJECTED',
+            context,
+            policyId: 'multi_agent_quorum_active',
+          }
+        );
+
+        if (config.onQuorumRejected) {
+          return await config.onQuorumRejected(error, context);
+        }
+        if (config.onBlock) {
+          return await config.onBlock(error, context);
+        }
+        throw error;
+      }
+
+      // Quorum approved: Attach consensus receipt to context metadata
+      context.metadata = {
+        ...(context.metadata || {}),
+        quorumReceipt,
+      };
     }
 
     // 3. Sub-5ms Optimistic In-Memory Preflight Check

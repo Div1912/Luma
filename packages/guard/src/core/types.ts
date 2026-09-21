@@ -15,7 +15,8 @@ export type PolicyViolationReasonCode =
   | 'ZK_PROOF_FAILED'
   | 'PROVER_UNREACHABLE'
   | 'EXECUTION_TIMEOUT'
-  | 'INVALID_TOOL_PAYLOAD';
+  | 'INVALID_TOOL_PAYLOAD'
+  | 'QUORUM_REJECTED';
 
 export interface ToolSpendContext {
   amount: number;
@@ -94,4 +95,10 @@ export interface GhostGuardConfig {
   velocityDampener?: any;
   /** Optional callback fired when velocity circuit breaker trips */
   onVelocityTripped?: (error: any, context: ToolSpendContext) => Promise<any> | any;
+  /** Optional QuorumCoordinator to require multi-agent M-of-N consensus for high-value purchases */
+  quorumCoordinator?: any;
+  /** Minimum spend amount (e.g. $1,000) that triggers mandatory multi-agent quorum consensus (default: 1000) */
+  quorumThresholdAmount?: number;
+  /** Optional callback fired when multi-agent quorum consensus is rejected */
+  onQuorumRejected?: (error: any, context: ToolSpendContext) => Promise<any> | any;
 }
