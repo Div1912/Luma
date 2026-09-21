@@ -334,6 +334,22 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
       );
     }
 
+    // 9.5 Append to Zero-Knowledge Compliance Merkle Accumulator (if configured)
+    if (config.complianceAccumulator) {
+      const txDigest = (receipt?.proofHash as string) || `0xtx_${agentId}_${Date.now()}`;
+      config.complianceAccumulator.append({
+        txDigest,
+        policyId: config.policyId || config.localPolicy?.id || 'DEFAULT_POLICY',
+        policyHash: config.policyHash || '0x1212121212121212121212121212121212121212121212121212121212121212',
+        amount: context.amount,
+        currency: context.currency || 'USD',
+        merchantId: context.merchant || 'unknown_merchant',
+        isSanctioned: false,
+        ofacCleared: true,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     // 10. Safe to execute original tool logic
     return await originalFn.apply(thisArg, callArgs);
   }

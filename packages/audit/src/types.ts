@@ -139,3 +139,36 @@ export interface EncryptedPayloadEnvelope {
     timestamp: string;
   };
 }
+
+export interface RegulatoryAuditBundle {
+  bundleId: string;
+  generatedAt: string;
+  standard: 'SOX_404' | 'SOC_2_TYPE_II' | 'TAX_COMPLIANCE' | 'GENERAL_COMPLIANCE';
+  epoch: ComplianceEpoch;
+  certificate: EpochComplianceCertificate;
+  viewingKeyGrant: {
+    keyId: string;
+    type: 'MASTER' | 'SCOPED';
+    publicKey: string;
+    scope?: ViewingKeyScope;
+  };
+  sampleEnvelopes?: EncryptedPayloadEnvelope[];
+  sampleProofs?: MerkleProof[];
+  signatures: {
+    issuer: string;
+    signatureDigest: string;
+    timestamp: string;
+  };
+  metadata?: Record<string, any>;
+}
+
+export interface ExportBundleOptions {
+  certificate: EpochComplianceCertificate;
+  epoch: ComplianceEpoch;
+  viewingKey: ViewingKey;
+  standard?: 'SOX_404' | 'SOC_2_TYPE_II' | 'TAX_COMPLIANCE' | 'GENERAL_COMPLIANCE';
+  envelopes?: EncryptedPayloadEnvelope[];
+  sampleProofs?: MerkleProof[];
+  metadata?: Record<string, any>;
+}
+

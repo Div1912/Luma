@@ -101,4 +101,8 @@ export interface GhostGuardConfig {
   quorumThresholdAmount?: number;
   /** Optional callback fired when multi-agent quorum consensus is rejected */
   onQuorumRejected?: (error: any, context: ToolSpendContext) => Promise<any> | any;
+  /** Optional ComplianceMerkleAccumulator to automatically record compliance leaves for Zero-Knowledge auditing */
+  complianceAccumulator?: any;
+  /** Cryptographic hash of the governing policy commitment */
+  policyHash?: string;
 }

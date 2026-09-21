@@ -30,6 +30,14 @@ export { AuditorVerifier } from './verifier/auditor.js';
 export { AuditWitnessSynthesizer } from './midnight/prover.js';
 export { GhostComplianceContractClient } from './midnight/contract.js';
 
+// Certified SOX / SOC 2 Regulatory Report Exporter & CLI Verifier
+export { AuditReportExporter } from './report/exporter.js';
+export {
+  verifyAuditCli,
+  parseCliArgs,
+  type CliOptions,
+} from './cli/verify-audit.js';
+
 // Types & Schemas
 export type {
   ComplianceLeafRecord,
@@ -44,4 +52,7 @@ export type {
   EpochComplianceCertificate,
   AuditVerificationResult,
   EncryptedPayloadEnvelope,
+  RegulatoryAuditBundle,
+  ExportBundleOptions,
 } from './types.js';
+

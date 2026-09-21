@@ -34,19 +34,49 @@ export class ViewingKeyEnclave {
   }
 
   /**
+   * Generates a new Master Viewing Key.
+   */
+  public static generateMasterViewingKey(masterPrivateKeyHex?: string): ViewingKey {
+    return new ViewingKeyEnclave(masterPrivateKeyHex).getMasterKey();
+  }
+
+  /**
+   * Derives a Scoped Viewing Key from a master key directly.
+   */
+  public static deriveScopedViewingKey(
+    masterKey: ViewingKey,
+    scope: {
+      scopeId?: string;
+      epochId: string;
+      policyId: string;
+      allowedDepartments?: string[];
+      maxExpenditureBand?: number;
+      durationDays?: number;
+      expiresAt?: string;
+    }
+  ): ViewingKey {
+    const enclave = new ViewingKeyEnclave(masterKey.privateKeyHex);
+    return enclave.deriveScopedKey(scope);
+  }
+
+  /**
    * Derives a Scoped Viewing Key (SVK) bound strictly to an epoch, policy, and optional cap.
    */
   public deriveScopedKey(scope: {
+    scopeId?: string;
     epochId: string;
     policyId: string;
     allowedDepartments?: string[];
     maxExpenditureBand?: number;
     durationDays?: number;
+    expiresAt?: string;
   }): ViewingKey {
-    const durationDays = scope.durationDays ?? 90; // Default 90 days validity
-    const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();
+    const expiresAt =
+      scope.expiresAt ||
+      new Date(Date.now() + (scope.durationDays ?? 90) * 24 * 60 * 60 * 1000).toISOString();
 
-    const scopeId = `scope_${scope.epochId.toLowerCase()}_${scope.policyId.toLowerCase()}`;
+    const scopeId =
+      scope.scopeId || `scope_${scope.epochId.toLowerCase()}_${scope.policyId.toLowerCase()}`;
     const scopeData: ViewingKeyScope = {
       scopeId,
       epochId: scope.epochId,

@@ -5,11 +5,19 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "ghost-audit": "./src/cli/verify-audit.js"
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./cli": {
+      "types": "./src/cli/verify-audit.ts",
+      "import": "./src/cli/verify-audit.ts",
+      "default": "./src/cli/verify-audit.ts"
     }
   },
   "scripts": {

@@ -10,7 +10,7 @@ import { ComplianceMerkleAccumulator } from '../tree/accumulator.js';
 import { ComplianceAuditWitness, ComplianceAuditProof } from '../types.js';
 
 export class AuditWitnessSynthesizer {
-  private readonly maxPerTxCap: number;
+  public readonly maxPerTxCap: number;
 
   constructor(options?: { maxPerTxCap?: number }) {
     this.maxPerTxCap = options?.maxPerTxCap ?? 50_000;

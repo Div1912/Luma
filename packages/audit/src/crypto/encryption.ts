@@ -62,6 +62,48 @@ export class SelectiveDisclosureEnclave {
   }
 
   /**
+   * High-level helper to encrypt a payload using a ViewingKey or explicit secret hex.
+   */
+  public static encryptPayload(params: {
+    txDigest: string;
+    auditableMetadata: {
+      amount: number;
+      currency: string;
+      merchantId: string;
+      policyId: string;
+      policyHash: string;
+      ofacCleared: boolean;
+      timestamp?: string;
+    };
+    confidentialPayload: Record<string, any>;
+    viewingKey?: import('../types.js').ViewingKey;
+    enterpriseSecretHex?: string;
+  }): EncryptedPayloadEnvelope {
+    const enterpriseSecretHex =
+      params.enterpriseSecretHex ||
+      params.viewingKey?.privateKeyHex ||
+      '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+
+    return SelectiveDisclosureEnclave.createEnvelope({
+      txDigest: params.txDigest,
+      privateData: params.confidentialPayload,
+      auditableMetadata: params.auditableMetadata,
+      enterpriseSecretHex,
+    });
+  }
+
+  /**
+   * High-level helper to decrypt private payload using a ViewingKey or secret hex.
+   */
+  public static decryptPayload(
+    envelope: EncryptedPayloadEnvelope,
+    keyOrSecret: import('../types.js').ViewingKey | string
+  ): Record<string, any> {
+    const secretHex = typeof keyOrSecret === 'string' ? keyOrSecret : keyOrSecret.privateKeyHex;
+    return SelectiveDisclosureEnclave.decryptPrivatePayload(envelope, secretHex);
+  }
+
+  /**
    * Decrypts private payload using the enterprise master secret.
    */
   public static decryptPrivatePayload(

@@ -16,6 +16,7 @@ export interface ProofOfPolicyEngineConfig {
   witnessSynthesizer?: AuditWitnessSynthesizer;
   contractClient?: GhostComplianceContractClient;
   maxPerTxCap?: number;
+  defaultCurrency?: string;
 }
 
 export class ProofOfPolicyEngine {
@@ -31,23 +32,46 @@ export class ProofOfPolicyEngine {
   }
 
   /**
-   * Evaluates the entire transaction epoch and generates an authenticated EpochComplianceCertificate.
+   * Evaluates the transaction epoch and generates an authenticated EpochComplianceCertificate.
    */
   public async certifyEpoch(params: {
+    epochId?: string;
     policyId: string;
     policyHash: string;
+    accumulator?: ComplianceMerkleAccumulator;
+    maxPerTxCap?: number;
     issuer?: string;
     adminAuthToken?: string;
   }): Promise<EpochComplianceCertificate> {
-    const epochId = this.accumulator.epochId;
-    const count = this.accumulator.getCount();
-    const volume = this.accumulator.getTotalVolume();
+    return this.certifyEpochCompliance(params);
+  }
+
+  /**
+   * Main certification engine verifying 100% policy compliance across the accumulated epoch.
+   */
+  public async certifyEpochCompliance(params: {
+    epochId?: string;
+    policyId: string;
+    policyHash: string;
+    accumulator?: ComplianceMerkleAccumulator;
+    maxPerTxCap?: number;
+    issuer?: string;
+    adminAuthToken?: string;
+  }): Promise<EpochComplianceCertificate> {
+    const acc = params.accumulator || this.accumulator;
+    const synth = params.maxPerTxCap
+      ? new AuditWitnessSynthesizer({ maxPerTxCap: params.maxPerTxCap })
+      : this.witnessSynthesizer;
+
+    const epochId = params.epochId || acc.epochId;
+    const count = acc.getCount();
+    const volume = acc.getTotalVolume();
 
     // 1. Synthesize Zero-Knowledge Witness & Assert 100% Policy Adherence
-    const witness = this.witnessSynthesizer.synthesizeWitness(this.accumulator, params.policyHash);
+    const witness = synth.synthesizeWitness(acc, params.policyHash);
 
     // 2. Generate Verifiable ZK Proof
-    const proof = this.witnessSynthesizer.generateProof(witness, this.contractClient.contractAddress);
+    const proof = synth.generateProof(witness, this.contractClient.contractAddress);
 
     // 3. Optional On-Chain Registration & Settlement on Midnight
     if (params.adminAuthToken) {
@@ -65,7 +89,7 @@ export class ProofOfPolicyEngine {
     const issuer = params.issuer || 'Ghost Zero-Knowledge Compliance Engine';
 
     const complianceStatement =
-      `All ${count} autonomous agent transactions executed in epoch '${epochId}' complied 100% with Corporate Policy '${params.policyId}', zero transactions exceeded the authorized employee spend cap of $${witness.maxPerTxCap}, and zero funds were disbursed to sanctioned entities.`;
+      `All ${count} autonomous agent transactions executed in epoch '${epochId}' complied 100% with Corporate Policy '${params.policyId}', zero transactions exceeded the authorized employee spend cap of $${synth.maxPerTxCap}, and zero funds were disbursed to sanctioned entities.`;
 
     return {
       certificateId,
@@ -75,7 +99,7 @@ export class ProofOfPolicyEngine {
       epochRoot: witness.epochRoot,
       transactionCount: count,
       totalVolume: volume,
-      maxPerTxCap: witness.maxPerTxCap,
+      maxPerTxCap: synth.maxPerTxCap,
       proof,
       certifiedAt,
       issuer,

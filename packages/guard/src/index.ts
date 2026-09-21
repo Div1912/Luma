@@ -100,4 +100,23 @@ export {
   type QuorumConsensusReceipt,
 } from '../../quorum/src/index.js';
 
+// Zero-Knowledge Compliance & Selective Disclosure Auditing Integration
+export {
+  ComplianceMerkleAccumulator,
+  ViewingKeyEnclave,
+  SelectiveDisclosureEnclave,
+  ProofOfPolicyEngine,
+  AuditorVerifier,
+  AuditReportExporter,
+  verifyAuditCli,
+  type ComplianceLeafRecord,
+  type ComplianceEpoch,
+  type ViewingKey,
+  type ViewingKeyScope,
+  type EpochComplianceCertificate,
+  type AuditVerificationResult,
+  type RegulatoryAuditBundle,
+} from '../../audit/src/index.js';
+
+
 

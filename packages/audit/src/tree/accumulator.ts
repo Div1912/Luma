@@ -149,6 +149,13 @@ export class ComplianceMerkleAccumulator {
   }
 
   /**
+   * Alias for getProof.
+   */
+  public generateProof(targetIndex: number): MerkleProof {
+    return this.getProof(targetIndex);
+  }
+
+  /**
    * Cryptographically verifies a Merkle inclusion proof against a root.
    */
   public static verifyProof(proof: MerkleProof): boolean {
