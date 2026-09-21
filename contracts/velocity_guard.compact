@@ -1,0 +1,89 @@
+// ==========================================
+// GHOST VELOCITY-GUARD COMPACT CIRCUIT
+// ==========================================
+// Dynamic On-Chain Token-Bucket Velocity Firewall on Midnight.
+// Enforces mathematical spend / time_window velocity limits in Zero-Knowledge,
+// automatically tripping an on-chain circuit breaker when runaway loops occur.
+// ==========================================
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger bucket_capacity: Uint<32>;
+export ledger current_tokens: Uint<32>;
+export ledger refill_rate_per_sec: Uint<32>;
+export ledger last_refill_timestamp: Uint<32>;
+export ledger circuit_state: Uint<8>; // 0 = CLOSED (Normal), 1 = HALF_OPEN (Trial), 2 = OPEN (Tripped)
+export ledger cooldown_until: Uint<32>;
+export ledger supervisor_root: Bytes<32>;
+export ledger total_trip_count: Uint<32>;
+export ledger total_volume_settled: Uint<32>;
+
+constructor(
+  capacity: Uint<32>,
+  refill_rate: Uint<32>,
+  initial_timestamp: Uint<32>,
+  gov_root: Bytes<32>
+) {
+  bucket_capacity = disclose(capacity);
+  current_tokens = disclose(capacity);
+  refill_rate_per_sec = disclose(refill_rate);
+  last_refill_timestamp = disclose(initial_timestamp);
+  circuit_state = 0 as Uint<8>;
+  cooldown_until = 0 as Uint<32>;
+  supervisor_root = gov_root;
+  total_trip_count = 0 as Uint<32>;
+  total_volume_settled = 0 as Uint<32>;
+}
+
+// Spends tokens subject to continuous token-bucket replenishment and circuit state
+export circuit spend_with_velocity(
+  amount: Uint<32>,
+  current_time: Uint<32>
+): [] {
+  // 1. Circuit Breaker Assertion: Cannot spend if OPEN and cooldown has not expired
+  if (circuit_state == 2 as Uint<8>) {
+    assert(current_time >= cooldown_until, "Circuit Breaker ACTIVE: Agent execution throttled on-chain");
+    // Cooldown elapsed: Transition to HALF_OPEN trial recovery
+    circuit_state = 1 as Uint<8>;
+  }
+
+  // 2. Continuous Token Replenishment Calculation:
+  // Delta_t = current_time - last_refill_timestamp
+  const delta_t = (current_time >= last_refill_timestamp) 
+    ? (current_time - last_refill_timestamp) 
+    : (0 as Uint<32>);
+
+  const replenished = (current_tokens + delta_t * refill_rate_per_sec) as Uint<32>;
+  const available_tokens = (replenished > bucket_capacity) ? bucket_capacity : replenished;
+
+  // 3. Bucket Solvency & Runaway Loop Protection:
+  if (amount > available_tokens) {
+    // Runaway loop detected: Trip the circuit breaker!
+    circuit_state = 2 as Uint<8>;
+    total_trip_count = (total_trip_count + 1) as Uint<32>;
+    cooldown_until = (current_time + 120) as Uint<32>; // 120s baseline cooldown
+    assert(false, "Velocity Anomaly Alert: Token bucket exhausted. On-Chain Circuit Breaker TRIPPED");
+  }
+
+  // 4. Token Deduction & State Update
+  current_tokens = (available_tokens - amount) as Uint<32>;
+  last_refill_timestamp = current_time;
+  total_volume_settled = (total_volume_settled + disclose(amount)) as Uint<32>;
+
+  // If in HALF_OPEN and passed, restore to CLOSED
+  if (circuit_state == 1 as Uint<8>) {
+    circuit_state = 0 as Uint<8>;
+  }
+}
+
+// Emergency Manual Unfreeze by Corporate Supervisor
+export circuit unfreeze_breaker(
+  supervisor_signature_token: Bytes<32>,
+  new_capacity: Uint<32>
+): [] {
+  assert(supervisor_signature_token == supervisor_root, "Unauthorized: Invalid supervisor recovery authorization");
+  circuit_state = 0 as Uint<8>;
+  current_tokens = disclose(new_capacity);
+  cooldown_until = 0 as Uint<32>;
+}
