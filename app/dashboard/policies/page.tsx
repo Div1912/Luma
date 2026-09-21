@@ -117,12 +117,18 @@ export default function PoliciesPage() {
     closeDrawer();
   };
 
+  const [contractAddress, setContractAddress] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    setContractAddress(localStorage.getItem('ghost_contract_address'));
+  }, [ghost]);
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="p-8 max-w-7xl mx-auto space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Enterprise Policies</h1>
-          <p className="text-zinc-400 mt-1">Configure zero-knowledge guardrails and spending boundaries.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Enterprise Policies</h2>
+          <p className="text-sm text-zinc-400">Configure zero-knowledge guardrails and spending boundaries.</p>
         </div>
         <div className="flex items-center space-x-3">
           <button 
@@ -158,7 +164,59 @@ export default function PoliciesPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl w-fit">
+      {/* Live On-Chain Contract Display */}
+      {ghost && publicState && contractAddress && (
+        <div className="relative glass-liquid-panel p-6 border border-[#b8d4f0]/30 shadow-[0_0_30px_rgba(184,212,240,0.05)] overflow-hidden rounded-2xl">
+          {/* Animated Background Pulse */}
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute top-0 right-0 p-4 z-10">
+             <span className="flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(52,211,153,0.2)]">
+               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 
+               Live ZK Contract ({network})
+             </span>
+          </div>
+
+          <div className="relative z-10 flex flex-col gap-6">
+            <div>
+              <h3 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <Shield className="w-6 h-6 text-emerald-400" />
+                Global Master ZK Policy
+              </h3>
+              <p className="text-sm text-zinc-400 mt-1 max-w-2xl">This policy is actively enforced on the Midnight ledger. Agents cannot exceed these bounds without triggering a cryptographic failure.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex flex-col justify-center">
+                <span className="text-xs text-zinc-500 font-mono uppercase tracking-wider mb-1">On-Chain Spending Limit</span>
+                <span className="text-3xl font-bold text-white font-mono">${Number(publicState.spending_limit).toLocaleString()}</span>
+              </div>
+              <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex flex-col justify-center">
+                <span className="text-xs text-zinc-500 font-mono uppercase tracking-wider mb-1">Total Spent Verified</span>
+                <span className="text-3xl font-bold text-emerald-400 font-mono">${Number(publicState.total_spent).toLocaleString()}</span>
+              </div>
+              <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex flex-col justify-center">
+                <span className="text-xs text-zinc-500 font-mono uppercase tracking-wider mb-1">Contract Address</span>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-sm text-[#b8d4f0] font-mono break-all">{contractAddress.slice(0, 12)}...{contractAddress.slice(-8)}</span>
+                  <a href={`https://${network}.midnightexplorer.com/contracts/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="p-1.5 bg-white/5 hover:bg-white/10 rounded-md transition-colors" title="View on Block Explorer">
+                    <SplitSquareHorizontal className="w-4 h-4 text-white/70" />
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4 text-xs font-mono text-zinc-500 border-t border-white/10 pt-4">
+              <div className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> State shielded</div>
+              <div className="flex items-center gap-1.5"><Fingerprint className="w-3.5 h-3.5" /> ZK-Proof verification active</div>
+              <div className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5" /> Enforcing strictly on-chain</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h3 className="text-lg font-medium text-white">Mocked Policy Templates</h3>
+        <div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl w-fit">
         {["Active", "Paused", "Archived", "All"].map((tab) => (
           <button
             key={tab}
