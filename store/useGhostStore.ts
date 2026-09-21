@@ -128,6 +128,7 @@ export interface UserProfile {
   organization?: string;
   bio?: string;
   timezone?: string;
+  authType?: "wallet" | "credentials" | "demo";
 }
 
 interface GhostStore {
@@ -313,7 +314,8 @@ export const useGhostStore = create<GhostStore>()(
             role: "Chief AI Security Architect",
             organization: "Ghost Autonomous Swarms Inc.",
             bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
-            timezone: "UTC-8 (Pacific Time)"
+            timezone: "UTC-8 (Pacific Time)",
+            authType: "credentials"
           },
         });
         return { success: true };
@@ -329,7 +331,8 @@ export const useGhostStore = create<GhostStore>()(
             role: "Chief AI Security Architect",
             organization: "Ghost Autonomous Swarms Inc.",
             bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
-            timezone: "UTC-8 (Pacific Time)"
+            timezone: "UTC-8 (Pacific Time)",
+            authType: "demo"
           },
         });
       },
@@ -344,7 +347,8 @@ export const useGhostStore = create<GhostStore>()(
             role: "Lead ZK Systems Engineer",
             organization: "Midnight Enterprise Validator",
             bio: "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
-            timezone: "UTC (Coordinated Universal Time)"
+            timezone: "UTC (Coordinated Universal Time)",
+            authType: "wallet"
           },
         });
       },
