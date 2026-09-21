@@ -78,3 +78,10 @@ export type {
   PreflightEvaluationResult,
   GhostGuardConfig,
 } from './core/types.js';
+
+// Intent-Binding Middleware Integration
+export {
+  withIntentBinding,
+  type IntentBindingOptions,
+} from '../../intent/src/index.js';
+

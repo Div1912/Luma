@@ -28,6 +28,25 @@ export {
   type PromptInjectionTelemetryPayload,
 } from './firewall/errors.js';
 
+// Dynamic Intent Relaxation & HITL Re-Signing
+export {
+  IntentRelaxationGateway,
+  type IntentDeltaProposal,
+} from './relaxation/gateway.js';
+
+// Verifiable Cryptographic Intent Attestations
+export {
+  IntentAttestationGenerator,
+  type ProofOfIntentAttestation,
+} from './telemetry/attestation.js';
+
+// Drop-in Middleware
+export {
+  withIntentBinding,
+  defaultExtractAction,
+  type IntentBindingOptions,
+} from './guard/middleware.js';
+
 // Types & Contracts
 export type {
   CommerceScope,

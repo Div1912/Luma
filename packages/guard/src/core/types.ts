@@ -86,4 +86,8 @@ export interface GhostGuardConfig {
   onBlock?: (error: Error, context: ToolSpendContext) => Promise<any> | any;
   /** Callback fired when a ZK proof receipt has been generated */
   onProofGenerated?: (receipt: GhostExecutionReceipt) => Promise<void> | void;
+  /** Optional SignedIntentToken or serialized base64 string to bind execution cryptographically to human intent */
+  intentToken?: any;
+  /** Optional callback fired when an intent divergence or prompt injection is detected */
+  onIntentViolation?: (error: any, context: ToolSpendContext) => Promise<any> | any;
 }

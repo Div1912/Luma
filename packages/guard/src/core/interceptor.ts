@@ -14,6 +14,7 @@ import { HeadlessMidnightProver } from '../midnight/prover.js';
 import { VelocityCircuitBreaker } from './circuit-breaker.js';
 import { ApprovalGateway } from '../hitl/deferred.js';
 import { TelemetryLogger } from '../telemetry/logger.js';
+import { IntentFirewallEvaluator, GhostPromptInjectionDetectedError } from '../../../intent/src/index.js';
 
 export const globalPreflight = new PreflightEngine();
 export const globalWitness = new WitnessSynthesizer();
@@ -145,6 +146,41 @@ export function withGhostGuard<T extends any>(tool: T, config: GhostGuardConfig 
 
     // 2. Velocity Circuit Breaker Check (Loop & Anomaly Protection)
     globalCircuitBreaker.recordAndAssert(agentId, context);
+
+    // 2.5 Cryptographic Intent-Binding Firewall Check (if intentToken configured)
+    if (config.intentToken) {
+      const intentEvaluator = new IntentFirewallEvaluator();
+      try {
+        await intentEvaluator.evaluate(
+          {
+            amount: context.amount,
+            currency: context.currency,
+            merchant: context.merchant,
+            category: context.category,
+            orderDescription: context.purpose,
+          },
+          config.intentToken
+        );
+      } catch (err: any) {
+        if (err instanceof GhostPromptInjectionDetectedError) {
+          globalCircuitBreaker.trip();
+          globalLogger.log('error', 'prompt_injection_blocked', {
+            agentId,
+            context,
+            error: `Prompt Injection (${err.divergenceType}): ${err.rejectionReason}`,
+          });
+
+          if (config.onIntentViolation) {
+            return await config.onIntentViolation(err, context);
+          }
+          if (config.onBlock) {
+            return await config.onBlock(err, context);
+          }
+          throw err;
+        }
+        throw err;
+      }
+    }
 
     // 3. Sub-5ms Optimistic In-Memory Preflight Check
     const preflight = globalPreflight.evaluate(context, config.localPolicy, agentId);
