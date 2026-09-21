@@ -44,30 +44,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
-  const { network, setNetwork, disconnect1AM, connect1AM, walletState } = useMidnight();
+  const { network, setNetwork, disconnect1AM } = useMidnight();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAttemptingReconnect, setIsAttemptingReconnect] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/auth/signin");
     } else {
       fetchData(); // Fetch real data from Supabase
-
-      // Auto-reconnect 1AM if they authenticated via wallet previously but session is lost on reload
-      if (user?.authType === 'wallet' && !walletState.isConnected && !isAttemptingReconnect) {
-        setIsAttemptingReconnect(true);
-        connect1AM().catch((err) => {
-          console.error("Failed to auto-reconnect wallet:", err);
-          toast.error("Wallet Connection Lost", {
-            description: "Please sign in again to re-authenticate your session."
-          });
-          signOut();
-          router.replace("/auth/signin");
-        });
-      }
     }
-  }, [isAuthenticated, user?.authType, walletState.isConnected, router, fetchData, connect1AM, signOut, isAttemptingReconnect]);
+  }, [isAuthenticated, router, fetchData]);
 
   if (!isAuthenticated) return null;
 
