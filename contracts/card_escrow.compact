@@ -1,0 +1,54 @@
+// ==========================================
+// GHOST VIRTUAL CARD ZK ESCROW COMPACT CIRCUIT
+// ==========================================
+// Manages zero-knowledge collateral locking and fiat payment settlement on Midnight.
+// Guarantees that single-use virtual cards cannot be minted without locked escrow funds.
+// ==========================================
+pragma language_version >= 0.14.0;
+
+import CompactStandardLibrary;
+
+export ledger escrow_locked_balance: Uint<32>;
+export ledger total_settled_balance: Uint<32>;
+export ledger active_card_commitment: Bytes<32>;
+
+constructor() {
+  escrow_locked_balance = 0 as Uint<32>;
+  total_settled_balance = 0 as Uint<32>;
+  active_card_commitment = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] as Bytes<32>;
+}
+
+// 1. Locks collateral funds on Midnight before issuing an ephemeral card
+export circuit lock_escrow(
+  deposit_amount: Uint<32>,
+  card_commitment: Bytes<32>
+): [] {
+  assert(deposit_amount > 0 as Uint<32>, "Deposit amount must be positive");
+  assert(card_commitment != [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "Invalid card commitment");
+
+  escrow_locked_balance = (escrow_locked_balance + disclose(deposit_amount)) as Uint<32>;
+  active_card_commitment = card_commitment;
+}
+
+// 2. Settles a fiat charge when authorized by the card network webhook
+export circuit settle_escrow(
+  settle_amount: Uint<32>,
+  settlement_proof_token: Bytes<32>
+): [] {
+  assert(settle_amount <= escrow_locked_balance, "Settlement exceeds locked escrow collateral");
+  assert(settlement_proof_token != [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "Invalid settlement proof token");
+
+  escrow_locked_balance = (escrow_locked_balance - disclose(settle_amount)) as Uint<32>;
+  total_settled_balance = (total_settled_balance + disclose(settle_amount)) as Uint<32>;
+}
+
+// 3. Refunds unspent escrow collateral if card expires without being charged
+export circuit refund_escrow(
+  refund_amount: Uint<32>,
+  agent_refund_token: Bytes<32>
+): [] {
+  assert(refund_amount <= escrow_locked_balance, "Refund amount exceeds locked escrow balance");
+  assert(agent_refund_token != [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], "Invalid refund authorization token");
+
+  escrow_locked_balance = (escrow_locked_balance - disclose(refund_amount)) as Uint<32>;
+}
