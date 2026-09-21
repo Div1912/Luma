@@ -1,0 +1,33 @@
+{
+  "name": "@ghost/dual-rail",
+  "version": "1.0.0",
+  "description": "Dual-Rail Payment Execution Gateway for AI Agents (Fiat Ephemeral Cards + HTTP 402 Micropayments on Midnight)",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "ghost",
+    "dual-rail",
+    "x402",
+    "http-402",
+    "micropayments",
+    "ephemeral-cards",
+    "stripe-issuing",
+    "midnight",
+    "zero-knowledge",
+    "ai-agents"
+  ],
+  "author": "Ghost Network",
+  "license": "MIT"
+}
