@@ -1,5 +1,13 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["src/test/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "src-vite-old",
+    "tests",
+    "bboard",
+    "ghost-contract",
+    "scripts",
+    "deploy-simulated.ts"
+  ],
   "compilerOptions": {}
 }

@@ -81,8 +81,8 @@ export async function checkMidnightInfrastructureHealth(network: 'preview' | 'pr
   const endpoints = PRODUCTION_NETWORKS[network] || PRODUCTION_NETWORKS.preprod;
   const start = performance.now();
 
-  let indexerHealthy = true;
-  let proverHealthy = true;
+  const indexerHealthy = true;
+  const proverHealthy = true;
   let proverLatencyMs = 3;
 
   try {

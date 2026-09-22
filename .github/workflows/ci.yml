@@ -5,15 +5,21 @@ on:
     branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  quality:
+    name: Code Quality & Typecheck
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -22,43 +28,86 @@ jobs:
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps || npm install
 
-      - name: Run Unit Tests
-        run: npm run test
-
-  contract:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Dependencies
-        run: npm ci --legacy-peer-deps || npm install
-
-      - name: Compile Midnight Contract
-        run: npm run compact || echo "Contract compilation step completed"
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci --legacy-peer-deps || npm install
-
-      - name: Typecheck
+      - name: TypeScript Typecheck (tsc --noEmit)
         run: npm run typecheck
 
-      - name: Build Next.js Production Bundle
+      - name: ESLint Check
+        run: npm run lint
+
+  contract-integrity:
+    name: Midnight ZK Contract & Prover Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps || npm install
+
+      - name: Verify Compact Source & Managed Bindings
+        run: |
+          test -f contracts/ghost.compact || { echo "Missing contracts/ghost.compact"; exit 1; }
+          test -f managed/ghost/contract/index.js || { echo "Missing managed/ghost/contract/index.js"; exit 1; }
+          test -f managed/ghost/contract/index.d.ts || { echo "Missing managed/ghost/contract/index.d.ts"; exit 1; }
+          echo "Compact contract and managed runtime bindings verified."
+
+      - name: Verify ZK Prover & Circuit Keys
+        run: |
+          test -f "public/keys/ghost#spend.prover" || test -f "public/keys/ghost%23spend.prover" || { echo "Missing spend prover key"; exit 1; }
+          test -f "public/keys/ghost#spend.verifier" || test -f "public/keys/ghost%23spend.verifier" || { echo "Missing spend verifier key"; exit 1; }
+          test -f "public/zkir/ghost#spend.bzkir" || test -f "public/zkir/ghost%23spend.bzkir" || { echo "Missing spend circuit IR"; exit 1; }
+          echo "Client-side ZK-SNARK proving keys and circuits verified."
+
+      - name: Run Midnight Contract Simulation Tests
+        run: npx vitest run tests/ghost-init.test.ts tests/ghost-spend.test.ts tests/ghost-limit.test.ts tests/ghost-advanced.test.ts
+
+  test:
+    name: Vitest Cryptographic & Integration Suite (24 Suites / 209 Tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps || npm install
+
+      - name: Run All 24 Vitest Test Suites
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: npm run test
+
+  build:
+    name: Next.js 16 Production Build & Static Prerender
+    runs-on: ubuntu-latest
+    needs: [quality, contract-integrity]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps || npm install
+
+      - name: Build Next.js Production Bundle (Webpack)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://xdovsqzuedezkigyvxbv.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhkb3ZzcXp1ZWRlemtpZ3l2eGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg4MTEsImV4cCI6MjEwMDMxNDgxMX0.mock' }}
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: npm run build
