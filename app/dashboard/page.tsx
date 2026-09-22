@@ -58,30 +58,60 @@ export default function DashboardOverview() {
   const { walletState, connect, spend, publicState, ghost, connect1AM, deploy, disconnect1AM, api, network, setNetwork } = useMidnight();
   const [spendAmount, setSpendAmount] = useState<string>("50");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deployStep, setDeployStep] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");
+
+  const preprodVerified = 'd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad';
+  const previewVerified = 'e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70';
 
   useEffect(() => {
     const saved = localStorage.getItem('ghost_contract_address');
-    const preprodDefault = '0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad';
-    const previewDefault = 'e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70';
-
-    if (saved && saved !== preprodDefault && saved !== previewDefault) {
-      setContractAddress(saved);
+    if (saved && saved !== 'none' && saved !== 'reset') {
+      const clean = saved.replace(/^0x/, '').trim();
+      setContractAddress(clean);
+      if (clean !== saved) {
+        localStorage.setItem('ghost_contract_address', clean);
+      }
     } else {
-      const activeAddress = network === 'preprod' ? preprodDefault : previewDefault;
-      setContractAddress(activeAddress);
-      localStorage.setItem('ghost_contract_address', activeAddress);
+      setContractAddress('');
     }
   }, [network]);
+
+  const handleResetContract = () => {
+    localStorage.setItem('ghost_contract_address', 'none');
+    setContractAddress('');
+    disconnect1AM();
+    toast.info("Contract Unlinked", {
+      description: "You can now deploy a fresh contract or bind a verified contract address."
+    });
+  };
+
+  const handleLoadVerifiedContract = () => {
+    const target = network === 'preprod' ? preprodVerified : previewVerified;
+    setContractAddress(target);
+    localStorage.setItem('ghost_contract_address', target);
+    toast.success(`Loaded Verified ${network.toUpperCase()} Contract`, {
+      description: `Contract address set to ${target.slice(0, 10)}... Click 'Connect to Contract' to bind.`
+    });
+  };
 
   const handleDeploy = async () => {
     try {
       setIsSubmitting(true);
-      // Deploy with a limit of 1,000,000
-      const address = await deploy(BigInt(1000000));
-      // After deploy, walletState.address has the deployed address
-      toast.success("Contract Deployed Successfully!", {
-        description: `Waiting for indexer sync on ${network || 'preprod'}...`,
+      setDeployStep("Requesting 1AM wallet approval...");
+      toast.loading("Deploying Ghost contract on Midnight...", { id: "deploy-status" });
+      
+      const address = await deploy(BigInt(1000000), (stepMsg) => {
+        setDeployStep(stepMsg);
+        toast.loading(stepMsg, { id: "deploy-status" });
+      });
+
+      setContractAddress(address);
+      localStorage.setItem('ghost_contract_address', address);
+      
+      toast.success("Contract Deployed Successfully! 🛡️", {
+        id: "deploy-status",
+        description: `Contract address: ${address.slice(0, 10)}... on ${network.toUpperCase()}`,
         action: {
           label: "View Explorer",
           onClick: () => window.open(`https://${network || 'preprod'}.midnightexplorer.com/contracts/${address}`, "_blank")
@@ -89,24 +119,26 @@ export default function DashboardOverview() {
       });
     } catch (err: any) {
       toast.error("Deployment Error", {
+        id: "deploy-status",
         description: err.message || String(err)
       });
-      console.error(err);
+      console.error("Deploy error:", err);
     } finally {
       setIsSubmitting(false);
+      setDeployStep("");
     }
   };
 
   // Sync the deployed address to local storage
   useEffect(() => {
     if (ghost && walletState.address && walletState.address !== contractAddress) {
-      // MidnightProvider sets walletState.address to the contract address upon connect/deploy
-      if (walletState.address.length > 50) {
-        setContractAddress(walletState.address);
-        localStorage.setItem('ghost_contract_address', walletState.address);
+      if (walletState.address.length > 50 && !walletState.address.startsWith('mn_')) {
+        const clean = walletState.address.replace(/^0x/, '').trim();
+        setContractAddress(clean);
+        localStorage.setItem('ghost_contract_address', clean);
       }
     }
-  }, [ghost, walletState.address]);
+  }, [ghost, walletState.address, contractAddress]);
 
   const handleSpend = async () => {
     if (!spendAmount) return;
@@ -259,18 +291,23 @@ export default function DashboardOverview() {
                   <button onClick={() => setNetwork('preprod')} className={`px-2 py-0.5 rounded transition-all font-mono text-[10px] ${network === 'preprod' ? 'bg-[#b8d4f0] text-black font-semibold' : 'text-white/60 hover:text-white'}`}>Preprod</button>
                 </div>
                 {contractAddress && (
-                  <button onClick={() => { localStorage.removeItem('ghost_contract_address'); setContractAddress(''); }} className="text-[10px] text-red-400 hover:text-red-300 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md font-mono">Reset</button>
+                  <button onClick={handleResetContract} className="text-[10px] text-red-400 hover:text-red-300 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-md font-mono">Reset</button>
                 )}
               </div>
             </div>
             
-            {contractAddress && (
+            {contractAddress ? (
               <div className="mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/10 flex flex-col gap-1">
                 <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold font-mono">Verifiable Contract Address ({network.toUpperCase()})</span>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
                   <a href={`https://${network || 'preprod'}.midnightexplorer.com/contracts/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-[#b8d4f0] hover:text-white transition-colors" title={`View on Midnight ${(network || 'preprod').toUpperCase()} Explorer`}><ArrowUpRight className="w-4 h-4" /></a>
                 </div>
+              </div>
+            ) : (
+              <div className="mb-4 p-3 bg-white/[0.02] rounded-xl border border-dashed border-white/10 flex flex-col gap-1">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-mono">No Active Contract Linked</span>
+                <p className="text-xs text-zinc-400">Deploy a fresh Ghost contract on Midnight or load the verified {network.toUpperCase()} testnet contract.</p>
               </div>
             )}
 
@@ -298,23 +335,55 @@ export default function DashboardOverview() {
             )}
             {/* Step 2: Deploy contract (wallet connected, no contract yet) */}
             {api && !ghost && !contractAddress && (
-              <button
-                onClick={handleDeploy}
-                disabled={isSubmitting}
-                className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Deploying...</> : <><Activity className="w-4 h-4" /> Deploy Ghost Contract</>}
-              </button>
+              <div className="space-y-2.5">
+                <button
+                  onClick={handleDeploy}
+                  disabled={isSubmitting}
+                  className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
+                      <span className="text-xs">{deployStep || "Deploying on Midnight..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Activity className="w-4 h-4" /> Deploy Ghost Contract
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={handleLoadVerifiedContract}
+                  disabled={isSubmitting}
+                  className="w-full py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2"
+                >
+                  <span>Load Verified {network.toUpperCase()} Contract</span>
+                </button>
+              </div>
             )}
             {/* Step 3: Connect to existing contract */}
             {api && !ghost && contractAddress && (
-              <button
-                onClick={async () => { setIsSubmitting(true); try { await connect(contractAddress); } catch(e: any) { toast.error("Connect Error", { description: e.message || String(e) }); } finally { setIsSubmitting(false); } }}
-                disabled={isSubmitting}
-                className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Connecting...</> : <><Activity className="w-4 h-4" /> Connect to Contract</>}
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={async () => { 
+                    setIsSubmitting(true); 
+                    try { 
+                      await connect(contractAddress); 
+                      toast.success("Connected to Ghost Contract! 🛡️", {
+                        description: `Bound to ${contractAddress.slice(0, 10)}... on ${network.toUpperCase()}`
+                      });
+                    } catch(e: any) { 
+                      toast.error("Connect Error", { description: e.message || String(e) }); 
+                    } finally { 
+                      setIsSubmitting(false); 
+                    } 
+                  }}
+                  disabled={isSubmitting}
+                  className="btn-liquid btn-liquid-primary w-full py-2.5 flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? <><div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" /> Connecting...</> : <><Activity className="w-4 h-4" /> Connect to Contract</>}
+                </button>
+              </div>
             )}
             {/* Step 4: Execute spend (fully connected) */}
             {api && ghost && (

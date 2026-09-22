@@ -19,6 +19,7 @@ const compiledGhostContract = CompiledContract.make(
 
 export async function createGhostContract(api: any, contractAddress: string, targetNetwork: string = 'preview') {
   setNetworkId(targetNetwork as any);
+  const cleanAddress = contractAddress.replace(/^0x/, '').trim();
   const config = await api.getConfiguration();
   const shieldedAddresses = await api.getShieldedAddresses();
 
@@ -60,17 +61,23 @@ export async function createGhostContract(api: any, contractAddress: string, tar
   const contract = new Contract({} as any);
   
   const ghost = await findDeployedContract(providers as any, {
-    contractAddress,
+    contractAddress: cleanAddress,
     compiledContract: compiledGhostContract as any,
     initialPrivateState: {} as any,
     privateStateId: 'ghost-join'
   } as any);
 
-  return { providers, contract, ghost };
+  return { providers, contract, ghost, address: cleanAddress };
 }
 
-export async function deployGhostContract(api: any, initialLimit: bigint, targetNetwork: string = 'preview') {
+export async function deployGhostContract(
+  api: any, 
+  initialLimit: bigint, 
+  targetNetwork: string = 'preview',
+  onProgress?: (status: string) => void
+) {
   setNetworkId(targetNetwork as any);
+  onProgress?.('Fetching 1AM wallet network configuration...');
   const config = await api.getConfiguration();
   const shieldedAddresses = await api.getShieldedAddresses();
   const privateStateProvider = inMemoryPrivateStateProvider();
@@ -83,16 +90,20 @@ export async function deployGhostContract(api: any, initialLimit: bigint, target
     getCoinPublicKey: () => shieldedAddresses.shieldedCoinPublicKey,
     getEncryptionPublicKey: () => shieldedAddresses.shieldedEncryptionPublicKey,
     balanceTx: async (tx: UnboundTransaction, ttl?: Date) => {
+      onProgress?.('Please open & approve transaction in your 1AM wallet...');
       const serializedTx = toHex(tx.serialize());
       const received = await api.balanceUnsealedTransaction(serializedTx);
+      onProgress?.('Transaction signed! Submitting on-chain...');
       return Transaction.deserialize<SignatureEnabled, Proof, Binding>('signature', 'proof', 'binding', fromHex(received.tx));
     },
   };
 
   const midnightProvider = {
     submitTx: async (tx: FinalizedTransaction) => {
+      onProgress?.('Submitting transaction to Midnight blockchain...');
       await api.submitTransaction(toHex(tx.serialize()));
       const txIdentifiers = tx.identifiers();
+      onProgress?.('Transaction submitted! Awaiting on-chain finalization (~30-60s)...');
       return txIdentifiers[0];
     }
   };
@@ -106,8 +117,7 @@ export async function deployGhostContract(api: any, initialLimit: bigint, target
     midnightProvider
   };
 
-  const contract = new Contract({} as any);
-  
+  onProgress?.('Initializing ZK circuit and contract parameters...');
   // Actually perform the deployment transaction
   // The compiled initialState(context, limit_0: bigint) accepts exactly 1 user argument.
   const ghost = await deployContract(providers as any, {
@@ -117,9 +127,13 @@ export async function deployGhostContract(api: any, initialLimit: bigint, target
     initialPrivateState: {} as any
   } as any);
 
+  const rawAddress = ghost.deployTxData.public.contractAddress;
+  const deployedAddress = typeof rawAddress === 'string' ? rawAddress.replace(/^0x/, '').trim() : String(rawAddress);
+  onProgress?.(`Deployed successfully! Address: ${deployedAddress}`);
+
   return { 
     ghost, 
-    address: ghost.deployTxData.public.contractAddress, 
+    address: deployedAddress, 
     providers 
   };
 }

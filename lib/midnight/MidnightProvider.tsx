@@ -20,7 +20,7 @@ export interface MidnightContextType {
   disconnect1AM: () => void;
   disconnectLace: () => void; // alias for backward-compat
   api: any;
-  deploy: (limit: bigint) => Promise<string>;
+  deploy: (limit: bigint, onProgress?: (status: string) => void) => Promise<string>;
   connect: (contractAddress: string) => Promise<void>;
   spend: (amount: bigint) => Promise<any>;
   rebalanceThreshold: (newLimit: bigint) => Promise<any>;
@@ -149,14 +149,15 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
 
   const disconnectLace = disconnect1AM;
 
-  const deploy = async (limit: bigint) => {
+  const deploy = async (limit: bigint, onProgress?: (status: string) => void) => {
     if (!api) throw new Error('Wallet not connected');
     try {
       setNetworkId(network);
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const { ghost: g, address: deployedAddress, providers } = await deployGhostContract(api, limit, network);
+      const { ghost: g, address: deployedAddress, providers } = await deployGhostContract(api, limit, network, onProgress);
       setGhost(g);
       setWalletState(prev => ({ ...prev, address: deployedAddress }));
+      localStorage.setItem('ghost_contract_address', deployedAddress);
 
       // Subscribe to public state
       providers.publicDataProvider.contractStateObservable(deployedAddress, { type: 'latest' }).subscribe((state: any) => {
@@ -193,11 +194,13 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     try {
       setNetworkId(network);
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const { ghost: g, providers } = await createGhostContract(api, contractAddress, network);
+      const cleanAddress = contractAddress.replace(/^0x/, '').trim();
+      const { ghost: g, providers } = await createGhostContract(api, cleanAddress, network);
       setGhost(g);
-      setWalletState(prev => ({ ...prev, address: contractAddress }));
+      setWalletState(prev => ({ ...prev, address: cleanAddress }));
+      localStorage.setItem('ghost_contract_address', cleanAddress);
 
-      providers.publicDataProvider.contractStateObservable(contractAddress, { type: 'latest' }).subscribe((state: any) => {
+      providers.publicDataProvider.contractStateObservable(cleanAddress, { type: 'latest' }).subscribe((state: any) => {
         try {
           setPublicState(ledger(state.data));
         } catch (e) {
