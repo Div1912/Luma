@@ -300,7 +300,7 @@ Here is the complete showcase of all production modules and enterprise capabilit
 
 ### 3. Autonomous Agent Fleet Orchestration & Swarm Provisioning
 *Hierarchical fleet nesting, role-based capability scoping, and instant cryptographic credential provisioning across hundreds of specialized AI shopping and procurement bots.*
-<img src="./Screenshot/Agent%20Management.png" alt="Agent Fleet Management" width="100%" />
+<img src="./Screenshot/Agent%20Fleet%20Management.png" alt="Agent Fleet Management" width="100%" />
 
 ### 4. Enterprise Policy Engine & Spending Guardrails
 *Granular Zero-Knowledge spending rules, per-transaction velocity limits, category allowlists/blocklists, and dynamic encrypted threshold re-balancing without contract redeployment.*
@@ -324,7 +324,7 @@ Here is the complete showcase of all production modules and enterprise capabilit
 
 ### 9. Developer Hub & Cryptographic SDK Portal
 *Manage enterprise API credentials, configure real-time webhook listeners, and integrate Ghost's Zero-Knowledge spending guardrails into LangChain, AutoGPT, and ElizaOS in 3 lines of code.*
-<img src="./Screenshot/Devloper%20tool.png" alt="Developer Tools" width="100%" />
+<img src="./Screenshot/Developer%20Tools.png" alt="Developer Tools" width="100%" />
 
 ### 10. In-App Smart Contract Deployment via 1AM Wallet
 *Deploy native Compact smart contracts directly to the Midnight network through the 1AM wallet connector with automated parameter initialization and indexer binding.*
