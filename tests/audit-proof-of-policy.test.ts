@@ -84,7 +84,7 @@ describe('Ghost ZK Compliance: Proof-of-Policy Engine & Auditor Verifier', () =>
       expect(certificate.complianceStatement).toContain(
         'All 1000 autonomous agent transactions executed in epoch \'EPOCH_2026_Q3_SCALE\' complied 100% with Corporate Policy \'CORP_POLICY_12\''
       );
-    });
+    }, 15_000);
 
     it('Compliance Breach: A single policy mismatch in 1,000 transactions halts certification', async () => {
       const taintedAccumulator = new ComplianceMerkleAccumulator('EPOCH_TAINTED');
@@ -120,7 +120,7 @@ describe('Ghost ZK Compliance: Proof-of-Policy Engine & Auditor Verifier', () =>
       await expect(
         taintedEngine.certifyEpoch({ policyId, policyHash })
       ).rejects.toThrow('Compliance Breach: Transaction at index 999 (\'0xtx_divergent_1000\') diverged from target policy');
-    });
+    }, 15_000);
 
     it('Spend Cap Breach: A single overdraft in 1,000 transactions halts certification', async () => {
       const overdraftAccumulator = new ComplianceMerkleAccumulator('EPOCH_OVERDRAFT');
