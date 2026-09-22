@@ -182,7 +182,10 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     } catch (err: any) {
       // FiberFailure from Effect-TS: err.cause.failure is the real error
       const failure = err?.cause?.failure ?? err?.cause?.error ?? err?.cause ?? err;
-      const msg = failure?.message || JSON.stringify(failure) || err?.message || String(err);
+      let msg = failure?.message || JSON.stringify(failure) || err?.message || String(err);
+      if (msg.includes('171') || msg.includes('OutOfDustValidityWindow')) {
+        msg = "Transaction failed (Error 171: OutOfDustValidityWindow). Your 1AM wallet has 0 DUST or an expired validity window. Please open your 1AM wallet extension and click 'YOUR DUST' to register/generate DUST from your NIGHT balance.";
+      }
       console.error('Deploy error (failure):', failure);
       setWalletState(prev => ({ ...prev, error: msg }));
       throw new Error(msg);
@@ -264,8 +267,12 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
 
       return tx;
     } catch (err: any) {
-      setWalletState(prev => ({ ...prev, error: err.message || String(err) }));
-      throw err;
+      let errMsg = err.message || String(err);
+      if (errMsg.includes('171') || errMsg.includes('OutOfDustValidityWindow')) {
+        errMsg = "Transaction failed (Error 171: OutOfDustValidityWindow). Your 1AM wallet has 0 DUST or an expired validity window. Please open your 1AM wallet extension and click 'YOUR DUST' to register/generate DUST from your NIGHT balance.";
+      }
+      setWalletState(prev => ({ ...prev, error: errMsg }));
+      throw new Error(errMsg);
     }
   };
 

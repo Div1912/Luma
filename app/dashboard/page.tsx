@@ -165,7 +165,12 @@ export default function DashboardOverview() {
       
     } catch (err: any) {
       const errMsg = err.message || String(err);
-      if (errMsg.includes('Expected preview address, got preprod one')) {
+      if (errMsg.includes('171') || errMsg.includes('OutOfDustValidityWindow') || errMsg.includes('DUST')) {
+        toast.error("DUST Registration Required (Error 171)", {
+          description: "Your 1AM wallet has 0 DUST or an expired validity window. Open your 1AM wallet extension, click 'YOUR DUST' at the bottom to register/generate DUST from your 8,000 NIGHT, then try again.",
+          duration: 12000
+        });
+      } else if (errMsg.includes('Expected preview address, got preprod one')) {
         setNetwork('preprod');
         toast.info("Network Auto-Adjusted to Preprod", {
           description: "Detected Preprod contract address. Network has been switched to Preprod. Retrying connection..."
