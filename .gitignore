@@ -4,3 +4,9 @@ dist/
 .next/
 .vite/
 tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo
+.env*.local
+scripts/
+/ONCHAIN*
+/FLEET*
+

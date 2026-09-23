@@ -71,6 +71,8 @@ export interface Agent {
   version: string;
   fleetId?: string | null;
   useFleetPolicy?: boolean;
+  walletAddress?: string;
+  txHash?: string;
 }
 
 export interface Approval {

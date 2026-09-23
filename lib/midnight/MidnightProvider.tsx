@@ -22,7 +22,7 @@ export interface MidnightContextType {
   api: any;
   deploy: (limit: bigint, onProgress?: (status: string) => void) => Promise<string>;
   connect: (contractAddress: string) => Promise<void>;
-  spend: (amount: bigint, options?: { agentId?: string; agentName?: string; description?: string }) => Promise<any>;
+  spend: (amount: bigint, options?: { agentId?: string; agentName?: string; walletAddress?: string; description?: string }) => Promise<any>;
   rebalanceThreshold: (newLimit: bigint) => Promise<any>;
   ghost: any;
   publicState: { total_spent: bigint; spending_limit: bigint } | null;
@@ -237,7 +237,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const spend = async (amount: bigint, options?: { agentId?: string; agentName?: string; description?: string }) => {
+  const spend = async (amount: bigint, options?: { agentId?: string; agentName?: string; walletAddress?: string; description?: string }) => {
     if (!ghost) throw new Error('Ghost contract not initialized');
     try {
       setWalletState(prev => ({ ...prev, error: undefined }));
@@ -248,7 +248,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       const isMultiSig = amount >= 50000n;
 
       const storeUser = useGhostStore.getState().user;
-      const userWallet = walletState.address || storeUser?.walletAddress || 'mn_unspecified';
+      const userWallet = options?.walletAddress || walletState.address || storeUser?.walletAddress || 'mn_unspecified';
       const userName = options?.agentName || storeUser?.name || 'Midnight Node Admin';
       const agentId = options?.agentId || 'agt_01';
       const agentName = options?.agentName || 'Midnight Agent';
@@ -276,6 +276,11 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
           txHash: String(txId)
         }
       });
+
+      if (tx && typeof tx === 'object') {
+        (tx as any).txHash = String(txId);
+        (tx as any).txId = String(txId);
+      }
 
       return tx;
     } catch (err: any) {
