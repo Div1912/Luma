@@ -325,8 +325,11 @@ export default function AgentsPage() {
                         onClick={async () => {
                           try {
                             setIsSpending(agent.id);
-                            const tx = await spend(BigInt(25));
-                            const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || tx;
+                            await spend(BigInt(25), {
+                              agentId: agent.id,
+                              agentName: agent.name,
+                              description: `Agent ${agent.name} successfully executed a 25 tDUST on-chain spend under policy ${policy?.name || 'Unknown'}.`
+                            });
                             
                             updateAgent(agent.id, {
                               totalSpent: (agent.totalSpent || 0) + 25,
@@ -334,20 +337,7 @@ export default function AgentsPage() {
                               lastActivity: new Date().toLocaleTimeString()
                             });
                             
-                            addAuditEvent({
-                              type: 'purchase_approved',
-                              agentId: agent.id,
-                              agentName: agent.name,
-                              merchant: 'On-Chain Execution',
-                              amount: 25,
-                              currency: 'tDUST',
-                              status: 'success',
-                              description: `Agent ${agent.name} successfully executed a 25 tDUST on-chain spend under policy ${policy?.name || 'Unknown'}.`,
-                              proofHash: typeof txId === 'string' ? txId : '0xUnknown',
-                              metadata: { verified: true }
-                            });
-                            
-                            toast.success(`Executed 25 tDUST spend!`);
+                            toast.success(`Executed 25 tDUST spend on-chain!`);
                           } catch (e: any) {
                             toast.error(`Transaction failed`, { description: e.message || String(e) });
                           } finally {

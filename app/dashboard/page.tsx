@@ -144,19 +144,10 @@ export default function DashboardOverview() {
     if (!spendAmount) return;
     try {
       setIsSubmitting(true);
-      await spend(BigInt(spendAmount));
-      
-      // Push real event to dashboard
-      useGhostStore.getState().addAuditEvent({
-        type: "purchase_approved",
+      await spend(BigInt(spendAmount), {
         agentId: "agt_01",
-        agentName: "Wallet User",
-        merchant: `Midnight ${network.toUpperCase()}`,
-        amount: Number(spendAmount),
-        currency: "tDUST",
-        status: "success",
-        description: `Private spend transaction executed on-chain (${network})`,
-        metadata: { txType: "spend", contract: contractAddress, network },
+        agentName: useGhostStore.getState().user?.name || "Midnight Node Admin",
+        description: `Private spend transaction of ${spendAmount} tDUST executed on-chain (${network})`
       });
       
       toast.success("ZK Proof Verified & Mined Successfully! 🛡️", {

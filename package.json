@@ -22,7 +22,7 @@
     "ci": "npm run typecheck && npm run lint && npm run test && npm run build",
     "compact": "compact compile contracts/ghost.compact ./managed/ghost && cp ./managed/ghost/*.zkir ./public/ && cp ./managed/ghost/*.pk ./public/ || true",
     "prepack": "npm run build",
-    "test": "vitest run",
+    "test": "vitest run --no-file-parallelism",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

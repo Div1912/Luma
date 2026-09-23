@@ -26,7 +26,7 @@ import { toast } from "sonner";
 export default function SignInPage() {
   const router = useRouter();
   const { walletState, connectLace, network, setNetwork } = useMidnight();
-  const { isAuthenticated, signIn, signInWallet, signInDemo } = useGhostStore();
+  const { isAuthenticated, user, signIn, signInWallet, signInDemo } = useGhostStore();
 
   const [authMode, setAuthMode] = useState<"wallet" | "credentials">("wallet");
   const [email, setEmail] = useState("demo@ghost.xyz");
@@ -35,12 +35,16 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If already authenticated and not actively logging out, allow navigation
+  // If already authenticated and not actively logging out, route based on profile completion status
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      if (user?.profileCompleted) {
+        router.push("/dashboard");
+      } else {
+        router.push("/auth/complete-profile");
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user?.profileCompleted, router]);
 
   const handleWalletConnect = async () => {
     setError(null);
@@ -57,12 +61,29 @@ export default function SignInPage() {
   // Only respond to wallet connection when triggered intentionally by the user
   useEffect(() => {
     if (isSubmitting && walletState.isConnected && walletState.address) {
-      signInWallet(walletState.address);
-      toast.success("Wallet Authenticated", {
-        description: `Connected with Midnight ${network.toUpperCase()}`
-      });
-      setIsSubmitting(false);
-      router.push("/dashboard");
+      const targetAddress = walletState.address;
+      const executeAuth = async () => {
+        try {
+          const { isNewUser } = await signInWallet(targetAddress);
+          setIsSubmitting(false);
+
+          if (isNewUser) {
+            toast.info("Welcome to Luma Ghost", {
+              description: "Please complete and save your profile to access the dashboard."
+            });
+            router.push("/auth/complete-profile");
+          } else {
+            toast.success("Wallet Authenticated", {
+              description: `Welcome back! Connected on Midnight ${network.toUpperCase()}`
+            });
+            router.push("/dashboard");
+          }
+        } catch (e: any) {
+          setError(e.message || "Failed to authenticate wallet.");
+          setIsSubmitting(false);
+        }
+      };
+      executeAuth();
     }
   }, [walletState.isConnected, walletState.address, isSubmitting, network, signInWallet, router]);
 
@@ -75,10 +96,17 @@ export default function SignInPage() {
     setIsSubmitting(false);
 
     if (res.success) {
-      toast.success("Welcome back!", {
-        description: "Authenticated with enterprise credentials."
-      });
-      router.push("/dashboard");
+      if (res.isNewUser) {
+        toast.info("First-Time Setup", {
+          description: "Please complete and save your enterprise profile to proceed."
+        });
+        router.push("/auth/complete-profile");
+      } else {
+        toast.success("Welcome back!", {
+          description: "Authenticated with enterprise credentials."
+        });
+        router.push("/dashboard");
+      }
     } else {
       setError(res.error || "Authentication failed. Please check credentials.");
     }

@@ -96,15 +96,18 @@ export interface AuditEvent {
   type: EventType;
   agentId?: string;
   agentName?: string;
+  walletAddress?: string;
+  userName?: string;
   policyId?: string;
   merchant?: string;
   amount?: number;
   currency?: string;
   timestamp: string;
   proofHash?: string;
+  txHash?: string;
   status: "success" | "failed" | "blocked" | "pending";
   description: string;
-  metadata: Record<string, string | number | boolean>;
+  metadata: Record<string, any>;
 }
 
 export interface DashboardMetrics {
@@ -129,6 +132,8 @@ export interface UserProfile {
   bio?: string;
   timezone?: string;
   authType?: "wallet" | "credentials" | "demo";
+  walletAddress?: string;
+  profileCompleted: boolean;
 }
 
 interface GhostStore {
@@ -136,9 +141,10 @@ interface GhostStore {
   isAuthenticated: boolean;
   isDemoMode: boolean;
   user: UserProfile | null;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; isNewUser?: boolean; error?: string }>;
   signInDemo: () => void;
-  signInWallet: (address: string) => void;
+  signInWallet: (address: string) => Promise<{ isNewUser: boolean }>;
+  completeProfile: (profileData: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
   signOut: () => void;
 
   // Data
@@ -147,6 +153,7 @@ interface GhostStore {
   fleets: Fleet[];
   approvals: Approval[];
   auditEvents: AuditEvent[];
+  transactions: any[];
   metrics: DashboardMetrics;
 
   // Policy actions
@@ -178,7 +185,7 @@ interface GhostStore {
   // Data actions
   fetchData: () => Promise<void>;
 
-  updateUser: (userUpdates: Partial<{ email: string; name: string; avatar?: string; role?: string; organization?: string; bio?: string; timezone?: string }>) => void;
+  updateUser: (userUpdates: Partial<{ email: string; name: string; avatar?: string; role?: string; organization?: string; bio?: string; timezone?: string }>) => Promise<void>;
 
   // UI state
   commandMenuOpen: boolean;
@@ -302,23 +309,50 @@ export const useGhostStore = create<GhostStore>()(
         if (password.length < 6) {
           return { success: false, error: "Password must be at least 6 characters" };
         }
+
+        const { checkUserRegistered } = await import("@/lib/supabase");
+        const { isRegistered, user: dbUser } = await checkUserRegistered({ email });
+
+        if (isRegistered && dbUser) {
+          set({
+            isAuthenticated: true,
+            isDemoMode: false,
+            user: { 
+              email: dbUser.email || email, 
+              name: dbUser.name, 
+              avatar: undefined,
+              role: dbUser.role || "Chief AI Security Architect",
+              organization: dbUser.organization || "Ghost Autonomous Swarms Inc.",
+              bio: dbUser.bio || "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
+              timezone: dbUser.timezone || "UTC-8 (Pacific Time)",
+              authType: "credentials",
+              walletAddress: dbUser.wallet_address || undefined,
+              profileCompleted: true
+            },
+          });
+          return { success: true, isNewUser: false };
+        }
+
         const namePart = email.split("@")[0];
         const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+        const isDemo = email === "demo@ghost.xyz";
         set({
           isAuthenticated: true,
-          isDemoMode: false,
+          isDemoMode: isDemo,
           user: { 
             email, 
-            name: email === "demo@ghost.xyz" ? "Alex Morgan" : formattedName, 
+            name: isDemo ? "Alex Morgan" : (dbUser?.name || formattedName), 
             avatar: undefined,
-            role: "Chief AI Security Architect",
-            organization: "Ghost Autonomous Swarms Inc.",
-            bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
-            timezone: "UTC-8 (Pacific Time)",
-            authType: "credentials"
+            role: dbUser?.role || "Chief AI Security Architect",
+            organization: dbUser?.organization || "Ghost Autonomous Swarms Inc.",
+            bio: dbUser?.bio || "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
+            timezone: dbUser?.timezone || "UTC-8 (Pacific Time)",
+            authType: "credentials",
+            walletAddress: dbUser?.wallet_address || undefined,
+            profileCompleted: isDemo ? true : Boolean(dbUser?.profile_completed)
           },
         });
-        return { success: true };
+        return { success: true, isNewUser: !isDemo && !dbUser?.profile_completed };
       },
 
       signInDemo: () => {
@@ -332,25 +366,100 @@ export const useGhostStore = create<GhostStore>()(
             organization: "Ghost Autonomous Swarms Inc.",
             bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
             timezone: "UTC-8 (Pacific Time)",
-            authType: "demo"
+            authType: "demo",
+            walletAddress: undefined,
+            profileCompleted: true
           },
         });
       },
 
-      signInWallet: (address: string) => {
+      signInWallet: async (address: string) => {
+        const { checkUserRegistered } = await import("@/lib/supabase");
+        const { isRegistered, user: dbUser } = await checkUserRegistered({ walletAddress: address });
+
+        if (isRegistered && dbUser) {
+          // Existing user who already completed registration and saved their profile once!
+          set({
+            isAuthenticated: true,
+            isDemoMode: false,
+            user: { 
+              email: dbUser.email || `${address.slice(0, 8)}...${address.slice(-6)}@midnight.network`, 
+              name: dbUser.name,
+              role: dbUser.role || "Lead ZK Systems Engineer",
+              organization: dbUser.organization || "Midnight Enterprise Validator",
+              bio: dbUser.bio || "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
+              timezone: dbUser.timezone || "UTC (Coordinated Universal Time)",
+              authType: "wallet",
+              walletAddress: address,
+              profileCompleted: true
+            },
+          });
+          return { isNewUser: false };
+        }
+
+        // New user or incomplete profile: must complete onboarding before accessing dashboard
         set({
           isAuthenticated: true,
           isDemoMode: false,
           user: { 
             email: `${address.slice(0, 8)}...${address.slice(-6)}@midnight.network`, 
-            name: "Midnight Node Admin",
-            role: "Lead ZK Systems Engineer",
-            organization: "Midnight Enterprise Validator",
-            bio: "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
-            timezone: "UTC (Coordinated Universal Time)",
-            authType: "wallet"
+            name: dbUser?.name || "",
+            role: dbUser?.role || "Lead ZK Systems Engineer",
+            organization: dbUser?.organization || "Midnight Enterprise Validator",
+            bio: dbUser?.bio || "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
+            timezone: dbUser?.timezone || "UTC (Coordinated Universal Time)",
+            authType: "wallet",
+            walletAddress: address,
+            profileCompleted: false
           },
         });
+        return { isNewUser: true };
+      },
+
+      completeProfile: async (profileData) => {
+        const currentUser = get().user;
+        const walletAddress = currentUser?.walletAddress;
+        const email = profileData.email || currentUser?.email || "user@midnight.network";
+        const name = profileData.name || currentUser?.name || "Midnight Node Admin";
+        const role = profileData.role || currentUser?.role || "Lead ZK Systems Engineer";
+        const organization = profileData.organization || currentUser?.organization || "Midnight Enterprise Validator";
+        const bio = profileData.bio || currentUser?.bio || "";
+        const timezone = profileData.timezone || currentUser?.timezone || "UTC";
+
+        const { saveUserToSupabase } = await import("@/lib/supabase");
+        const res = await saveUserToSupabase({
+          walletAddress,
+          email,
+          name,
+          role,
+          organization,
+          bio,
+          timezone,
+          authType: currentUser?.authType || (walletAddress ? "wallet" : "credentials"),
+          profileCompleted: true
+        });
+
+        if (!res.success) {
+          console.error("completeProfile Supabase error:", res.error);
+          return { success: false, error: res.error };
+        }
+
+        set({
+          user: {
+            ...currentUser,
+            name,
+            email,
+            role,
+            organization,
+            bio,
+            timezone,
+            walletAddress,
+            authType: currentUser?.authType || (walletAddress ? "wallet" : "credentials"),
+            profileCompleted: true
+          }
+        });
+
+        return { success: true };
       },
 
       signOut: () => {
@@ -372,14 +481,33 @@ export const useGhostStore = create<GhostStore>()(
         set({ isAuthenticated: false, isDemoMode: false, user: null });
       },
 
-      updateUser: (userUpdates) => {
-        set((s) => ({
-          user: s.user ? { ...s.user, ...userUpdates } : {
-            email: "alex@ghost.xyz",
-            name: "Alex Morgan",
-            ...userUpdates
-          }
-        }));
+      updateUser: async (userUpdates) => {
+        const currentUser = get().user;
+        const updatedUser: UserProfile = currentUser ? { ...currentUser, ...userUpdates } : {
+          email: "alex@ghost.xyz",
+          name: "Alex Morgan",
+          profileCompleted: true,
+          authType: "credentials",
+          ...userUpdates
+        };
+        set({ user: updatedUser });
+
+        if (updatedUser.walletAddress || updatedUser.email) {
+          const { saveUserToSupabase } = await import("@/lib/supabase");
+          saveUserToSupabase({
+            walletAddress: updatedUser.walletAddress,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            role: updatedUser.role,
+            organization: updatedUser.organization,
+            bio: updatedUser.bio,
+            timezone: updatedUser.timezone,
+            authType: updatedUser.authType,
+            profileCompleted: updatedUser.profileCompleted
+          }).then(res => {
+            if (!res.success) console.warn("Supabase updateUser sync warning:", res.error);
+          });
+        }
       },
 
       // Data
@@ -388,6 +516,7 @@ export const useGhostStore = create<GhostStore>()(
       fleets: [],
       approvals: INITIAL_APPROVALS,
       auditEvents: [],
+      transactions: [],
 
       metrics: {
         activePolicies: 3,
@@ -403,24 +532,25 @@ export const useGhostStore = create<GhostStore>()(
       fetchData: async () => {
         const { fetchOnChainStateFromSupabase } = await import('@/lib/supabase');
         const data = await fetchOnChainStateFromSupabase();
-        if (data && data.approvals && data.approvals.length > 0) {
-          set({
-            policies: data.policies || [],
-            agents: data.agents || [],
-            fleets: data.fleets || [],
-            approvals: data.approvals,
-            auditEvents: data.auditEvents || [],
+        if (data) {
+          set((s) => ({
+            policies: data.policies || s.policies,
+            agents: data.agents || s.agents,
+            fleets: data.fleets || s.fleets,
+            approvals: data.approvals && data.approvals.length > 0 ? data.approvals : s.approvals,
+            auditEvents: data.auditEvents || s.auditEvents,
+            transactions: data.transactions || s.transactions,
             metrics: {
-              activePolicies: data.policies?.length || 0,
-              activeAgents: data.agents?.filter((a: any) => a.status === 'connected').length || 0,
-              pendingApprovals: data.approvals?.filter((a: any) => a.status === 'pending').length || 0,
-              blockedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_blocked').length || 0,
-              approvedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_approved').length || 0,
+              activePolicies: data.policies?.length || s.metrics.activePolicies,
+              activeAgents: data.agents?.filter((a: any) => a.status === 'connected').length || s.metrics.activeAgents,
+              pendingApprovals: data.approvals?.filter((a: any) => a.status === 'pending').length || s.metrics.pendingApprovals,
+              blockedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_blocked').length || s.metrics.blockedToday,
+              approvedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_approved').length || s.metrics.approvedToday,
               totalSpentToday: 38400,
               totalSpentMonth: 194500,
-              proofVerifications: data.auditEvents?.filter((e: any) => e.type === 'proof_verified').length || 1420,
+              proofVerifications: data.auditEvents?.filter((e: any) => e.type === 'proof_verified').length || s.metrics.proofVerifications,
             }
-          });
+          }));
         }
       },
 
@@ -501,15 +631,16 @@ export const useGhostStore = create<GhostStore>()(
           type: newAgent.type,
           status: newAgent.status,
           risk: newAgent.risk,
-          policy_id: newAgent.policyId,
+          policyId: newAgent.policyId,
           permissions: newAgent.permissions,
-          last_activity: newAgent.lastActivity,
-          total_transactions: newAgent.totalTransactions,
-          total_spent: newAgent.totalSpent,
-          blocked_attempts: newAgent.blockedAttempts,
-          connected_at: newAgent.connectedAt,
+          lastActivity: newAgent.lastActivity,
+          totalTransactions: newAgent.totalTransactions,
+          totalSpent: newAgent.totalSpent,
+          blockedAttempts: newAgent.blockedAttempts,
+          connectedAt: newAgent.connectedAt,
           description: newAgent.description,
-          version: newAgent.version
+          version: newAgent.version,
+          wallet_address: (newAgent as any).walletAddress || null
         }]).then(({ error }) => {
           if (error) console.error('Supabase agent save error:', error);
         });
@@ -528,7 +659,27 @@ export const useGhostStore = create<GhostStore>()(
         
         set((s) => ({ agents: [...newAgents, ...s.agents] }));
         
-        // Batch insert to supabase would be done here in prod, but for demo we just set local state
+        const records = newAgents.map(a => ({
+          id: a.id,
+          name: a.name,
+          type: a.type,
+          status: a.status,
+          risk: a.risk,
+          policyId: a.policyId,
+          permissions: a.permissions,
+          lastActivity: a.lastActivity,
+          totalTransactions: a.totalTransactions,
+          totalSpent: a.totalSpent,
+          blockedAttempts: a.blockedAttempts,
+          connectedAt: a.connectedAt,
+          description: a.description,
+          version: a.version,
+          wallet_address: (a as any).walletAddress || null
+        }));
+
+        supabase.from('agents').insert(records).then(({ error }) => {
+          if (error) console.error('Supabase bulk agents save error:', error);
+        });
       },
 
       revokeAgent: (id) => {
@@ -537,7 +688,7 @@ export const useGhostStore = create<GhostStore>()(
             a.id === id ? { ...a, status: "revoked" as AgentStatus, policyId: null, permissions: [] } : a
           ),
         }));
-        supabase.from('agents').update({ status: 'revoked', policy_id: null, permissions: [] }).eq('id', id).then(({ error }) => {
+        supabase.from('agents').update({ status: 'revoked', policyId: null, permissions: [] }).eq('id', id).then(({ error }) => {
           if (error) console.error('Supabase agent revoke error:', error);
         });
       },
@@ -570,11 +721,11 @@ export const useGhostStore = create<GhostStore>()(
             a.id === id ? { ...a, ...updates } : a
           );
           
-          // Try to push to Supabase if it exists in DB
-          const dbUpdates = { ...updates };
-          if (updates.totalSpent !== undefined) (dbUpdates as any).total_spent = updates.totalSpent;
-          if (updates.totalTransactions !== undefined) (dbUpdates as any).total_transactions = updates.totalTransactions;
-          if (updates.lastActivity !== undefined) (dbUpdates as any).last_activity = updates.lastActivity;
+          const dbUpdates: Record<string, any> = { ...updates };
+          if (updates.policyId !== undefined) dbUpdates.policyId = updates.policyId;
+          if (updates.totalSpent !== undefined) dbUpdates.totalSpent = updates.totalSpent;
+          if (updates.totalTransactions !== undefined) dbUpdates.totalTransactions = updates.totalTransactions;
+          if (updates.lastActivity !== undefined) dbUpdates.lastActivity = updates.lastActivity;
           
           supabase.from('agents').update(dbUpdates).eq('id', id).then(({ error }) => {
             if (error) console.error('Supabase agent update error:', error);
@@ -594,7 +745,7 @@ export const useGhostStore = create<GhostStore>()(
           ),
           metrics: { ...s.metrics, pendingApprovals: Math.max(0, s.metrics.pendingApprovals - 1) },
         }));
-        supabase.from('approvals').update({ status: 'approved', resolved_at: new Date().toISOString() }).eq('id', id).then(({ error }) => {
+        supabase.from('approvals').update({ status: 'approved', resolvedAt: new Date().toISOString() }).eq('id', id).then(({ error }) => {
           if (error) console.error('Supabase approval error:', error);
         });
       },
@@ -608,18 +759,27 @@ export const useGhostStore = create<GhostStore>()(
           ),
           metrics: { ...s.metrics, pendingApprovals: Math.max(0, s.metrics.pendingApprovals - 1) },
         }));
-        supabase.from('approvals').update({ status: 'rejected', resolved_at: new Date().toISOString() }).eq('id', id).then(({ error }) => {
+        supabase.from('approvals').update({ status: 'rejected', resolvedAt: new Date().toISOString() }).eq('id', id).then(({ error }) => {
           if (error) console.error('Supabase reject error:', error);
         });
       },
 
       addAuditEvent: (event) => {
         set((s) => {
+          const userWallet = (event as any).walletAddress || (event as any).metadata?.wallet_address || s.user?.walletAddress || null;
+          const currentUserName = (event as any).userName || (event as any).metadata?.user_name || s.user?.name || null;
+          const txHash = (event as any).txHash || event.proofHash || null;
+
           const newEvent: AuditEvent = {
             ...event,
             id: `evt_${Date.now()}`,
+            walletAddress: userWallet || undefined,
+            userName: currentUserName || undefined,
+            txHash: txHash || undefined,
             timestamp: new Date().toISOString(),
           };
+
+          // 1. Write to Supabase audit_events table
           supabase.from('audit_events').insert([{
             id: newEvent.id,
             type: newEvent.type,
@@ -630,13 +790,41 @@ export const useGhostStore = create<GhostStore>()(
             amount: newEvent.amount || 0,
             currency: newEvent.currency || 'USD',
             timestamp: newEvent.timestamp,
-            proof_hash: newEvent.proofHash || null,
+            proof_hash: newEvent.proofHash || txHash || null,
+            tx_hash: txHash || newEvent.proofHash || null,
+            wallet_address: userWallet,
+            user_name: currentUserName,
             status: newEvent.status,
             description: newEvent.description,
-            metadata: newEvent.metadata
+            metadata: {
+              ...(newEvent.metadata || {}),
+              wallet_address: userWallet,
+              user_name: currentUserName,
+              tx_hash: txHash
+            }
           }]).then(({ error }) => {
             if (error) console.error('Supabase audit event error:', error);
           });
+
+          // 2. If this is an on-chain transaction with a tx hash, record in transactions table
+          if (txHash && (newEvent.type === 'purchase_approved' || newEvent.type === 'proof_verified')) {
+            import('@/lib/supabase').then(({ saveTransactionToSupabase }) => {
+              saveTransactionToSupabase({
+                txHash,
+                walletAddress: userWallet || 'mn_unspecified',
+                userName: currentUserName || 'Midnight Node Admin',
+                agentId: newEvent.agentId,
+                agentName: newEvent.agentName,
+                amount: newEvent.amount,
+                currency: newEvent.currency,
+                type: newEvent.type,
+                status: newEvent.status,
+                description: newEvent.description,
+                metadata: newEvent.metadata
+              });
+            });
+          }
+
           return {
             auditEvents: [newEvent, ...s.auditEvents],
             metrics: {

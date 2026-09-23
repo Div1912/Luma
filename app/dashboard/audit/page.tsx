@@ -15,10 +15,16 @@ export default function AuditPage() {
   const filteredEvents = (auditEvents || []).filter((ev: any) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
+    const hash = ev.txHash || ev.proofHash || "";
+    const agent = ev.agentName || ev.agent || "";
+    const wallet = ev.walletAddress || ev.metadata?.wallet_address || "";
+    const user = ev.userName || ev.metadata?.user_name || "";
     return (
       (ev.description && ev.description.toLowerCase().includes(q)) ||
-      (ev.proofHash && ev.proofHash.toLowerCase().includes(q)) ||
-      (ev.agentName && ev.agentName.toLowerCase().includes(q)) ||
+      hash.toLowerCase().includes(q) ||
+      agent.toLowerCase().includes(q) ||
+      user.toLowerCase().includes(q) ||
+      wallet.toLowerCase().includes(q) ||
       (ev.merchant && ev.merchant.toLowerCase().includes(q)) ||
       (ev.type && ev.type.toLowerCase().includes(q))
     );
@@ -26,16 +32,18 @@ export default function AuditPage() {
 
   const handleExportCSV = () => {
     if (!auditEvents || auditEvents.length === 0) return;
-    const headers = ["ID", "Type", "Agent", "Merchant", "Amount", "Status", "Timestamp", "ProofHash", "Description"];
+    const headers = ["ID", "Type", "Agent", "User", "Wallet Address", "Merchant", "Amount", "Status", "Timestamp", "ProofHash", "Description"];
     const rows = auditEvents.map((e: any) => [
       e.id,
       e.type,
       e.agentName || e.agent || "",
+      e.userName || e.metadata?.user_name || "",
+      e.walletAddress || e.metadata?.wallet_address || "",
       e.merchant || "",
       e.amount || 0,
       e.status,
       e.timestamp || e.time || "",
-      e.proofHash || "",
+      e.txHash || e.proofHash || "",
       `"${(e.description || "").replace(/"/g, '""')}"`
     ]);
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
@@ -108,48 +116,60 @@ export default function AuditPage() {
                 </td>
               </tr>
             ) : (
-              filteredEvents.map((ev: any) => (
-                <tr 
-                  key={ev.id} 
-                  onClick={() => setSelectedEvent(ev)}
-                  className="hover:bg-zinc-900/50 transition-colors cursor-pointer group"
-                >
-                  <td className="py-4 px-6 text-sm text-zinc-400 font-mono">{ev.time}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center space-x-2">
-                      {getEventIcon(ev.type)}
-                      <span className="text-sm text-zinc-300 capitalize">{ev.type.replace('_', ' ')}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-sm text-zinc-200">{ev.agent}</td>
-                  <td className="py-4 px-6 text-sm text-zinc-400 truncate max-w-[200px]">{ev.merchant || ev.description}</td>
-                  <td className="py-4 px-6 text-sm text-right font-mono text-zinc-300">
-                    {ev.amount ? `$${ev.amount}` : '-'}
-                  </td>
-                  <td className="py-4 px-6 text-center">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      ev.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
-                      ev.status === 'blocked' ? 'bg-red-500/10 text-red-400' :
-                      'bg-zinc-800 text-zinc-400'
-                    }`}>
-                      {ev.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if(ev.proofHash) e.stopPropagation(); }}>
-                    {ev.proofHash ? (
-                      <a 
-                        href={`https://${(ev.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${ev.proofHash}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:text-[#b8d4f0] transition-colors inline-block"
-                        title={`View on Midnight ${((ev.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
-                      >
-                        <Hash className="w-4 h-4 mx-auto" />
-                      </a>
-                    ) : '-'}
-                  </td>
-                </tr>
-              ))
+              filteredEvents.map((ev: any) => {
+                const txHash = ev.txHash || ev.proofHash;
+                const timeStr = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : (ev.time || '-');
+                const displayName = ev.agentName || ev.agent || ev.userName || 'Midnight Agent';
+                const userOrWallet = ev.userName || (ev.walletAddress ? `${ev.walletAddress.slice(0, 6)}...${ev.walletAddress.slice(-4)}` : '');
+
+                return (
+                  <tr 
+                    key={ev.id} 
+                    onClick={() => setSelectedEvent(ev)}
+                    className="hover:bg-zinc-900/50 transition-colors cursor-pointer group"
+                  >
+                    <td className="py-4 px-6 text-sm text-zinc-400 font-mono">{timeStr}</td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        {getEventIcon(ev.type)}
+                        <span className="text-sm text-zinc-300 capitalize">{ev.type.replace('_', ' ')}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-zinc-200">
+                      <div>{displayName}</div>
+                      {userOrWallet && userOrWallet !== displayName && (
+                        <div className="text-[11px] text-zinc-500 font-mono">{userOrWallet}</div>
+                      )}
+                    </td>
+                    <td className="py-4 px-6 text-sm text-zinc-400 truncate max-w-[200px]">{ev.merchant || ev.description}</td>
+                    <td className="py-4 px-6 text-sm text-right font-mono text-zinc-300">
+                      {ev.amount ? `$${ev.amount}` : '-'}
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        ev.status === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
+                        ev.status === 'blocked' ? 'bg-red-500/10 text-red-400' :
+                        'bg-zinc-800 text-zinc-400'
+                      }`}>
+                        {ev.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if (txHash) e.stopPropagation(); }}>
+                      {txHash ? (
+                        <a 
+                          href={`https://${(ev.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${txHash}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="hover:text-[#b8d4f0] transition-colors inline-block"
+                          title={`View on Midnight ${((ev.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
+                        >
+                          <Hash className="w-4 h-4 mx-auto" />
+                        </a>
+                      ) : '-'}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -230,8 +250,20 @@ export default function AuditPage() {
                         </tr>
                         <tr className="hover:bg-white/[0.02]">
                           <td className="py-2.5 px-4 text-zinc-400 font-medium">Agent</td>
-                          <td className="py-2.5 px-4 text-zinc-200">{selectedEvent.agent}</td>
+                          <td className="py-2.5 px-4 text-zinc-200">{selectedEvent.agentName || selectedEvent.agent || 'Midnight Agent'}</td>
                         </tr>
+                        {(selectedEvent.userName || selectedEvent.metadata?.user_name) && (
+                          <tr className="hover:bg-white/[0.02]">
+                            <td className="py-2.5 px-4 text-zinc-400 font-medium">User</td>
+                            <td className="py-2.5 px-4 text-zinc-200">{selectedEvent.userName || selectedEvent.metadata?.user_name}</td>
+                          </tr>
+                        )}
+                        {(selectedEvent.walletAddress || selectedEvent.metadata?.wallet_address) && (
+                          <tr className="hover:bg-white/[0.02]">
+                            <td className="py-2.5 px-4 text-zinc-400 font-medium">Wallet Address</td>
+                            <td className="py-2.5 px-4 text-zinc-200 font-mono text-[11px] break-all">{selectedEvent.walletAddress || selectedEvent.metadata?.wallet_address}</td>
+                          </tr>
+                        )}
                         {selectedEvent.merchant && (
                           <tr className="hover:bg-white/[0.02]">
                             <td className="py-2.5 px-4 text-zinc-400 font-medium">Target</td>

@@ -22,7 +22,7 @@ export interface MidnightContextType {
   api: any;
   deploy: (limit: bigint, onProgress?: (status: string) => void) => Promise<string>;
   connect: (contractAddress: string) => Promise<void>;
-  spend: (amount: bigint) => Promise<any>;
+  spend: (amount: bigint, options?: { agentId?: string; agentName?: string; description?: string }) => Promise<any>;
   rebalanceThreshold: (newLimit: bigint) => Promise<any>;
   ghost: any;
   publicState: { total_spent: bigint; spending_limit: bigint } | null;
@@ -237,7 +237,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const spend = async (amount: bigint) => {
+  const spend = async (amount: bigint, options?: { agentId?: string; agentName?: string; description?: string }) => {
     if (!ghost) throw new Error('Ghost contract not initialized');
     try {
       setWalletState(prev => ({ ...prev, error: undefined }));
@@ -247,21 +247,33 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || `0x${crypto.randomUUID().replace(/-/g, '')}`;
       const isMultiSig = amount >= 50000n;
 
-      // Record real on-chain transaction event in store
+      const storeUser = useGhostStore.getState().user;
+      const userWallet = walletState.address || storeUser?.walletAddress || 'mn_unspecified';
+      const userName = options?.agentName || storeUser?.name || 'Midnight Node Admin';
+      const agentId = options?.agentId || 'agt_01';
+      const agentName = options?.agentName || 'Midnight Agent';
+
+      // Record real on-chain transaction event in store and database
       useGhostStore.getState().addAuditEvent({
         type: "purchase_approved",
-        agentId: "agt_01",
-        agentName: "Midnight Agent",
+        agentId,
+        agentName,
+        walletAddress: userWallet,
+        userName,
         amount: Number(amount),
         currency: "tDUST",
         proofHash: String(txId),
+        txHash: String(txId),
         status: "success",
-        description: `Executed on-chain ZK spend circuit of ${amount} tDUST on ${network}${isMultiSig ? ' (Multi-Party ZK Approved)' : ''}`,
+        description: options?.description || `Executed on-chain ZK spend circuit of ${amount} tDUST on ${network}${isMultiSig ? ' (Multi-Party ZK Approved)' : ''}`,
         metadata: {
-          contractAddress: walletState.address || '',
+          contractAddress: (ghost as any)?.contractAddress || '',
+          walletAddress: userWallet,
+          userName,
           network,
           circuit: "spend",
-          multiSigVerified: isMultiSig
+          multiSigVerified: isMultiSig,
+          txHash: String(txId)
         }
       });
 

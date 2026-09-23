@@ -50,12 +50,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/auth/signin");
+    } else if (!user?.profileCompleted) {
+      router.replace("/auth/complete-profile");
     } else {
       fetchData(); // Fetch real data from Supabase
     }
-  }, [isAuthenticated, router, fetchData]);
+  }, [isAuthenticated, user?.profileCompleted, router, fetchData]);
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || !user?.profileCompleted) return null;
 
   const pendingApprovalsCount = approvals.filter(a => a.status === "pending").length;
 

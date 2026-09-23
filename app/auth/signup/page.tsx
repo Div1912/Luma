@@ -37,9 +37,9 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: SignUpValues) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 600));
     await signIn(data.email, data.password);
-    router.push("/dashboard");
+    router.push("/auth/complete-profile");
   };
 
   return (

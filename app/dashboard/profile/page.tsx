@@ -55,11 +55,11 @@ export default function ProfilePage() {
     { id: "sess_3", device: "iPhone 16 Pro", location: "San Francisco, US", ip: "203.0.113.88", current: false, lastActive: "1 day ago", browser: "Mobile WebAuthn Key" },
   ]);
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-      updateUser({
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    try {
+      await updateUser({
         name: fullName || "Alex Morgan",
         email: email.trim() || "alex@ghost.xyz",
         role: role.trim(),
@@ -69,9 +69,12 @@ export default function ProfilePage() {
       });
       setIsSaving(false);
       toast.success("Profile Updated Successfully", {
-        description: "Your enterprise administrative credentials have been saved."
+        description: "Your enterprise administrative credentials have been saved to Supabase."
       });
-    }, 400);
+    } catch (e: any) {
+      setIsSaving(false);
+      toast.error("Failed to update profile", { description: e.message || String(e) });
+    }
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -86,7 +89,7 @@ export default function ProfilePage() {
     });
   };
 
-  const unshieldedAddress = walletState.address || "mn_preprod1qq9f45x82c4vdzk883ha049mclks7jff92e4ks88x";
+  const unshieldedAddress = walletState.address || user?.walletAddress || "mn_preprod1qq9f45x82c4vdzk883ha049mclks7jff92e4ks88x";
   const viewingKey = "0x4b7f8e91c2a3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9";
 
   return (
