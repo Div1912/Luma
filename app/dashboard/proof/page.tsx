@@ -144,15 +144,25 @@ export default function ProofPage() {
                     </div>
                   </div>
 
-                  {/* Action */}
-                  <div className="pt-4 border-t border-white/10">
+                  {/* Action Buttons */}
+                  <div className="pt-4 border-t border-white/10 space-y-2">
+                    <a 
+                      href={`https://explorer.1am.xyz/${selectedProof.type === 'policy_created' ? 'contract' : 'tx'}/${selectedProof.proofHash.replace(/^0x/, '')}?network=${(selectedProof.metadata?.network as string) || network || 'preprod'}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-liquid btn-liquid-cyan w-full py-3 flex items-center justify-center gap-2 font-mono text-xs shadow-lg"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>View on 1AM Explorer ({selectedProof.type === 'policy_created' ? 'Contract' : 'Transaction'})</span>
+                    </a>
+
                     <a 
                       href={`https://${(selectedProof.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${selectedProof.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedProof.proofHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-liquid btn-liquid-cyan w-full py-3 flex items-center justify-center gap-2 font-mono text-xs"
+                      className="w-full py-2.5 px-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl text-zinc-300 hover:text-white transition-colors flex items-center justify-center gap-2 font-mono text-xs"
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-3.5 h-3.5" />
                       <span>View on Midnight {((selectedProof.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer</span>
                     </a>
                   </div>

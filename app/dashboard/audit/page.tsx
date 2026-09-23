@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
-import { Search, Filter, Download, ChevronRight, X, Terminal, Hash, Activity, ShieldCheck, Copy } from "lucide-react";
+import { Search, Filter, Download, ChevronRight, X, Terminal, Hash, Activity, ShieldCheck, Copy, ExternalLink } from "lucide-react";
 
 export default function AuditPage() {
   const { auditEvents } = useGhostStore();
@@ -156,15 +156,26 @@ export default function AuditPage() {
                     </td>
                     <td className="py-4 px-6 text-center text-zinc-500 group-hover:text-zinc-300" onClick={(e) => { if (txHash) e.stopPropagation(); }}>
                       {txHash ? (
-                        <a 
-                          href={`https://${(ev.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${txHash}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="hover:text-[#b8d4f0] transition-colors inline-block"
-                          title={`View on Midnight ${((ev.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
-                        >
-                          <Hash className="w-4 h-4 mx-auto" />
-                        </a>
+                        <div className="flex items-center justify-center gap-2.5">
+                          <a 
+                            href={`https://explorer.1am.xyz/${ev.type === 'policy_created' ? 'contract' : 'tx'}/${txHash.replace(/^0x/, '')}?network=${(ev.metadata?.network as string) || network || 'preprod'}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:text-[#b8d4f0] transition-colors inline-block"
+                            title="View on 1AM Explorer"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <a 
+                            href={`https://${(ev.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${ev.type === 'policy_created' ? 'contracts' : 'transactions'}/${txHash}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:text-white transition-colors inline-block"
+                            title={`View on Midnight ${((ev.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
+                          >
+                            <Hash className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
                       ) : '-'}
                     </td>
                   </tr>
@@ -223,18 +234,39 @@ export default function AuditPage() {
                   <div className="space-y-3">
                     <h4 className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Cryptographic Proof ({((selectedEvent.metadata?.network as string) || network || 'preprod').toUpperCase()})</h4>
                     <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex justify-between items-center group">
+                      <span className="text-xs font-mono text-[#b8d4f0] break-all mr-4">
+                        {selectedEvent.proofHash}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard?.writeText(selectedEvent.proofHash);
+                        }}
+                        className="text-zinc-500 hover:text-white transition-colors flex-shrink-0"
+                        title="Copy Hash"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <a 
+                        href={`https://explorer.1am.xyz/${selectedEvent.type === 'policy_created' ? 'contract' : 'tx'}/${selectedEvent.proofHash.replace(/^0x/, '')}?network=${(selectedEvent.metadata?.network as string) || network || 'preprod'}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="py-2 px-3 bg-[#b8d4f0]/10 hover:bg-[#b8d4f0]/20 border border-[#b8d4f0]/30 rounded-lg text-xs font-mono text-[#b8d4f0] hover:text-white transition-colors flex items-center justify-center gap-1.5 text-center"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>1AM Explorer</span>
+                      </a>
                       <a 
                         href={`https://${(selectedEvent.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${selectedEvent.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedEvent.proofHash}`}
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-xs font-mono text-[#b8d4f0] hover:text-white break-all mr-4 transition-colors"
-                        title={`View on Midnight ${((selectedEvent.metadata?.network as string) || network || 'preprod').toUpperCase()} Explorer`}
+                        className="py-2 px-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center justify-center gap-1.5 text-center"
                       >
-                        {selectedEvent.proofHash}
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Midnight Explorer</span>
                       </a>
-                      <button className="text-zinc-500 group-hover:text-white transition-colors flex-shrink-0">
-                        <Copy className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 )}

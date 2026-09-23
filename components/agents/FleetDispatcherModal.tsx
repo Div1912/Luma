@@ -44,7 +44,7 @@ interface LogEntry {
 const PREPROD_CONTRACT_ADDRESS = "d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad";
 
 export function FleetDispatcherModal({ isOpen, onClose }: FleetDispatcherModalProps) {
-  const { walletState, connect1AM, spend, ghost, connect: connectContract, network } = useMidnight();
+  const { walletState, connect1AM, spend, ghost, connect: connectContract, network, api } = useMidnight();
   const { createAgent } = useGhostStore();
 
   const [fleet, setFleet] = useState<FleetAgent[]>(PREPROD_FLEET_AGENTS);
@@ -55,7 +55,13 @@ export function FleetDispatcherModal({ isOpen, onClose }: FleetDispatcherModalPr
     {
       id: "log_init",
       time: new Date().toLocaleTimeString(),
-      text: "Autonomous Preprod Fleet Dispatcher ready. 20 cryptographic agent keypairs loaded.",
+      text: "Autonomous Preprod Fleet Dispatcher ready. 20 master-derived cryptographic child accounts loaded.",
+      type: "info"
+    },
+    {
+      id: "log_explorer_info",
+      time: new Date().toLocaleTimeString(),
+      text: "Explorer Info: Midnight is a privacy-first ZK chain. Live activity is verifiable via Transaction Hashes (/transactions/<hash>) and Contract Activity (/contracts/<address>).",
       type: "info"
     }
   ]);
@@ -158,7 +164,7 @@ export function FleetDispatcherModal({ isOpen, onClose }: FleetDispatcherModalPr
         });
 
         const txHash = (tx as any)?.txHash || (tx as any)?.txId || (tx as any)?.public?.txHash || `0x${crypto.randomUUID().replace(/-/g, '')}`;
-        const explorerUrl = `https://preprod.midnightexplorer.com/tx/${txHash}`;
+        const explorerUrl = `https://preprod.midnightexplorer.com/transactions/${txHash}`;
 
         // Step 3: Success & Block Confirmation
         setFleet((prev) =>
@@ -347,9 +353,27 @@ export function FleetDispatcherModal({ isOpen, onClose }: FleetDispatcherModalPr
             <div className="flex items-center gap-2">
               <Layers className="w-3.5 h-3.5 text-blue-400" />
               <span className="text-white/40">Contract:</span>
-              <span className="font-mono text-white/70" title={PREPROD_CONTRACT_ADDRESS}>
-                {PREPROD_CONTRACT_ADDRESS.slice(0, 8)}...{PREPROD_CONTRACT_ADDRESS.slice(-6)}
-              </span>
+              <a
+                href={`https://explorer.1am.xyz/contract/${PREPROD_CONTRACT_ADDRESS}?network=preprod`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[#b8d4f0] hover:text-white hover:underline flex items-center gap-1"
+                title="View on 1AM Explorer"
+              >
+                <span>1AM: {PREPROD_CONTRACT_ADDRESS.slice(0, 6)}...</span>
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+              <span className="text-zinc-600">•</span>
+              <a
+                href={`https://preprod.midnightexplorer.com/contracts/${PREPROD_CONTRACT_ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-zinc-400 hover:text-zinc-200 hover:underline flex items-center gap-1"
+                title="View on Midnight Explorer"
+              >
+                <span>Midnight</span>
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
             </div>
           </div>
 
@@ -474,15 +498,29 @@ export function FleetDispatcherModal({ isOpen, onClose }: FleetDispatcherModalPr
                       </div>
 
                       {agent.txHash && (
-                        <a
-                          href={agent.explorerUrl || `https://preprod.midnightexplorer.com/tx/${agent.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline"
-                        >
-                          <span>Tx: {agent.txHash.slice(0, 10)}...</span>
-                          <ExternalLink className="w-2.5 h-2.5" />
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`https://explorer.1am.xyz/tx/${agent.txHash.replace(/^0x/, '')}?network=preprod`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[#b8d4f0] hover:text-white hover:underline"
+                            title="View on 1AM Explorer"
+                          >
+                            <span>1AM</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                          <span className="text-zinc-600">•</span>
+                          <a
+                            href={`https://preprod.midnightexplorer.com/transactions/${agent.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-zinc-400 hover:text-zinc-200 hover:underline"
+                            title="View on Midnight Explorer"
+                          >
+                            <span>Midnight</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -529,6 +567,18 @@ export function FleetDispatcherModal({ isOpen, onClose }: FleetDispatcherModalPr
             {/* Action Bar */}
             <div className="p-4 border-t border-white/10 bg-white/[0.02] flex flex-col gap-3">
               <div className="flex items-center gap-2">
+                <a
+                  href={`https://preprod.midnightexplorer.com/contracts/${PREPROD_CONTRACT_ADDRESS}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2.5 px-3 rounded-xl border border-white/10 hover:border-blue-500/40 bg-white/[0.03] hover:bg-blue-500/10 text-white/80 hover:text-blue-300 font-medium text-xs flex items-center justify-center gap-1.5 transition-colors"
+                  title="View live smart contract transactions on Midnight Explorer"
+                >
+                  <Layers className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Contract Explorer</span>
+                  <ExternalLink className="w-3 h-3 opacity-60" />
+                </a>
+
                 {!isRunning ? (
                   <button
                     onClick={handleStartFleet}

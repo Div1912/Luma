@@ -248,10 +248,18 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       const isMultiSig = amount >= 50000n;
 
       const storeUser = useGhostStore.getState().user;
-      const userWallet = options?.walletAddress || walletState.address || storeUser?.walletAddress || 'mn_unspecified';
-      const userName = options?.agentName || storeUser?.name || 'Midnight Node Admin';
+      // Prioritize the user's actual Midnight Bech32m address (starts with mn_) over contract address
+      const userWallet = options?.walletAddress 
+        || (storeUser?.walletAddress?.startsWith('mn_') ? storeUser.walletAddress : undefined)
+        || (walletState.address?.startsWith('mn_') ? walletState.address : undefined)
+        || storeUser?.walletAddress 
+        || walletState.address 
+        || 'mn_unspecified';
+      const userName = (options?.agentName && options.agentName !== 'Midnight Agent' && options.agentName !== 'Midnight Node Admin')
+        ? options.agentName
+        : (storeUser?.name || options?.agentName || 'Midnight Node Admin');
       const agentId = options?.agentId || 'agt_01';
-      const agentName = options?.agentName || 'Midnight Agent';
+      const agentName = options?.agentName || storeUser?.name || 'Midnight Agent';
 
       // Record real on-chain transaction event in store and database
       useGhostStore.getState().addAuditEvent({

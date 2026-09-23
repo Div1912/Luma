@@ -822,6 +822,7 @@ export const useGhostStore = create<GhostStore>()(
                 type: newEvent.type,
                 status: newEvent.status,
                 description: newEvent.description,
+                contractAddress: newEvent.metadata?.contractAddress,
                 metadata: newEvent.metadata
               });
             });

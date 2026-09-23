@@ -161,7 +161,8 @@ export async function saveTransactionToSupabase(txData: {
     return { success: true };
   }
   try {
-    const txId = txData.id || `tx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const cleanHash = txData.txHash ? txData.txHash.replace(/^0x/, '').trim() : `${Date.now()}`;
+    const txId = txData.id || `tx_${cleanHash}`;
     const record: DbTransaction = {
       id: txId,
       tx_hash: txData.txHash,
@@ -182,7 +183,7 @@ export async function saveTransactionToSupabase(txData: {
 
     const { data, error } = await supabase
       .from('transactions')
-      .insert([record])
+      .upsert(record, { onConflict: 'id' })
       .select()
       .maybeSingle();
 

@@ -293,11 +293,33 @@ export default function DashboardOverview() {
             </div>
             
             {contractAddress ? (
-              <div className="mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/10 flex flex-col gap-1">
+              <div className="mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/10 flex flex-col gap-2">
                 <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold font-mono">Verifiable Contract Address ({network.toUpperCase()})</span>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
-                  <a href={`https://${network || 'preprod'}.midnightexplorer.com/contracts/${contractAddress}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-[#b8d4f0] hover:text-white transition-colors" title={`View on Midnight ${(network || 'preprod').toUpperCase()} Explorer`}><ArrowUpRight className="w-4 h-4" /></a>
+                </div>
+                <div className="flex items-center gap-3 pt-1.5 border-t border-white/5 text-[11px] font-mono">
+                  <a 
+                    href={`https://explorer.1am.xyz/contract/${contractAddress}?network=${network || 'preprod'}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-[#b8d4f0] hover:text-white transition-colors flex items-center gap-1"
+                    title="View Contract Activity on 1AM Explorer"
+                  >
+                    <span>1AM Contract Activity</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                  <span className="text-white/20">•</span>
+                  <a 
+                    href={`https://${network || 'preprod'}.midnightexplorer.com/contracts/${contractAddress}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+                    title={`View on Midnight ${(network || 'preprod').toUpperCase()} Explorer`}
+                  >
+                    <span>Midnight Explorer</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
             ) : (
@@ -411,6 +433,31 @@ export default function DashboardOverview() {
                     <span className="text-xs text-white/40 font-mono">{new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="text-sm text-white/50">{event.description}</div>
+                  {(event.txHash || event.proofHash) && (
+                    <div className="flex items-center gap-3 mt-2 text-[11px] font-mono">
+                      <a 
+                        href={`https://explorer.1am.xyz/tx/${(event.txHash || event.proofHash || '').replace(/^0x/, '')}?network=${network || 'preprod'}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#b8d4f0] hover:text-white transition-colors flex items-center gap-1"
+                        title="View on 1AM Explorer"
+                      >
+                        <span>1AM Explorer</span>
+                        <ArrowUpRight className="w-3 h-3" />
+                      </a>
+                      <span className="text-white/20">•</span>
+                      <a 
+                        href={`https://${network || 'preprod'}.midnightexplorer.com/transactions/${event.txHash || event.proofHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
+                        title={`View on Midnight ${(network || 'preprod').toUpperCase()} Explorer`}
+                      >
+                        <span>Midnight Explorer</span>
+                        <ArrowUpRight className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -366,15 +366,20 @@ export default function ProfilePage() {
                     <Copy className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <a
-                  href={`https://${network}.midnightexplorer.com/accounts/${unshieldedAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-[#b8d4f0] hover:text-white transition-colors flex items-center justify-between font-mono pt-1.5 border-t border-white/5"
-                >
-                  <span>Explore Account on Midnight</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </a>
+                <div className="pt-2 border-t border-white/5 space-y-1.5">
+                  <a
+                    href={`https://explorer.1am.xyz/address/${unshieldedAddress}?network=${network}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-[#b8d4f0] hover:text-white transition-colors flex items-center justify-between font-mono"
+                  >
+                    <span>View on 1AM Explorer (Address)</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                  <p className="text-[10px] text-zinc-400 font-mono leading-tight">
+                    <span className="text-zinc-300 font-semibold">Privacy By Design:</span> Smart contract calls use shielded DUST nullifiers. Caller addresses remain confidential on-chain, while contract-level state transitions are publicly verifiable.
+                  </p>
+                </div>
               </div>
             </div>
 

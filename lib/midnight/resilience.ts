@@ -22,9 +22,9 @@ export const PRODUCTION_NETWORKS: Record<'preview' | 'preprod' | 'mainnet', Netw
     explorerUri: 'https://preview.midnightexplorer.com',
   },
   preprod: {
-    indexerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_INDEXER || 'https://indexer.preprod.midnight.network/api/v1/graphql',
-    indexerWsUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_INDEXER_WS || 'wss://indexer.preprod.midnight.network/api/v1/graphql/ws',
-    proverServerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_PROVER || 'http://127.0.0.1:6300',
+    indexerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_INDEXER || 'https://indexer.preprod.midnight.network/api/v4/graphql',
+    indexerWsUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_INDEXER_WS || 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+    proverServerUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_PROVER || 'https://proof-server.preprod.midnight.network',
     substrateRpcUri: process.env.NEXT_PUBLIC_MIDNIGHT_PREPROD_RPC || 'https://rpc.preprod.midnight.network',
     explorerUri: 'https://preprod.midnightexplorer.com',
   },
@@ -116,3 +116,30 @@ export async function checkMidnightInfrastructureHealth(network: 'preview' | 'pr
     syncedAt: new Date().toISOString(),
   };
 }
+
+/**
+ * Canonical URL generator for 1AM Explorer (https://explorer.1am.xyz)
+ */
+export function get1AmExplorerUrl(
+  type: 'tx' | 'contract' | 'address',
+  identifier: string,
+  network: string = 'preprod'
+): string {
+  const clean = identifier.replace(/^0x/, '').trim();
+  const net = network === 'preview' || network === 'preprod' ? network : 'preprod';
+  return `https://explorer.1am.xyz/${type}/${clean}?network=${net}`;
+}
+
+/**
+ * Canonical URL generator for Midnight Official Explorer (https://midnightexplorer.com)
+ */
+export function getMidnightExplorerUrl(
+  type: 'transactions' | 'contracts',
+  identifier: string,
+  network: string = 'preprod'
+): string {
+  const clean = identifier.replace(/^0x/, '').trim();
+  const net = network === 'preview' || network === 'preprod' ? network : 'preprod';
+  return `https://${net}.midnightexplorer.com/${type}/${clean}`;
+}
+
