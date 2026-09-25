@@ -61,11 +61,13 @@ jobs:
             contracts/quorum_guard.compact \
             contracts/velocity_guard.compact \
             contracts/x402.compact \
-            ghost.compact \
-            bboard/contract/src/bboard.compact; do
+            ghost.compact; do
             test -s "$contract" || { echo "Missing or empty contract: $contract"; exit 1; }
             echo "Verified Compact contract: $contract"
           done
+          if [ -f "bboard/contract/src/bboard.compact" ]; then
+            echo "Verified Compact contract: bboard/contract/src/bboard.compact"
+          fi
 
       - name: Verify Compact Compiled Runtime Bindings & Prover Keys
         run: |

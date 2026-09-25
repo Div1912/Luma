@@ -270,7 +270,8 @@ export const useGhostStore = create<GhostStore>()(
 
       signInWallet: async (address: string) => {
         const { checkUserRegistered, saveUserToSupabase } = await import("@/lib/supabase");
-        let { isRegistered, user: dbUser } = await checkUserRegistered({ walletAddress: address });
+        const { isRegistered, user: fetchedUser } = await checkUserRegistered({ walletAddress: address });
+        let dbUser = fetchedUser;
 
         const uniqueEmail = `${address.slice(0, 14)}_${address.slice(-6)}@midnight.network`;
 

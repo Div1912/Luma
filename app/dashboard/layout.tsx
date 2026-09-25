@@ -20,8 +20,7 @@ import {
   Search,
   Bell,
   Plus,
-  Ghost,
-  MessageSquareQuote
+  Ghost
 } from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
@@ -35,7 +34,6 @@ const NAV_ITEMS = [
   { label: "Approvals", icon: ShieldCheck, href: "/dashboard/approvals", showBadge: true },
   { label: "Audit Log", icon: ActivitySquare, href: "/dashboard/audit" },
   { label: "Proof Viewer", icon: FileSignature, href: "/dashboard/proof" },
-  { label: "User Feedback (50)", icon: MessageSquareQuote, href: "/dashboard/feedback" },
   { label: "Disputes", icon: AlertTriangle, href: "/dashboard/disputes" },
   { label: "Profile", icon: User, href: "/dashboard/profile" },
   { label: "Developer", icon: TerminalSquare, href: "/dashboard/developer" },
