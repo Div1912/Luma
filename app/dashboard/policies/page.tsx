@@ -9,13 +9,12 @@ import { toast } from "sonner";
 
 export default function PoliciesPage() {
   const { policies, updatePolicy, createPolicy, deletePolicy, archivePolicy } = useGhostStore();
-  const { deploy, rebalanceThreshold, walletState, network, ghost, publicState } = useMidnight();
+  const { deploy, walletState, network, ghost, publicState } = useMidnight();
   const [filter, setFilter] = useState("Active");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
-  const [isRebalancing, setIsRebalancing] = useState(false);
 
   // Form State
   const [policyName, setPolicyName] = useState("");
@@ -131,32 +130,6 @@ export default function PoliciesPage() {
           <p className="text-sm text-zinc-400">Configure zero-knowledge guardrails and spending boundaries.</p>
         </div>
         <div className="flex items-center space-x-3">
-          <button 
-            onClick={async () => {
-              if (!walletState.isConnected) {
-                toast.error("Wallet Not Connected", { description: "Please connect Lace wallet to trigger dynamic on-chain rebalancing." });
-                return;
-              }
-              setIsRebalancing(true);
-              try {
-                const newLimit = BigInt(75000);
-                await rebalanceThreshold(newLimit);
-                toast.success("Dynamic ZK Threshold Re-balanced", {
-                  description: `Successfully broadcasted encrypted commitment update ($75,000 limit) to Midnight ${network}.`
-                });
-              } catch (e: any) {
-                toast.error("Rebalance Error", { description: e.message || String(e) });
-              } finally {
-                setIsRebalancing(false);
-              }
-            }}
-            disabled={isRebalancing}
-            className="btn-liquid btn-liquid-cyan flex items-center gap-2"
-            title="Update encrypted ZK spending limit on-chain without redeploying contract"
-          >
-            {isRebalancing ? <Loader2 className="w-4 h-4 animate-spin text-[#b8d4f0]" /> : <Sparkles className="w-4 h-4 text-[#b8d4f0]" />}
-            <span>{isRebalancing ? "Re-balancing On-Chain..." : "Rebalance ZK Threshold"}</span>
-          </button>
           <button onClick={() => openDrawer()} className="btn-liquid btn-liquid-primary flex items-center gap-2">
             <Plus className="w-4 h-4" />
             <span>New Policy</span>
@@ -215,7 +188,7 @@ export default function PoliciesPage() {
       )}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h3 className="text-lg font-medium text-white">Mocked Policy Templates</h3>
+        <h3 className="text-lg font-medium text-white">Active Zero-Knowledge Policies</h3>
         <div className="flex items-center gap-2 p-1.5 bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl w-fit">
         {["Active", "Paused", "Archived", "All"].map((tab) => (
           <button

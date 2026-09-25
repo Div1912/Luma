@@ -14,6 +14,7 @@ export type WalletState = {
 
 export interface MidnightContextType {
   walletState: WalletState;
+  contractAddress: string | null;
   connect1AM: () => Promise<void>;
   connectLace: () => Promise<void>; // alias for backward-compat
   disconnect: () => Promise<void>;
@@ -34,6 +35,7 @@ export const MidnightContext = createContext<MidnightContextType | undefined>(un
 
 export function MidnightProvider({ children }: { children: ReactNode }) {
   const [walletState, setWalletState] = useState<WalletState>({ isConnected: false });
+  const [contractAddress, setContractAddress] = useState<string | null>(null);
   const [api, setApi] = useState<any>(null);
   const [ghost, setGhost] = useState<any>(null);
   const [publicState, setPublicState] = useState<{ total_spent: bigint; spending_limit: bigint } | null>(null);
@@ -48,6 +50,11 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       setNetworkState('preprod');
       setNetworkId('preprod');
       localStorage.setItem('ghost_network', 'preprod');
+    }
+
+    const savedContract = localStorage.getItem('ghost_contract_address');
+    if (savedContract && savedContract !== 'none' && savedContract !== 'reset') {
+      setContractAddress(savedContract.replace(/^0x/, '').trim());
     }
   }, []);
 
@@ -121,6 +128,43 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         error: undefined
       });
 
+      // Seamlessly sync cryptographic identity to Supabase so it appears in the database immediately
+      if (unshieldedAddr) {
+        import('@/store/useGhostStore').then(({ useGhostStore }) => {
+          const store = useGhostStore.getState();
+          if (store.user) {
+            store.updateUser({ walletAddress: unshieldedAddr, authType: 'wallet' });
+          }
+        }).catch(() => {});
+
+        import('@/lib/supabase').then(async ({ checkUserRegistered, saveUserToSupabase }) => {
+          try {
+            const check = await checkUserRegistered({ walletAddress: unshieldedAddr });
+            if (check.isRegistered && check.user?.contract_address) {
+              const cleanC = check.user.contract_address.replace(/^0x/, '').trim();
+              setContractAddress(cleanC);
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('ghost_contract_address', cleanC);
+              }
+            }
+            if (!check.isRegistered && !check.user) {
+              const uniqueEmail = `${unshieldedAddr.slice(0, 14)}_${unshieldedAddr.slice(-6)}@midnight.network`;
+              await saveUserToSupabase({
+                walletAddress: unshieldedAddr,
+                name: `Operator ${unshieldedAddr.slice(-4)}`,
+                email: uniqueEmail,
+                role: 'Lead ZK Systems Engineer',
+                organization: 'Midnight Enterprise Validator',
+                authType: 'wallet',
+                profileCompleted: false
+              });
+            }
+          } catch (e) {
+            console.warn('Auto-save wallet user warning:', e);
+          }
+        }).catch(() => {});
+      }
+
     } catch (err: any) {
       setWalletState({
         isConnected: false,
@@ -144,6 +188,7 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     setWalletState({ isConnected: false });
     setGhost(null);
     setPublicState(null);
+    setContractAddress(null);
     localStorage.removeItem('ghost_contract_address');
   };
 
@@ -154,9 +199,9 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     try {
       setNetworkId(network);
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const { ghost: g, address: deployedAddress, providers } = await deployGhostContract(api, limit, network, onProgress);
+      const { ghost: g, address: deployedAddress, txHash: deployTxHash, providers } = await deployGhostContract(api, limit, network, onProgress);
       setGhost(g);
-      setWalletState(prev => ({ ...prev, address: deployedAddress }));
+      setContractAddress(deployedAddress);
       localStorage.setItem('ghost_contract_address', deployedAddress);
 
       // Subscribe to public state
@@ -168,14 +213,60 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         }
       });
 
-      // Record real on-chain event
+      const effectiveTxHash = deployTxHash || deployedAddress;
+      const storeUser = useGhostStore.getState().user;
+      const userWallet = (walletState.address?.startsWith('mn_') ? walletState.address : undefined)
+        || (storeUser?.walletAddress?.startsWith('mn_') ? storeUser.walletAddress : undefined)
+        || walletState.address
+        || storeUser?.walletAddress
+        || 'mn_unspecified';
+      const userName = storeUser?.name || 'Midnight Node Admin';
+
+      // 1. Explicitly persist to Supabase transactions table
+      const { saveTransactionToSupabase, updateUserContractAddress } = await import('@/lib/supabase');
+      await saveTransactionToSupabase({
+        txHash: effectiveTxHash,
+        walletAddress: userWallet,
+        userName,
+        type: 'contract_deployment',
+        status: 'confirmed',
+        network,
+        contractAddress: deployedAddress,
+        description: `Deployed Midnight Ghost contract ${deployedAddress.slice(0, 10)}... on ${network}`,
+        metadata: {
+          contractAddress: deployedAddress,
+          txHash: effectiveTxHash,
+          walletAddress: userWallet,
+          userName,
+          limit: Number(limit),
+          network
+        }
+      });
+
+      // 2. Persist user's contract address to their user record in Supabase & store
+      if (userWallet && userWallet !== 'mn_unspecified') {
+        await updateUserContractAddress(userWallet, deployedAddress);
+      }
+      await useGhostStore.getState().setUserContractAddress(deployedAddress);
+
+      // 3. Record real on-chain event
       useGhostStore.getState().addAuditEvent({
         type: "policy_created",
         policyId: deployedAddress,
         status: "success",
         description: `Deployed Midnight contract ${deployedAddress.slice(0, 10)}... on ${network}`,
-        proofHash: deployedAddress,
-        metadata: { contractAddress: deployedAddress, limit: Number(limit), network }
+        proofHash: effectiveTxHash,
+        txHash: effectiveTxHash,
+        walletAddress: userWallet,
+        userName,
+        contractAddress: deployedAddress,
+        metadata: {
+          contractAddress: deployedAddress,
+          limit: Number(limit),
+          network,
+          txHash: effectiveTxHash,
+          walletAddress: userWallet
+        }
       });
       
       return deployedAddress;
@@ -192,16 +283,26 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const connect = async (contractAddress: string) => {
+  const connect = async (contractAddressParam: string) => {
     if (!api) throw new Error('Wallet not connected');
     try {
       setNetworkId(network);
       setWalletState(prev => ({ ...prev, error: undefined }));
-      const cleanAddress = contractAddress.replace(/^0x/, '').trim();
+      const cleanAddress = contractAddressParam.replace(/^0x/, '').trim();
       const { ghost: g, providers } = await createGhostContract(api, cleanAddress, network);
       setGhost(g);
-      setWalletState(prev => ({ ...prev, address: cleanAddress }));
+      setContractAddress(cleanAddress);
       localStorage.setItem('ghost_contract_address', cleanAddress);
+
+      // Persist to user record in Supabase & store
+      const storeUser = useGhostStore.getState().user;
+      const userWallet = (walletState.address?.startsWith('mn_') ? walletState.address : undefined)
+        || (storeUser?.walletAddress?.startsWith('mn_') ? storeUser.walletAddress : undefined);
+      if (userWallet && userWallet !== 'mn_unspecified') {
+        const { updateUserContractAddress } = await import('@/lib/supabase');
+        await updateUserContractAddress(userWallet, cleanAddress);
+      }
+      await useGhostStore.getState().setUserContractAddress(cleanAddress);
 
       providers.publicDataProvider.contractStateObservable(cleanAddress, { type: 'latest' }).subscribe((state: any) => {
         try {
@@ -243,25 +344,61 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
       setWalletState(prev => ({ ...prev, error: undefined }));
       // The compiled spend circuit accepts exactly 1 user argument: amount (bigint Uint<32>)
       const tx = await ghost.callTx.spend(amount);
-
-      const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || `0x${crypto.randomUUID().replace(/-/g, '')}`;
+      const txId = (tx as any)?.public?.txHash 
+        || (tx as any)?.public?.txId 
+        || (tx as any)?.public?.identifiers?.[0] 
+        || (tx as any)?.txHash 
+        || (tx as any)?.txId 
+        || (ghost as any)?.contractAddress 
+        || 'confirmed';
       const isMultiSig = amount >= 50000n;
 
       const storeUser = useGhostStore.getState().user;
-      // Prioritize the user's actual Midnight Bech32m address (starts with mn_) over contract address
-      const userWallet = options?.walletAddress 
+      // Prioritize the user's actual Midnight Bech32m address (starts with mn_)
+      const userWallet = (walletState.address?.startsWith('mn_') ? walletState.address : undefined)
         || (storeUser?.walletAddress?.startsWith('mn_') ? storeUser.walletAddress : undefined)
-        || (walletState.address?.startsWith('mn_') ? walletState.address : undefined)
-        || storeUser?.walletAddress 
+        || options?.walletAddress 
         || walletState.address 
+        || storeUser?.walletAddress 
         || 'mn_unspecified';
+
       const userName = (options?.agentName && options.agentName !== 'Midnight Agent' && options.agentName !== 'Midnight Node Admin')
         ? options.agentName
         : (storeUser?.name || options?.agentName || 'Midnight Node Admin');
       const agentId = options?.agentId || 'agt_01';
       const agentName = options?.agentName || storeUser?.name || 'Midnight Agent';
+      const activeContract = contractAddress 
+        || (ghost as any)?.contractAddress 
+        || (typeof window !== 'undefined' ? localStorage.getItem('ghost_contract_address') : null)
+        || undefined;
 
-      // Record real on-chain transaction event in store and database
+      // 1. Explicitly persist to Supabase transactions table
+      const { saveTransactionToSupabase } = await import('@/lib/supabase');
+      await saveTransactionToSupabase({
+        txHash: String(txId),
+        walletAddress: userWallet,
+        userName,
+        agentId,
+        agentName,
+        amount: Number(amount),
+        currency: "tDUST",
+        type: "purchase_approved",
+        status: "confirmed",
+        network,
+        contractAddress: activeContract,
+        description: options?.description || `Executed on-chain ZK spend circuit of ${amount} tDUST on ${network}${isMultiSig ? ' (Multi-Party ZK Approved)' : ''}`,
+        metadata: {
+          contractAddress: activeContract,
+          walletAddress: userWallet,
+          userName,
+          network,
+          circuit: "spend",
+          multiSigVerified: isMultiSig,
+          txHash: String(txId)
+        }
+      });
+
+      // 2. Record real on-chain transaction event in store and database
       useGhostStore.getState().addAuditEvent({
         type: "purchase_approved",
         agentId,
@@ -273,9 +410,10 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         proofHash: String(txId),
         txHash: String(txId),
         status: "success",
+        contractAddress: activeContract,
         description: options?.description || `Executed on-chain ZK spend circuit of ${amount} tDUST on ${network}${isMultiSig ? ' (Multi-Party ZK Approved)' : ''}`,
         metadata: {
-          contractAddress: (ghost as any)?.contractAddress || '',
+          contractAddress: activeContract,
           walletAddress: userWallet,
           userName,
           network,
@@ -303,33 +441,73 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
 
   const rebalanceThreshold = async (newLimit: bigint) => {
     if (!ghost) throw new Error('Ghost contract not initialized');
+    if (typeof (ghost.callTx as any).rebalance_threshold !== 'function') {
+      throw new Error('The deployed contract was compiled with immutable limits and does not support dynamic rebalancing.');
+    }
     try {
       setWalletState(prev => ({ ...prev, error: undefined }));
       const adminSecret = new Uint8Array(32).fill(1);
       const newThresholdCommit = new Uint8Array(32).fill(Number(newLimit) % 255);
       
-      let tx: any;
-      if (typeof ghost.callTx.rebalance_threshold === 'function') {
-        tx = await ghost.callTx.rebalance_threshold(adminSecret, newThresholdCommit);
-      } else {
-        // Fallback simulation if running on older contract ABI
-        tx = { txHash: `0x${crypto.randomUUID().replace(/-/g, '')}` };
-      }
-
-      const txId = (tx as any)?.public?.txHash || (tx as any)?.txHash || (tx as any)?.txId || `0x${crypto.randomUUID().replace(/-/g, '')}`;
+      const tx = await (ghost.callTx as any).rebalance_threshold(adminSecret, newThresholdCommit);
+      const txId = (tx as any)?.public?.txHash || (tx as any)?.public?.txId || (tx as any)?.public?.identifiers?.[0] || (tx as any)?.txHash || (tx as any)?.txId || 'confirmed';
       
-      // Record rebalancing event
+      const activeContract = contractAddress 
+        || (ghost as any)?.contractAddress 
+        || (typeof window !== 'undefined' ? localStorage.getItem('ghost_contract_address') : null)
+        || undefined;
+
+      const storeUser = useGhostStore.getState().user;
+      const userWallet = (walletState.address?.startsWith('mn_') ? walletState.address : undefined)
+        || (storeUser?.walletAddress?.startsWith('mn_') ? storeUser.walletAddress : undefined)
+        || walletState.address 
+        || storeUser?.walletAddress 
+        || 'mn_unspecified';
+      const userName = storeUser?.name || 'Midnight Node Admin';
+
+      // 1. Explicitly persist to Supabase transactions table
+      const { saveTransactionToSupabase } = await import('@/lib/supabase');
+      await saveTransactionToSupabase({
+        txHash: String(txId),
+        walletAddress: userWallet,
+        userName,
+        amount: Number(newLimit),
+        currency: "USD",
+        type: "policy_updated",
+        status: "confirmed",
+        network,
+        contractAddress: activeContract,
+        description: `Dynamically rebalanced encrypted threshold commitment to $${newLimit.toLocaleString()} on Midnight ${network}`,
+        metadata: {
+          contractAddress: activeContract,
+          walletAddress: userWallet,
+          userName,
+          network,
+          circuit: "rebalance_threshold",
+          newThresholdUSD: Number(newLimit),
+          txHash: String(txId)
+        }
+      });
+
+      // 2. Record rebalancing event
       useGhostStore.getState().addAuditEvent({
         type: "policy_updated",
-        policyId: walletState.address || 'pol_active',
+        policyId: activeContract || walletState.address || 'pol_active',
+        contractAddress: activeContract,
         status: "success",
+        walletAddress: userWallet,
+        userName,
         description: `Dynamically rebalanced encrypted threshold commitment to $${newLimit.toLocaleString()} on Midnight ${network}`,
         proofHash: String(txId),
+        txHash: String(txId),
         metadata: { 
-          contractAddress: walletState.address || '', 
+          contractAddress: activeContract,
+          walletAddress: userWallet,
+          userName,
           network, 
           circuit: "rebalance_threshold",
-          newThresholdUSD: Number(newLimit) 
+          newThresholdUSD: Number(newLimit),
+          txHash: String(txId)
         }
       });
 
@@ -343,11 +521,13 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
   const disconnect = async () => {
     setApi(null);
     setWalletState({ isConnected: false });
+    setContractAddress(null);
   };
 
   return (
     <MidnightContext.Provider value={{
       walletState,
+      contractAddress,
       connect1AM,
       connectLace,
       disconnect,

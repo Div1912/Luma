@@ -30,8 +30,25 @@ export default function ContactPage() {
   });
 
   const onSubmit = async (data: ContactFormValues) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      await supabase.from('audit_events').insert([{
+        id: `inq_${Date.now()}`,
+        type: 'enterprise_inquiry',
+        user_name: data.name,
+        description: `Enterprise Inquiry from ${data.name} (${data.company}, ${data.role}): ${data.message.slice(0, 100)}...`,
+        status: 'pending',
+        timestamp: new Date().toISOString(),
+        metadata: {
+          email: data.email,
+          company: data.company,
+          role: data.role,
+          message: data.message,
+        }
+      }]);
+    } catch (e) {
+      console.error('Contact submission error:', e);
+    }
     setSubmitted(true);
   };
 

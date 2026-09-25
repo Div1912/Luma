@@ -18,12 +18,28 @@ async function setup() {
         bio TEXT,
         timezone TEXT,
         auth_type TEXT,
+        contract_address TEXT,
         profile_completed BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         last_active TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       );
     `;
-    console.log('Table users ready.');
+    // Add contract_address column to users if it doesn't exist
+    await sql`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS contract_address TEXT;
+    `;
+    // Add unique constraint on email if it doesn't exist
+    await sql`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'users_email_key'
+        ) THEN
+          ALTER TABLE users ADD CONSTRAINT users_email_key UNIQUE (email);
+        END IF;
+      END $$;
+    `;
+    console.log('Table users ready (with contract_address and UNIQUE email constraint).');
 
     // 2. Transactions table (Immutable record of every on-chain transaction with wallet address, name, and tx hash)
     await sql`
@@ -90,7 +106,10 @@ async function setup() {
     await sql`
       ALTER TABLE audit_events ADD COLUMN IF NOT EXISTS tx_hash TEXT;
     `;
-    console.log('Columns wallet_address, user_name, tx_hash verified on audit_events.');
+    await sql`
+      ALTER TABLE audit_events ADD COLUMN IF NOT EXISTS contract_address TEXT;
+    `;
+    console.log('Columns wallet_address, user_name, tx_hash, contract_address verified on audit_events.');
 
     // 5. Agents table
     await sql`

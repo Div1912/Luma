@@ -41,7 +41,7 @@ export default function ProofPage() {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-mono px-2.5 py-1 bg-white/[0.04] border border-white/10 text-zinc-300 rounded-lg">
-                  {ev.time}
+                  {ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : (ev.time || "Confirmed")}
                 </span>
               </div>
               
@@ -60,7 +60,7 @@ export default function ProofPage() {
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2 shadow-[0_0_6px_#34d399]" />
                     Verified on Midnight
                   </span>
-                  <span className="text-zinc-500">Block #{(Math.random() * 1000000).toFixed(0)}</span>
+                  <span className="text-zinc-500 uppercase">{((ev.metadata?.network as string) || network || 'preprod')}</span>
                 </div>
               </div>
             </motion.div>

@@ -30,7 +30,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 export default function DashboardOverview() {
-  const { policies, agents, approvals, auditEvents } = useGhostStore();
+  const { policies, agents, approvals, auditEvents, user, setUserContractAddress } = useGhostStore();
   
   // Real chart data derived from auditEvents (last 14 days)
   const chartData = Array.from({ length: 14 }).map((_, i) => {
@@ -72,15 +72,20 @@ export default function DashboardOverview() {
       if (clean !== saved) {
         localStorage.setItem('ghost_contract_address', clean);
       }
+    } else if (user?.contractAddress) {
+      const clean = user.contractAddress.replace(/^0x/, '').trim();
+      setContractAddress(clean);
+      localStorage.setItem('ghost_contract_address', clean);
     } else {
       setContractAddress('');
     }
-  }, [network]);
+  }, [network, user?.contractAddress]);
 
   const handleResetContract = () => {
     localStorage.setItem('ghost_contract_address', 'none');
     setContractAddress('');
     disconnect1AM();
+    setUserContractAddress('');
     toast.info("Contract Unlinked", {
       description: "You can now deploy a fresh contract or bind a verified contract address."
     });
@@ -90,6 +95,7 @@ export default function DashboardOverview() {
     const target = network === 'preprod' ? preprodVerified : previewVerified;
     setContractAddress(target);
     localStorage.setItem('ghost_contract_address', target);
+    setUserContractAddress(target);
     toast.success(`Loaded Verified ${network.toUpperCase()} Contract`, {
       description: `Contract address set to ${target.slice(0, 10)}... Click 'Connect to Contract' to bind.`
     });
@@ -108,6 +114,7 @@ export default function DashboardOverview() {
 
       setContractAddress(address);
       localStorage.setItem('ghost_contract_address', address);
+      await setUserContractAddress(address);
       
       toast.success("Contract Deployed Successfully! 🛡️", {
         id: "deploy-status",
@@ -136,9 +143,10 @@ export default function DashboardOverview() {
         const clean = walletState.address.replace(/^0x/, '').trim();
         setContractAddress(clean);
         localStorage.setItem('ghost_contract_address', clean);
+        setUserContractAddress(clean);
       }
     }
-  }, [ghost, walletState.address, contractAddress]);
+  }, [ghost, walletState.address, contractAddress, setUserContractAddress]);
 
   const handleSpend = async () => {
     if (!spendAmount) return;

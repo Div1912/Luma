@@ -11,43 +11,58 @@ export function SwarmTelemetry() {
   const logsEndRef = useRef<HTMLDivElement>(null);
   const [activeNodes, setActiveNodes] = useState<string[]>([]);
 
-  // Simulated Telemetry Feed
+  // Real telemetry feed from actual audit events and active agent status
   useEffect(() => {
-    if (agents.length === 0) return;
+    if (agents.length === 0 && auditEvents.length === 0) return;
 
-    const generateLog = () => {
-      const agent = agents[Math.floor(Math.random() * agents.length)];
-      const actions = [
-        { type: "ZKP_VERIFY", text: `[${agent.name}] Synthesizing zero-knowledge proof for inference limits...`, color: "text-[#b8d4f0]" },
-        { type: "POLICY_SYNC", text: `[${agent.name}] Local policy state synchronized with Quorum Consensus.`, color: "text-zinc-400" },
-        { type: "SHIELD_EXEC", text: `[${agent.name}] Executing shielded contract state transition.`, color: "text-emerald-400" },
-        { type: "NETWORK_PING", text: `[${agent.name}] Node heartbeat acknowledged. Latency: ${Math.floor(Math.random() * 25 + 5)}ms`, color: "text-zinc-500" },
-        { type: "THREAT_SCAN", text: `[${agent.name}] Anomaly scan clear. 0 malicious sub-routines detected.`, color: "text-blue-400" }
-      ];
+    const realLogs: { id: string; text: string; type: string; time: string; agentId?: string }[] = [];
 
-      const action = actions[Math.floor(Math.random() * actions.length)];
-      
-      const now = new Date();
-      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
+    // Map real audit events
+    auditEvents.slice(0, 30).forEach((evt) => {
+      const evtTime = new Date(evt.timestamp);
+      const timeStr = !isNaN(evtTime.getTime()) 
+        ? `${evtTime.getHours().toString().padStart(2, '0')}:${evtTime.getMinutes().toString().padStart(2, '0')}:${evtTime.getSeconds().toString().padStart(2, '0')}`
+        : "LIVE";
 
-      setLogs(prev => {
-        const newLogs = [...prev, { id: Math.random().toString(36), text: action.text, type: action.color, time: timeStr }];
-        return newLogs.slice(-25);
+      let color = "text-zinc-400";
+      if (evt.status === "failed" || evt.type === "purchase_blocked") {
+        color = "text-rose-400";
+      } else if (evt.status === "success" || evt.type === "purchase_approved") {
+        color = "text-emerald-400";
+      } else if (evt.type === "proof_verified") {
+        color = "text-[#b8d4f0]";
+      } else if (evt.type === "policy_created") {
+        color = "text-sky-400";
+      }
+
+      realLogs.push({
+        id: evt.id,
+        text: `[${evt.agentName || "SYSTEM"}] ${evt.description || evt.type.replace(/_/g, " ").toUpperCase()}${evt.proofHash ? ` (proof: ${evt.proofHash.slice(0, 10)}...)` : ""}`,
+        type: color,
+        time: timeStr,
+        agentId: evt.agentId
       });
+    });
 
-      // Flash node in topology map
-      setActiveNodes(prev => {
-        const updated = [...prev, agent.id];
-        setTimeout(() => {
-          setActiveNodes(current => current.filter(id => id !== agent.id));
-        }, 800);
-        return updated;
+    // Also include connected agent states if auditEvents are empty
+    if (realLogs.length === 0) {
+      agents.forEach((agent) => {
+        realLogs.push({
+          id: agent.id,
+          text: `[${agent.name}] Status: ${agent.status.toUpperCase()} | Risk: ${agent.risk.toUpperCase()} | Policy: ${agent.policyId || "Default"}`,
+          type: agent.status === "connected" ? "text-emerald-400" : agent.status === "paused" ? "text-amber-400" : "text-zinc-500",
+          time: "LIVE",
+          agentId: agent.id
+        });
       });
-    };
+    }
 
-    const interval = setInterval(generateLog, 1200);
-    return () => clearInterval(interval);
-  }, [agents]);
+    setLogs(realLogs);
+
+    // Active nodes flash based on recently active agents
+    const activeIds = agents.filter(a => a.status === 'connected').map(a => a.id);
+    setActiveNodes(activeIds);
+  }, [agents, auditEvents]);
 
   useEffect(() => {
     if (logsEndRef.current) {

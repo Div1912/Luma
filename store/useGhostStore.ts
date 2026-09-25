@@ -20,7 +20,9 @@ export type EventType =
   | "proof_verified"
   | "approval_requested"
   | "approval_granted"
-  | "approval_rejected";
+  | "approval_rejected"
+  | "contract_deployed"
+  | "dispute_filed";
 
 export interface Policy {
   id: string;
@@ -100,6 +102,7 @@ export interface AuditEvent {
   agentName?: string;
   walletAddress?: string;
   userName?: string;
+  contractAddress?: string;
   policyId?: string;
   merchant?: string;
   amount?: number;
@@ -133,20 +136,20 @@ export interface UserProfile {
   organization?: string;
   bio?: string;
   timezone?: string;
-  authType?: "wallet" | "credentials" | "demo";
+  authType?: "wallet" | "credentials";
   walletAddress?: string;
+  contractAddress?: string;
   profileCompleted: boolean;
 }
 
 interface GhostStore {
   // Auth
   isAuthenticated: boolean;
-  isDemoMode: boolean;
   user: UserProfile | null;
   signIn: (email: string, password: string) => Promise<{ success: boolean; isNewUser?: boolean; error?: string }>;
-  signInDemo: () => void;
   signInWallet: (address: string) => Promise<{ isNewUser: boolean }>;
   completeProfile: (profileData: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
+  setUserContractAddress: (contractAddress: string) => Promise<void>;
   signOut: () => void;
 
   // Data
@@ -187,121 +190,18 @@ interface GhostStore {
   // Data actions
   fetchData: () => Promise<void>;
 
-  updateUser: (userUpdates: Partial<{ email: string; name: string; avatar?: string; role?: string; organization?: string; bio?: string; timezone?: string }>) => Promise<void>;
+  updateUser: (userUpdates: Partial<UserProfile>) => Promise<void>;
 
   // UI state
   commandMenuOpen: boolean;
   setCommandMenuOpen: (open: boolean) => void;
 }
 
-const INITIAL_APPROVALS: Approval[] = [
-  {
-    id: "appr_1",
-    agentId: "agt_1",
-    agentName: "DevOpsSwarm-01",
-    policyId: "Standard Procurement",
-    merchant: "Amazon Web Services (AWS)",
-    amount: 12450,
-    currency: "USD",
-    reason: "Auto-scaling GPU instances for LLM fine-tuning cluster",
-    status: "pending",
-    requestedAt: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(),
-    category: "Cloud Infrastructure",
-    proofHash: "0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889",
-    ruleTriggered: "5000",
-  },
-  {
-    id: "appr_2",
-    agentId: "agt_2",
-    agentName: "AI-Research-Lead",
-    policyId: "High-Risk AI Spend",
-    merchant: "OpenAI Enterprise Quota",
-    amount: 85000,
-    currency: "USD",
-    reason: "Quarterly batch inference API commitment tokens",
-    status: "pending",
-    requestedAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 5).toISOString(),
-    category: "AI & Model APIs",
-    proofHash: "0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad",
-    ruleTriggered: "50000",
-  },
-  {
-    id: "appr_3",
-    agentId: "agt_3",
-    agentName: "MonitoringAgent",
-    policyId: "Standard Procurement",
-    merchant: "Datadog Observability",
-    amount: 3800,
-    currency: "USD",
-    reason: "Monthly telemetry APM ingestion allowance",
-    status: "pending",
-    requestedAt: new Date(Date.now() - 1000 * 60 * 85).toISOString(),
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 1).toISOString(),
-    category: "Monitoring & APM",
-    proofHash: "0x7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0",
-    ruleTriggered: "2500",
-  },
-  {
-    id: "appr_4",
-    agentId: "agt_1",
-    agentName: "DevOpsSwarm-01",
-    policyId: "Enterprise Hardware",
-    merchant: "NVIDIA DGX Cloud Compute",
-    amount: 64000,
-    currency: "USD",
-    reason: "Reserved H100 Hopper Node Reservation (Month 1)",
-    status: "approved",
-    requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
-    expiresAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString(),
-    category: "Hardware & Compute",
-    proofHash: "0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889",
-    ruleTriggered: "50000",
-  },
-  {
-    id: "appr_5",
-    agentId: "agt_4",
-    agentName: "ShoppingBot-Prime",
-    policyId: "Software Subscriptions",
-    merchant: "GitHub Enterprise 500 Seats",
-    amount: 10500,
-    currency: "USD",
-    reason: "Annual enterprise seats and Copilot Business licenses",
-    status: "approved",
-    requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
-    expiresAt: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
-    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 22).toISOString(),
-    category: "Developer Tools",
-    proofHash: "0x1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
-    ruleTriggered: "5000",
-  },
-  {
-    id: "appr_6",
-    agentId: "agt_5",
-    agentName: "AutonomousBuyer-9",
-    policyId: "Standard Procurement",
-    merchant: "Unverified Offshore Data Broker",
-    amount: 9200,
-    currency: "USD",
-    reason: "Unverified dark web threat intel dataset download",
-    status: "rejected",
-    requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 40).toISOString(),
-    expiresAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
-    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 35).toISOString(),
-    category: "Data Services",
-    proofHash: "0x9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8",
-    ruleTriggered: "Policy Firewall: Blocklisted Merchant Category",
-  }
-];
-
 export const useGhostStore = create<GhostStore>()(
   persist(
     (set, get) => ({
       // Auth
       isAuthenticated: false,
-      isDemoMode: false,
       user: null,
       signIn: async (email, password) => {
         await new Promise((r) => setTimeout(r, 400));
@@ -316,9 +216,14 @@ export const useGhostStore = create<GhostStore>()(
         const { isRegistered, user: dbUser } = await checkUserRegistered({ email });
 
         if (isRegistered && dbUser) {
+          if (dbUser.contract_address && typeof window !== 'undefined') {
+            const currentSaved = localStorage.getItem('ghost_contract_address');
+            if (!currentSaved || currentSaved === 'none' || currentSaved === 'reset') {
+              localStorage.setItem('ghost_contract_address', dbUser.contract_address);
+            }
+          }
           set({
             isAuthenticated: true,
-            isDemoMode: false,
             user: { 
               email: dbUser.email || email, 
               name: dbUser.name, 
@@ -329,6 +234,7 @@ export const useGhostStore = create<GhostStore>()(
               timezone: dbUser.timezone || "UTC-8 (Pacific Time)",
               authType: "credentials",
               walletAddress: dbUser.wallet_address || undefined,
+              contractAddress: dbUser.contract_address || undefined,
               profileCompleted: true
             },
           });
@@ -337,13 +243,17 @@ export const useGhostStore = create<GhostStore>()(
 
         const namePart = email.split("@")[0];
         const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-        const isDemo = email === "demo@ghost.xyz";
+        if (dbUser?.contract_address && typeof window !== 'undefined') {
+          const currentSaved = localStorage.getItem('ghost_contract_address');
+          if (!currentSaved || currentSaved === 'none' || currentSaved === 'reset') {
+            localStorage.setItem('ghost_contract_address', dbUser.contract_address);
+          }
+        }
         set({
           isAuthenticated: true,
-          isDemoMode: isDemo,
           user: { 
             email, 
-            name: isDemo ? "Alex Morgan" : (dbUser?.name || formattedName), 
+            name: dbUser?.name || formattedName, 
             avatar: undefined,
             role: dbUser?.role || "Chief AI Security Architect",
             organization: dbUser?.organization || "Ghost Autonomous Swarms Inc.",
@@ -351,41 +261,50 @@ export const useGhostStore = create<GhostStore>()(
             timezone: dbUser?.timezone || "UTC-8 (Pacific Time)",
             authType: "credentials",
             walletAddress: dbUser?.wallet_address || undefined,
-            profileCompleted: isDemo ? true : Boolean(dbUser?.profile_completed)
+            contractAddress: dbUser?.contract_address || undefined,
+            profileCompleted: Boolean(dbUser?.profile_completed)
           },
         });
-        return { success: true, isNewUser: !isDemo && !dbUser?.profile_completed };
-      },
-
-      signInDemo: () => {
-        set({
-          isAuthenticated: true,
-          isDemoMode: true,
-          user: { 
-            email: "demo@ghost.xyz", 
-            name: "Alex Morgan",
-            role: "Chief AI Security Architect",
-            organization: "Ghost Autonomous Swarms Inc.",
-            bio: "Orchestrating zero-knowledge policy firewalls across autonomous AI agent fleets.",
-            timezone: "UTC-8 (Pacific Time)",
-            authType: "demo",
-            walletAddress: undefined,
-            profileCompleted: true
-          },
-        });
+        return { success: true, isNewUser: !dbUser?.profile_completed };
       },
 
       signInWallet: async (address: string) => {
-        const { checkUserRegistered } = await import("@/lib/supabase");
-        const { isRegistered, user: dbUser } = await checkUserRegistered({ walletAddress: address });
+        const { checkUserRegistered, saveUserToSupabase } = await import("@/lib/supabase");
+        let { isRegistered, user: dbUser } = await checkUserRegistered({ walletAddress: address });
 
-        if (isRegistered && dbUser) {
+        const uniqueEmail = `${address.slice(0, 14)}_${address.slice(-6)}@midnight.network`;
+
+        // If user is not yet in Supabase, immediately persist them so they are NEVER lost!
+        if (!dbUser) {
+          const autoName = `Operator ${address.slice(-4)}`;
+          const saveRes = await saveUserToSupabase({
+            walletAddress: address,
+            name: autoName,
+            email: uniqueEmail,
+            role: "Lead ZK Systems Engineer",
+            organization: "Midnight Enterprise Validator",
+            bio: "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
+            timezone: "UTC (Coordinated Universal Time)",
+            authType: "wallet",
+            profileCompleted: false
+          });
+          if (saveRes.success && saveRes.data) {
+            dbUser = saveRes.data;
+          }
+        }
+
+        if (isRegistered && dbUser && dbUser.profile_completed) {
           // Existing user who already completed registration and saved their profile once!
+          if (dbUser.contract_address && typeof window !== 'undefined') {
+            const currentSaved = localStorage.getItem('ghost_contract_address');
+            if (!currentSaved || currentSaved === 'none' || currentSaved === 'reset') {
+              localStorage.setItem('ghost_contract_address', dbUser.contract_address);
+            }
+          }
           set({
             isAuthenticated: true,
-            isDemoMode: false,
             user: { 
-              email: dbUser.email || `${address.slice(0, 8)}...${address.slice(-6)}@midnight.network`, 
+              email: dbUser.email || uniqueEmail, 
               name: dbUser.name,
               role: dbUser.role || "Lead ZK Systems Engineer",
               organization: dbUser.organization || "Midnight Enterprise Validator",
@@ -393,25 +312,32 @@ export const useGhostStore = create<GhostStore>()(
               timezone: dbUser.timezone || "UTC (Coordinated Universal Time)",
               authType: "wallet",
               walletAddress: address,
+              contractAddress: dbUser.contract_address || undefined,
               profileCompleted: true
             },
           });
           return { isNewUser: false };
         }
 
-        // New user or incomplete profile: must complete onboarding before accessing dashboard
+        // New user or incomplete profile:
+        if (dbUser?.contract_address && typeof window !== 'undefined') {
+          const currentSaved = localStorage.getItem('ghost_contract_address');
+          if (!currentSaved || currentSaved === 'none' || currentSaved === 'reset') {
+            localStorage.setItem('ghost_contract_address', dbUser.contract_address);
+          }
+        }
         set({
           isAuthenticated: true,
-          isDemoMode: false,
           user: { 
-            email: `${address.slice(0, 8)}...${address.slice(-6)}@midnight.network`, 
-            name: dbUser?.name || "",
+            email: dbUser?.email || uniqueEmail, 
+            name: dbUser?.name || `Operator ${address.slice(-4)}`,
             role: dbUser?.role || "Lead ZK Systems Engineer",
             organization: dbUser?.organization || "Midnight Enterprise Validator",
             bio: dbUser?.bio || "Verifying encrypted proofs and multi-party quorum contracts on Midnight preprod ledger.",
             timezone: dbUser?.timezone || "UTC (Coordinated Universal Time)",
             authType: "wallet",
             walletAddress: address,
+            contractAddress: dbUser?.contract_address || undefined,
             profileCompleted: false
           },
         });
@@ -420,9 +346,18 @@ export const useGhostStore = create<GhostStore>()(
 
       completeProfile: async (profileData) => {
         const currentUser = get().user;
-        const walletAddress = currentUser?.walletAddress;
-        const email = profileData.email || currentUser?.email || "user@midnight.network";
-        const name = profileData.name || currentUser?.name || "Midnight Node Admin";
+        // profileData.walletAddress takes priority — it comes directly from the
+        // active 1AM wallet on the profile page. Fall back to what is persisted in Zustand.
+        const walletAddress = (profileData as any).walletAddress || currentUser?.walletAddress;
+        const contractAddress = currentUser?.contractAddress || (typeof window !== 'undefined' ? localStorage.getItem('ghost_contract_address') || undefined : undefined);
+        const cleanContract = (contractAddress && contractAddress !== 'none' && contractAddress !== 'reset')
+          ? contractAddress.replace(/^0x/, '').trim()
+          : undefined;
+        const fallbackEmail = walletAddress
+          ? `${walletAddress.slice(0, 14)}_${walletAddress.slice(-6)}@midnight.network`
+          : `user_${Date.now()}@midnight.network`;
+        const email = profileData.email || currentUser?.email || fallbackEmail;
+        const name = profileData.name || currentUser?.name || (walletAddress ? `Operator ${walletAddress.slice(-4)}` : "Midnight Node Admin");
         const role = profileData.role || currentUser?.role || "Lead ZK Systems Engineer";
         const organization = profileData.organization || currentUser?.organization || "Midnight Enterprise Validator";
         const bio = profileData.bio || currentUser?.bio || "";
@@ -431,6 +366,7 @@ export const useGhostStore = create<GhostStore>()(
         const { saveUserToSupabase } = await import("@/lib/supabase");
         const res = await saveUserToSupabase({
           walletAddress,
+          contractAddress: cleanContract,
           email,
           name,
           role,
@@ -456,12 +392,38 @@ export const useGhostStore = create<GhostStore>()(
             bio,
             timezone,
             walletAddress,
+            contractAddress: cleanContract,
             authType: currentUser?.authType || (walletAddress ? "wallet" : "credentials"),
             profileCompleted: true
           }
         });
 
         return { success: true };
+      },
+
+      setUserContractAddress: async (contractAddress: string) => {
+        const clean = contractAddress ? contractAddress.replace(/^0x/, '').trim() : '';
+        if (!clean) return;
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('ghost_contract_address', clean);
+        }
+
+        const currentUser = get().user;
+        if (currentUser) {
+          set({
+            user: {
+              ...currentUser,
+              contractAddress: clean
+            }
+          });
+        }
+
+        const wallet = currentUser?.walletAddress || (currentUser as any)?.wallet_address;
+        if (wallet && wallet !== 'mn_unspecified') {
+          const { updateUserContractAddress } = await import("@/lib/supabase");
+          await updateUserContractAddress(wallet, clean);
+        }
       },
 
       signOut: () => {
@@ -480,7 +442,7 @@ export const useGhostStore = create<GhostStore>()(
           }
           localStorage.removeItem('ghost_contract_address');
         } catch (_) { /* ignore */ }
-        set({ isAuthenticated: false, isDemoMode: false, user: null });
+        set({ isAuthenticated: false, user: null });
       },
 
       updateUser: async (userUpdates) => {
@@ -494,10 +456,16 @@ export const useGhostStore = create<GhostStore>()(
         };
         set({ user: updatedUser });
 
-        if (updatedUser.walletAddress || updatedUser.email) {
+        if (updatedUser.contractAddress && typeof window !== 'undefined') {
+          localStorage.setItem('ghost_contract_address', updatedUser.contractAddress.replace(/^0x/, '').trim());
+        }
+
+        const effectiveWallet = updatedUser.walletAddress || currentUser?.walletAddress;
+        if (effectiveWallet || updatedUser.email) {
           const { saveUserToSupabase } = await import("@/lib/supabase");
-          saveUserToSupabase({
-            walletAddress: updatedUser.walletAddress,
+          const res = await saveUserToSupabase({
+            walletAddress: effectiveWallet,
+            contractAddress: updatedUser.contractAddress || currentUser?.contractAddress,
             email: updatedUser.email,
             name: updatedUser.name,
             role: updatedUser.role,
@@ -506,9 +474,10 @@ export const useGhostStore = create<GhostStore>()(
             timezone: updatedUser.timezone,
             authType: updatedUser.authType,
             profileCompleted: updatedUser.profileCompleted
-          }).then(res => {
-            if (!res.success) console.warn("Supabase updateUser sync warning:", res.error);
           });
+          if (!res.success) {
+            console.warn("Supabase updateUser sync warning:", res.error);
+          }
         }
       },
 
@@ -516,41 +485,81 @@ export const useGhostStore = create<GhostStore>()(
       policies: [],
       agents: [],
       fleets: [],
-      approvals: INITIAL_APPROVALS,
+      approvals: [],
       auditEvents: [],
       transactions: [],
 
       metrics: {
-        activePolicies: 3,
-        activeAgents: 5,
-        pendingApprovals: 3,
-        blockedToday: 1,
-        approvedToday: 4,
-        totalSpentToday: 38400,
-        totalSpentMonth: 194500,
-        proofVerifications: 1420,
+        activePolicies: 0,
+        activeAgents: 0,
+        pendingApprovals: 0,
+        blockedToday: 0,
+        approvedToday: 0,
+        totalSpentToday: 0,
+        totalSpentMonth: 0,
+        proofVerifications: 0,
       },
 
       fetchData: async () => {
         const { fetchOnChainStateFromSupabase } = await import('@/lib/supabase');
         const data = await fetchOnChainStateFromSupabase();
         if (data) {
+          const policies = data.policies || [];
+          const agents = data.agents || [];
+          const fleets = data.fleets || [];
+          const approvals = data.approvals || [];
+          const auditEvents = data.auditEvents || [];
+          const transactions = data.transactions || [];
+
+          // Compute today's and this month's spent dynamically from transactions & audit events
+          const now = new Date();
+          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+          let spentToday = 0;
+          let spentMonth = 0;
+          let blockedToday = 0;
+          let approvedToday = 0;
+          let proofVerifications = 0;
+
+          for (const tx of transactions) {
+            const txTime = new Date(tx.created_at || tx.timestamp).getTime();
+            const amt = Number(tx.amount) || 0;
+            if (txTime >= monthStart) {
+              spentMonth += amt;
+            }
+            if (txTime >= todayStart) {
+              spentToday += amt;
+            }
+          }
+
+          for (const evt of auditEvents) {
+            const evtTime = new Date(evt.timestamp).getTime();
+            if (evt.type === 'proof_verified') {
+              proofVerifications++;
+            }
+            if (evtTime >= todayStart) {
+              if (evt.type === 'purchase_blocked') blockedToday++;
+              if (evt.type === 'purchase_approved') approvedToday++;
+            }
+          }
+
           set((s) => ({
-            policies: data.policies || s.policies,
-            agents: data.agents || s.agents,
-            fleets: data.fleets || s.fleets,
-            approvals: data.approvals && data.approvals.length > 0 ? data.approvals : s.approvals,
-            auditEvents: data.auditEvents || s.auditEvents,
-            transactions: data.transactions || s.transactions,
+            policies: policies.length > 0 ? policies : s.policies,
+            agents: agents.length > 0 ? agents : s.agents,
+            fleets: fleets.length > 0 ? fleets : s.fleets,
+            approvals: approvals.length > 0 ? approvals : s.approvals,
+            auditEvents: auditEvents.length > 0 ? auditEvents : s.auditEvents,
+            transactions: transactions.length > 0 ? transactions : s.transactions,
             metrics: {
-              activePolicies: data.policies?.length || s.metrics.activePolicies,
-              activeAgents: data.agents?.filter((a: any) => a.status === 'connected').length || s.metrics.activeAgents,
-              pendingApprovals: data.approvals?.filter((a: any) => a.status === 'pending').length || s.metrics.pendingApprovals,
-              blockedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_blocked').length || s.metrics.blockedToday,
-              approvedToday: data.auditEvents?.filter((e: any) => e.type === 'purchase_approved').length || s.metrics.approvedToday,
-              totalSpentToday: 38400,
-              totalSpentMonth: 194500,
-              proofVerifications: data.auditEvents?.filter((e: any) => e.type === 'proof_verified').length || s.metrics.proofVerifications,
+              activePolicies: policies.filter((p: any) => p.status === 'active').length,
+              activeAgents: agents.filter((a: any) => a.status === 'connected').length,
+              pendingApprovals: approvals.filter((a: any) => a.status === 'pending').length,
+              blockedToday,
+              approvedToday,
+              totalSpentToday: spentToday,
+              totalSpentMonth: spentMonth,
+              proofVerifications,
             }
           }));
         }
@@ -771,17 +780,24 @@ export const useGhostStore = create<GhostStore>()(
           const userWallet = (event as any).walletAddress || (event as any).metadata?.wallet_address || s.user?.walletAddress || null;
           const currentUserName = (event as any).userName || (event as any).metadata?.user_name || s.user?.name || null;
           const txHash = (event as any).txHash || event.proofHash || null;
+          const rawContractAddress = (event as any).contractAddress 
+            || (event as any).metadata?.contractAddress 
+            || (event.type === 'policy_created' ? event.policyId : null);
+          const cleanContractAddress = rawContractAddress && typeof rawContractAddress === 'string' && rawContractAddress !== 'none' && rawContractAddress !== 'reset'
+            ? rawContractAddress.replace(/^0x/, '').trim()
+            : null;
 
           const newEvent: AuditEvent = {
             ...event,
             id: `evt_${Date.now()}`,
             walletAddress: userWallet || undefined,
             userName: currentUserName || undefined,
+            contractAddress: cleanContractAddress || undefined,
             txHash: txHash || undefined,
             timestamp: new Date().toISOString(),
           };
 
-          // 1. Write to Supabase audit_events table
+          // 1. Write to Supabase audit_events table with wallet address, user name, tx hash, and contract address
           supabase.from('audit_events').insert([{
             id: newEvent.id,
             type: newEvent.type,
@@ -796,10 +812,12 @@ export const useGhostStore = create<GhostStore>()(
             tx_hash: txHash || newEvent.proofHash || null,
             wallet_address: userWallet,
             user_name: currentUserName,
+            contract_address: cleanContractAddress,
             status: newEvent.status,
             description: newEvent.description,
             metadata: {
               ...(newEvent.metadata || {}),
+              contractAddress: cleanContractAddress,
               wallet_address: userWallet,
               user_name: currentUserName,
               tx_hash: txHash
@@ -808,9 +826,10 @@ export const useGhostStore = create<GhostStore>()(
             if (error) console.error('Supabase audit event error:', error);
           });
 
-          // 2. If this is an on-chain transaction with a tx hash, record in transactions table
-          if (txHash && (newEvent.type === 'purchase_approved' || newEvent.type === 'proof_verified')) {
-            import('@/lib/supabase').then(({ saveTransactionToSupabase }) => {
+          // 2. If this is an on-chain transaction with a tx hash (or contract deployment), record in transactions table
+          const isDeploy = newEvent.type === 'policy_created' || (newEvent as any).type === 'contract_deployed';
+          if (txHash && (newEvent.type === 'purchase_approved' || newEvent.type === 'proof_verified' || isDeploy)) {
+            import('@/lib/supabase').then(({ saveTransactionToSupabase, updateUserContractAddress }) => {
               saveTransactionToSupabase({
                 txHash,
                 walletAddress: userWallet || 'mn_unspecified',
@@ -819,16 +838,37 @@ export const useGhostStore = create<GhostStore>()(
                 agentName: newEvent.agentName,
                 amount: newEvent.amount,
                 currency: newEvent.currency,
-                type: newEvent.type,
+                type: isDeploy ? 'contract_deployment' : newEvent.type,
                 status: newEvent.status,
+                network: (newEvent.metadata?.network as string) || 'preprod',
+                contractAddress: cleanContractAddress || undefined,
                 description: newEvent.description,
-                contractAddress: newEvent.metadata?.contractAddress,
-                metadata: newEvent.metadata
+                metadata: {
+                  ...(newEvent.metadata || {}),
+                  contractAddress: cleanContractAddress,
+                  walletAddress: userWallet,
+                  userName: currentUserName,
+                  txHash
+                }
               });
+
+              // When deploying, persist user's contract address to their user record in Supabase
+              if (isDeploy && cleanContractAddress && userWallet && userWallet !== 'mn_unspecified') {
+                updateUserContractAddress(userWallet, cleanContractAddress);
+              }
             });
           }
 
+          const updatedUser = (isDeploy && cleanContractAddress && s.user)
+            ? { ...s.user, contractAddress: cleanContractAddress }
+            : s.user;
+
+          if (isDeploy && cleanContractAddress && typeof window !== 'undefined') {
+            localStorage.setItem('ghost_contract_address', cleanContractAddress);
+          }
+
           return {
+            user: updatedUser,
             auditEvents: [newEvent, ...s.auditEvents],
             metrics: {
               ...s.metrics,
@@ -846,7 +886,6 @@ export const useGhostStore = create<GhostStore>()(
       name: "ghost-store",
       partialize: (state) => ({
         isAuthenticated: state.isAuthenticated,
-        isDemoMode: state.isDemoMode,
         user: state.user,
         fleets: state.fleets,
         agents: state.agents,

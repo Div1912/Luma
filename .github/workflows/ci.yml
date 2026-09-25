@@ -35,7 +35,7 @@ jobs:
         run: npm run lint
 
   contract-integrity:
-    name: Midnight ZK Contract & Prover Integrity
+    name: Midnight Compact Contracts & ZK Prover Integrity
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -50,22 +50,53 @@ jobs:
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps || npm install
 
-      - name: Verify Compact Source & Managed Bindings
+      - name: Verify All Compact Contract Sources Across Codebase
         run: |
-          test -f contracts/ghost.compact || { echo "Missing contracts/ghost.compact"; exit 1; }
-          test -f managed/ghost/contract/index.js || { echo "Missing managed/ghost/contract/index.js"; exit 1; }
-          test -f managed/ghost/contract/index.d.ts || { echo "Missing managed/ghost/contract/index.d.ts"; exit 1; }
+          for contract in \
+            contracts/ghost.compact \
+            contracts/ghost-advanced.compact \
+            contracts/card_escrow.compact \
+            contracts/compliance_audit.compact \
+            contracts/intent_guard.compact \
+            contracts/quorum_guard.compact \
+            contracts/velocity_guard.compact \
+            contracts/x402.compact \
+            ghost.compact \
+            bboard/contract/src/bboard.compact; do
+            test -s "$contract" || { echo "Missing or empty contract: $contract"; exit 1; }
+            echo "Verified Compact contract: $contract"
+          done
+
+      - name: Verify Compact Compiled Runtime Bindings & Prover Keys
+        run: |
+          test -s managed/ghost/contract/index.js || { echo "Missing managed/ghost/contract/index.js"; exit 1; }
+          test -s managed/ghost/contract/index.d.ts || { echo "Missing managed/ghost/contract/index.d.ts"; exit 1; }
+          test -s managed/compiler/contract-info.json || { echo "Missing managed/compiler/contract-info.json"; exit 1; }
+          test -s managed/zkir/spend.zkir || { echo "Missing managed/zkir/spend.zkir"; exit 1; }
+          test -s managed/keys/spend.prover || { echo "Missing managed/keys/spend.prover"; exit 1; }
+          test -s managed/keys/spend.verifier || { echo "Missing managed/keys/spend.verifier"; exit 1; }
           echo "Compact contract and managed runtime bindings verified."
 
-      - name: Verify ZK Prover & Circuit Keys
+      - name: Verify Client-Side ZK Prover & Circuit Artifacts
         run: |
           test -f "public/keys/ghost#spend.prover" || test -f "public/keys/ghost%23spend.prover" || { echo "Missing spend prover key"; exit 1; }
           test -f "public/keys/ghost#spend.verifier" || test -f "public/keys/ghost%23spend.verifier" || { echo "Missing spend verifier key"; exit 1; }
           test -f "public/zkir/ghost#spend.bzkir" || test -f "public/zkir/ghost%23spend.bzkir" || { echo "Missing spend circuit IR"; exit 1; }
+          test -f "public/zkir/ghost#spend.zkir" || test -f "public/zkir/ghost%23spend.zkir" || { echo "Missing spend circuit ZKIR"; exit 1; }
           echo "Client-side ZK-SNARK proving keys and circuits verified."
 
-      - name: Run Midnight Contract Simulation Tests
-        run: npx vitest run tests/ghost-init.test.ts tests/ghost-spend.test.ts tests/ghost-limit.test.ts tests/ghost-advanced.test.ts
+      - name: Run Midnight Compact Circuit Simulation Suite
+        run: |
+          npx vitest run \
+            tests/ghost-init.test.ts \
+            tests/ghost-spend.test.ts \
+            tests/ghost-limit.test.ts \
+            tests/ghost-advanced.test.ts \
+            tests/quorum-circuit.test.ts \
+            tests/audit-merkle-circuit.test.ts \
+            tests/velocity-circuit-breaker.test.ts \
+            tests/intent-guard-integration.test.ts \
+            tests/x402.test.ts
 
   test:
     name: Vitest Cryptographic & Integration Suite (24 Suites / 209 Tests)
@@ -83,7 +114,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps || npm install
 
-      - name: Run All 24 Vitest Test Suites
+      - name: Run All 24 Vitest Test Suites Across Codebase
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: npm run test
@@ -91,7 +122,7 @@ jobs:
   build:
     name: Next.js 16 Production Build & Static Prerender
     runs-on: ubuntu-latest
-    needs: [quality, contract-integrity]
+    needs: [quality, contract-integrity, test]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -108,6 +139,6 @@ jobs:
       - name: Build Next.js Production Bundle (Webpack)
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://xdovsqzuedezkigyvxbv.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhkb3ZzcXp1ZWRlemtpZ3l2eGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg4MTEsImV4cCI6MjEwMDMxNDgxMX0.mock' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhkb3ZzcXp1ZWRlemtpZ3l2eGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg4MTEsImV4cCI6MjEwMDMxNDgxMX0.rI2F37gh_jvxe7Mcn-9_MSD-H9p_4wyJh6DN_RQnbCU' }}
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: npm run build

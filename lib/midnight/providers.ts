@@ -43,9 +43,11 @@ export async function createGhostContract(api: any, contractAddress: string, tar
 
   const midnightProvider = {
     submitTx: async (tx: FinalizedTransaction) => {
-      await api.submitTransaction(toHex(tx.serialize()));
+      const submitted = await api.submitTransaction(toHex(tx.serialize()));
       const txIdentifiers = tx.identifiers();
-      return txIdentifiers[0];
+      return (submitted && typeof submitted === 'string' && submitted.trim())
+        ? submitted.trim()
+        : txIdentifiers[0];
     }
   };
 
@@ -98,11 +100,15 @@ export async function deployGhostContract(
     },
   };
 
+  let lastSubmittedTxId: string | null = null;
   const midnightProvider = {
     submitTx: async (tx: FinalizedTransaction) => {
       onProgress?.('Submitting transaction to Midnight blockchain...');
-      await api.submitTransaction(toHex(tx.serialize()));
+      const submitted = await api.submitTransaction(toHex(tx.serialize()));
       const txIdentifiers = tx.identifiers();
+      lastSubmittedTxId = (submitted && typeof submitted === 'string' && submitted.trim())
+        ? submitted.trim()
+        : (txIdentifiers?.[0] ? String(txIdentifiers[0]) : null);
       onProgress?.('Transaction submitted! Awaiting on-chain finalization (~30-60s)...');
       return txIdentifiers[0];
     }
@@ -129,11 +135,24 @@ export async function deployGhostContract(
 
   const rawAddress = ghost.deployTxData.public.contractAddress;
   const deployedAddress = typeof rawAddress === 'string' ? rawAddress.replace(/^0x/, '').trim() : String(rawAddress);
+
+  const rawTxHash = (ghost.deployTxData as any)?.public?.txHash 
+    || (ghost.deployTxData as any)?.public?.txId 
+    || (ghost.deployTxData as any)?.public?.identifiers?.[0]
+    || lastSubmittedTxId
+    || (ghost.deployTxData as any)?.txHash 
+    || (ghost.deployTxData as any)?.txId 
+    || (ghost.deployTxData as any)?.tx?.hash;
+  const txHash = typeof rawTxHash === 'string' && rawTxHash.trim() 
+    ? rawTxHash.trim() 
+    : deployedAddress;
+
   onProgress?.(`Deployed successfully! Address: ${deployedAddress}`);
 
   return { 
     ghost, 
     address: deployedAddress, 
+    txHash,
     providers 
   };
 }

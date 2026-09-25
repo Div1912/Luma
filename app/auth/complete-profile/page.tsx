@@ -31,9 +31,14 @@ export default function CompleteProfilePage() {
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const activeWalletAddress = walletState.address || user?.walletAddress || "";
+
   // Form State
-  const [fullName, setFullName] = useState(user?.name || "");
-  const [workEmail, setWorkEmail] = useState(user?.email || "");
+  const defaultWalletName = activeWalletAddress ? `Midnight Operator ${activeWalletAddress.slice(-4)}` : "";
+  const defaultWalletEmail = activeWalletAddress ? `${activeWalletAddress.slice(0, 14)}_${activeWalletAddress.slice(-6)}@midnight.network` : "";
+
+  const [fullName, setFullName] = useState(user?.name || defaultWalletName);
+  const [workEmail, setWorkEmail] = useState(user?.email || defaultWalletEmail);
   const [role, setRole] = useState(user?.role || "Lead ZK Systems Engineer");
   const [organization, setOrganization] = useState(user?.organization || "Midnight Enterprise Validator");
   const [bio, setBio] = useState(user?.bio || "Autonomous policy enforcer and zero-knowledge agent operator.");
@@ -51,12 +56,11 @@ export default function CompleteProfilePage() {
 
   // Synchronize initial email/wallet address if available
   useEffect(() => {
-    if (user?.walletAddress && !workEmail) {
-      setWorkEmail(`${user.walletAddress.slice(0, 8)}...${user.walletAddress.slice(-6)}@midnight.network`);
+    if (activeWalletAddress) {
+      if (!fullName) setFullName(`Midnight Operator ${activeWalletAddress.slice(-4)}`);
+      if (!workEmail) setWorkEmail(`${activeWalletAddress.slice(0, 14)}_${activeWalletAddress.slice(-6)}@midnight.network`);
     }
-  }, [user?.walletAddress, workEmail]);
-
-  const activeWalletAddress = walletState.address || user?.walletAddress || "";
+  }, [activeWalletAddress]);
 
   const handleCopyWallet = () => {
     if (!activeWalletAddress) return;
@@ -122,6 +126,24 @@ export default function CompleteProfilePage() {
         description: err.message || String(err)
       });
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setIsSubmitting(true);
+    try {
+      await completeProfile({
+        name: fullName.trim() || defaultWalletName || "Midnight Node Operator",
+        email: workEmail.trim() || defaultWalletEmail,
+        role: role.trim() || "Lead ZK Systems Engineer",
+        organization: organization.trim() || "Midnight Enterprise Validator",
+        bio: bio.trim(),
+        timezone: timezone.trim(),
+        walletAddress: activeWalletAddress || undefined
+      });
+      router.push("/dashboard");
+    } catch {
+      router.push("/dashboard");
     }
   };
 
@@ -323,7 +345,7 @@ export default function CompleteProfilePage() {
             </div>
 
             {/* Submission Button */}
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -341,6 +363,15 @@ export default function CompleteProfilePage() {
                     <ArrowRight className="w-4 h-4 text-black ml-1" />
                   </>
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSkip}
+                disabled={isSubmitting}
+                className="btn-liquid btn-liquid-secondary w-full py-2.5 flex justify-center items-center gap-2 text-xs font-mono text-zinc-300 hover:text-white"
+              >
+                <span>Continue with Default Operator Profile →</span>
               </button>
             </div>
 

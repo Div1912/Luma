@@ -232,14 +232,14 @@ export default function AuditPage() {
 
                 {selectedEvent.proofHash && (
                   <div className="space-y-3">
-                    <h4 className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Cryptographic Proof ({((selectedEvent.metadata?.network as string) || network || 'preprod').toUpperCase()})</h4>
+                    <h4 className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Cryptographic Proof / Tx Hash ({((selectedEvent.metadata?.network as string) || network || 'preprod').toUpperCase()})</h4>
                     <div className="bg-black/50 border border-white/10 rounded-xl p-4 flex justify-between items-center group">
                       <span className="text-xs font-mono text-[#b8d4f0] break-all mr-4">
                         {selectedEvent.proofHash}
                       </span>
                       <button 
                         onClick={() => {
-                          navigator.clipboard?.writeText(selectedEvent.proofHash);
+                          navigator.clipboard?.writeText(selectedEvent.proofHash || '');
                         }}
                         className="text-zinc-500 hover:text-white transition-colors flex-shrink-0"
                         title="Copy Hash"
@@ -250,7 +250,7 @@ export default function AuditPage() {
 
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <a 
-                        href={`https://explorer.1am.xyz/${selectedEvent.type === 'policy_created' ? 'contract' : 'tx'}/${selectedEvent.proofHash.replace(/^0x/, '')}?network=${(selectedEvent.metadata?.network as string) || network || 'preprod'}`}
+                        href={`https://explorer.1am.xyz/tx/${selectedEvent.proofHash.replace(/^0x/, '')}?network=${(selectedEvent.metadata?.network as string) || network || 'preprod'}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="py-2 px-3 bg-[#b8d4f0]/10 hover:bg-[#b8d4f0]/20 border border-[#b8d4f0]/30 rounded-lg text-xs font-mono text-[#b8d4f0] hover:text-white transition-colors flex items-center justify-center gap-1.5 text-center"
@@ -259,13 +259,55 @@ export default function AuditPage() {
                         <span>1AM Explorer</span>
                       </a>
                       <a 
-                        href={`https://${(selectedEvent.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/${selectedEvent.type === 'policy_created' ? 'contracts' : 'transactions'}/${selectedEvent.proofHash}`}
+                        href={`https://${(selectedEvent.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/transactions/${selectedEvent.proofHash}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="py-2 px-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center justify-center gap-1.5 text-center"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                         <span>Midnight Explorer</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {((selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress) && (
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-mono text-emerald-400 uppercase tracking-wider">Deployed Contract Address</h4>
+                    <div className="bg-black/50 border border-emerald-500/20 rounded-xl p-4 flex justify-between items-center group">
+                      <span className="text-xs font-mono text-emerald-300 break-all mr-4">
+                        {(selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          const addr = (selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress;
+                          if (addr) navigator.clipboard?.writeText(addr);
+                        }}
+                        className="text-zinc-500 hover:text-white transition-colors flex-shrink-0"
+                        title="Copy Contract Address"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <a 
+                        href={`https://explorer.1am.xyz/contract/${((selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress || '').replace(/^0x/, '')}?network=${(selectedEvent.metadata?.network as string) || network || 'preprod'}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="py-2 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-xs font-mono text-emerald-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 text-center"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Contract on 1AM</span>
+                      </a>
+                      <a 
+                        href={`https://${(selectedEvent.metadata?.network as string) || network || 'preprod'}.midnightexplorer.com/contracts/${(selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="py-2 px-3 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-lg text-xs font-mono text-zinc-300 hover:text-white transition-colors flex items-center justify-center gap-1.5 text-center"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Contract on Midnight</span>
                       </a>
                     </div>
                   </div>
@@ -294,6 +336,12 @@ export default function AuditPage() {
                           <tr className="hover:bg-white/[0.02]">
                             <td className="py-2.5 px-4 text-zinc-400 font-medium">Wallet Address</td>
                             <td className="py-2.5 px-4 text-zinc-200 font-mono text-[11px] break-all">{selectedEvent.walletAddress || selectedEvent.metadata?.wallet_address}</td>
+                          </tr>
+                        )}
+                        {((selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress) && (
+                          <tr className="hover:bg-white/[0.02]">
+                            <td className="py-2.5 px-4 text-zinc-400 font-medium">Contract Address</td>
+                            <td className="py-2.5 px-4 text-emerald-400 font-mono text-[11px] break-all">{((selectedEvent as any).contract_address || (selectedEvent as any).contractAddress || selectedEvent.metadata?.contractAddress)}</td>
                           </tr>
                         )}
                         {selectedEvent.merchant && (

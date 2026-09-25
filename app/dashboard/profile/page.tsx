@@ -65,7 +65,8 @@ export default function ProfilePage() {
         role: role.trim(),
         organization: organization.trim(),
         bio: bio.trim(),
-        timezone: timezone.trim()
+        timezone: timezone.trim(),
+        walletAddress: unshieldedAddress
       });
       setIsSaving(false);
       toast.success("Profile Updated Successfully", {
@@ -379,6 +380,41 @@ export default function ProfilePage() {
                   <p className="text-[10px] text-zinc-400 font-mono leading-tight">
                     <span className="text-zinc-300 font-semibold">Privacy By Design:</span> Smart contract calls use shielded DUST nullifiers. Caller addresses remain confidential on-chain, while contract-level state transitions are publicly verifiable.
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Deployed Contract Address */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 block">
+                Deployed Ghost Contract Address
+              </label>
+              <div className="p-3 bg-black/60 rounded-xl border border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono text-[#b8d4f0] break-all select-all">
+                    {user?.contractAddress || (typeof window !== 'undefined' ? localStorage.getItem('ghost_contract_address') : null) || "d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad"}
+                  </span>
+                  <button 
+                    onClick={() => handleCopy(user?.contractAddress || (typeof window !== 'undefined' ? localStorage.getItem('ghost_contract_address') : null) || "d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad", "Contract Address")} 
+                    className="p-1.5 text-zinc-400 hover:text-white transition-colors flex-shrink-0"
+                    title="Copy Address"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                  <a
+                    href={`https://explorer.1am.xyz/contract/${user?.contractAddress || (typeof window !== 'undefined' ? localStorage.getItem('ghost_contract_address') : null) || "d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad"}?network=${network}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-[#b8d4f0] hover:text-white transition-colors flex items-center gap-1 font-mono"
+                  >
+                    <span>Verify on Midnight Explorer</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Active
+                  </span>
                 </div>
               </div>
             </div>

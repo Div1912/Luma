@@ -9,14 +9,12 @@ import {
   Loader2, 
   AlertCircle, 
   Sparkles, 
-  ShieldCheck, 
   Mail, 
   Lock, 
   ArrowRight, 
   KeyRound, 
   Eye, 
-  EyeOff,
-  Zap
+  EyeOff
 } from "lucide-react";
 import { useMidnight } from "@/lib/midnight/useMidnight";
 import { useGhostStore } from "@/store/useGhostStore";
@@ -26,11 +24,11 @@ import { toast } from "sonner";
 export default function SignInPage() {
   const router = useRouter();
   const { walletState, connectLace, network, setNetwork } = useMidnight();
-  const { isAuthenticated, user, signIn, signInWallet, signInDemo } = useGhostStore();
+  const { isAuthenticated, user, signIn, signInWallet } = useGhostStore();
 
   const [authMode, setAuthMode] = useState<"wallet" | "credentials">("wallet");
-  const [email, setEmail] = useState("demo@ghost.xyz");
-  const [password, setPassword] = useState("ghost2025");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,14 +108,6 @@ export default function SignInPage() {
     } else {
       setError(res.error || "Authentication failed. Please check credentials.");
     }
-  };
-
-  const handleQuickDemo = () => {
-    signInDemo();
-    toast.success("Sandbox Initialized", {
-      description: "Signed in with enterprise demonstration account."
-    });
-    router.push("/dashboard");
   };
 
   return (
@@ -295,8 +285,7 @@ export default function SignInPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center text-xs font-mono pt-1">
-                  <span className="text-zinc-500">Demo: demo@ghost.xyz</span>
+                <div className="flex justify-end items-center text-xs font-mono pt-1">
                   <Link href="/auth/forgot" className="text-zinc-400 hover:text-white underline">
                     Forgot password?
                   </Link>
@@ -321,24 +310,6 @@ export default function SignInPage() {
                 </button>
               </form>
             )}
-
-            {/* Quick Demo Sandbox Access */}
-            <div className="pt-2 border-t border-white/10 space-y-3">
-              <div className="relative flex py-1 items-center">
-                <div className="flex-grow border-t border-white/10"></div>
-                <span className="flex-shrink mx-3 text-[11px] font-mono text-zinc-400 uppercase">Or One-Click Access</span>
-                <div className="flex-grow border-t border-white/10"></div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleQuickDemo}
-                className="btn-liquid btn-liquid-secondary w-full py-2.5 text-xs font-mono font-medium text-zinc-200 hover:text-white flex items-center justify-center gap-2"
-              >
-                <Zap className="w-3.5 h-3.5 text-[#b8d4f0]" />
-                <span>Launch Enterprise Demo Sandbox</span>
-              </button>
-            </div>
           </div>
 
           <div className="mt-6 text-center space-y-2">

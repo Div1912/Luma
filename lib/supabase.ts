@@ -1,25 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhkb3ZzcXp1ZWRlemtpZ3l2eGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg4MTEsImV4cCI6MjEwMDMxNDgxMX0.mock';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xdovsqzuedezkigyvxbv.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhkb3ZzcXp1ZWRlemtpZ3l2eGJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3Mzg4MTEsImV4cCI6MjEwMDMxNDgxMX0.rI2F37gh_jvxe7Mcn-9_MSD-H9p_4wyJh6DN_RQnbCU';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  global: {
-    fetch: (...args) => {
-      if (supabaseUrl === 'https://mock.supabase.co') {
-        return Promise.resolve(new Response(JSON.stringify([]), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        }));
-      }
-      return fetch(...args);
-    }
-  }
-});
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface DbUser {
   id: string;
   wallet_address?: string | null;
+  contract_address?: string | null;
   name: string;
   email?: string | null;
   role?: string | null;
@@ -55,9 +44,6 @@ export interface DbTransaction {
  * Used to ensure existing users are only registered once and not repeatedly asked.
  */
 export async function checkUserRegistered(identifier: { walletAddress?: string; email?: string }): Promise<{ isRegistered: boolean; user?: DbUser | null }> {
-  if (supabaseUrl === 'https://mock.supabase.co') {
-    return { isRegistered: false, user: null };
-  }
   try {
     let query = supabase.from('users').select('*');
     if (identifier.walletAddress) {
@@ -91,6 +77,7 @@ export async function checkUserRegistered(identifier: { walletAddress?: string; 
 export async function saveUserToSupabase(userData: {
   id?: string;
   walletAddress?: string;
+  contractAddress?: string | null;
   name: string;
   email?: string;
   role?: string;
@@ -100,11 +87,14 @@ export async function saveUserToSupabase(userData: {
   authType?: string;
   profileCompleted?: boolean;
 }): Promise<{ success: boolean; data?: any; error?: string }> {
-  if (supabaseUrl === 'https://mock.supabase.co') {
-    return { success: true };
-  }
   try {
-    const id = userData.id || userData.walletAddress || userData.email || `usr_${Date.now()}`;
+    // Deterministic ID: wallet address first, then email — NEVER a random timestamp.
+    // This ensures upsert always matches the same row on repeated saves.
+    const id = userData.id
+      || (userData.walletAddress ? userData.walletAddress.trim() : null)
+      || (userData.email ? userData.email.trim().toLowerCase() : null)
+      || `usr_${Date.now()}`;
+
     const record: DbUser = {
       id,
       wallet_address: userData.walletAddress ? userData.walletAddress.trim() : null,
@@ -115,15 +105,76 @@ export async function saveUserToSupabase(userData: {
       bio: userData.bio || '',
       timezone: userData.timezone || 'UTC',
       auth_type: userData.authType || 'wallet',
+      ...(userData.contractAddress !== undefined ? { contract_address: userData.contractAddress ? userData.contractAddress.replace(/^0x/, '').trim() : null } : {}),
       profile_completed: userData.profileCompleted !== undefined ? userData.profileCompleted : true,
       last_active: new Date().toISOString()
     };
 
-    const { data, error } = await supabase
+    // Pick the conflict column that actually has a unique index.
+    // wallet users  → conflict on 'wallet_address'
+    // email users   → conflict on 'email'  (fallback: 'id' which is set to email)
+    const onConflict = userData.walletAddress
+      ? 'wallet_address'
+      : userData.email
+        ? 'email'
+        : 'id';
+
+    let { data, error } = await supabase
       .from('users')
-      .upsert(record, { onConflict: userData.walletAddress ? 'wallet_address' : 'id' })
+      .upsert(record, { onConflict })
       .select()
       .maybeSingle();
+
+    if (error && error.message?.includes('users_email_key')) {
+      console.warn(`Duplicate email detected on user upsert (${error.message}). Retrying with unique address-based email or null...`);
+      record.email = userData.walletAddress
+        ? `${userData.walletAddress.slice(0, 16)}_${userData.walletAddress.slice(-8)}@midnight.network`
+        : null;
+      const emailRetry = await supabase
+        .from('users')
+        .upsert(record, { onConflict })
+        .select()
+        .maybeSingle();
+      data = emailRetry.data;
+      error = emailRetry.error;
+    }
+
+    if (error && onConflict !== 'id') {
+      console.warn(`Upsert on ${onConflict} failed, retrying on conflict 'id':`, error.message);
+      const retry = await supabase
+        .from('users')
+        .upsert(record, { onConflict: 'id' })
+        .select()
+        .maybeSingle();
+      data = retry.data;
+      error = retry.error;
+    }
+
+    // Direct update fallback if upsert fails on constraint
+    if (error && userData.walletAddress) {
+      console.warn(`Upsert failed, falling back to direct UPDATE for wallet ${userData.walletAddress.slice(0, 16)}...`);
+      const { data: updateData, error: updateError } = await supabase
+        .from('users')
+        .update({
+          name: record.name,
+          email: record.email,
+          role: record.role,
+          organization: record.organization,
+          bio: record.bio,
+          timezone: record.timezone,
+          auth_type: record.auth_type,
+          ...(record.contract_address ? { contract_address: record.contract_address } : {}),
+          profile_completed: record.profile_completed,
+          last_active: record.last_active
+        })
+        .or(`wallet_address.eq.${userData.walletAddress.trim()},id.eq.${record.id}`)
+        .select()
+        .maybeSingle();
+
+      if (!updateError && updateData) {
+        return { success: true, data: updateData };
+      }
+    }
 
     if (error) {
       console.error('Supabase saveUser error:', error);
@@ -133,6 +184,59 @@ export async function saveUserToSupabase(userData: {
     return { success: true, data };
   } catch (e: any) {
     console.error('saveUserToSupabase unexpected error:', e);
+    return { success: false, error: e.message || String(e) };
+  }
+}
+
+/**
+ * Updates a user's deployed contract address in Supabase.
+ */
+export async function updateUserContractAddress(
+  walletAddress: string,
+  contractAddress: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const cleanWallet = walletAddress.trim();
+    const cleanContract = contractAddress.replace(/^0x/, '').trim();
+
+    // First try a plain UPDATE (fast path for existing users)
+    const { data: updated, error: updateErr } = await supabase
+      .from('users')
+      .update({ contract_address: cleanContract, last_active: new Date().toISOString() })
+      .or(`wallet_address.eq.${cleanWallet},id.eq.${cleanWallet}`)
+      .select('id');
+
+    if (updateErr) {
+      console.error('Supabase updateUserContractAddress update error:', updateErr);
+      return { success: false, error: updateErr.message };
+    }
+
+    // If no row was matched (user deployed BEFORE completing profile), upsert to create the row
+    if (!updated || updated.length === 0) {
+      console.warn(`updateUserContractAddress: no row for wallet ${cleanWallet.slice(0, 20)}... — upserting`);
+      const fallbackEmail = `${cleanWallet.slice(0, 14)}_${cleanWallet.slice(-6)}@midnight.network`;
+      const { error: upsertErr } = await supabase
+        .from('users')
+        .upsert({
+          id: cleanWallet,
+          wallet_address: cleanWallet,
+          contract_address: cleanContract,
+          name: `Operator ${cleanWallet.slice(-4)}`,
+          email: fallbackEmail,
+          auth_type: 'wallet',
+          profile_completed: false,
+          last_active: new Date().toISOString()
+        }, { onConflict: 'wallet_address' });
+
+      if (upsertErr) {
+        console.error('Supabase updateUserContractAddress upsert error:', upsertErr);
+        return { success: false, error: upsertErr.message };
+      }
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('updateUserContractAddress unexpected error:', e);
     return { success: false, error: e.message || String(e) };
   }
 }
@@ -157,12 +261,9 @@ export async function saveTransactionToSupabase(txData: {
   description?: string;
   metadata?: Record<string, any>;
 }): Promise<{ success: boolean; data?: any; error?: string }> {
-  if (supabaseUrl === 'https://mock.supabase.co') {
-    return { success: true };
-  }
   try {
     const cleanHash = txData.txHash ? txData.txHash.replace(/^0x/, '').trim() : `${Date.now()}`;
-    const txId = txData.id || `tx_${cleanHash}`;
+    const txId = txData.id || (cleanHash.length >= 64 ? `tx_${cleanHash}` : `tx_${cleanHash}_${Date.now()}`);
     const record: DbTransaction = {
       id: txId,
       tx_hash: txData.txHash,
@@ -175,7 +276,7 @@ export async function saveTransactionToSupabase(txData: {
       type: txData.type || 'spend',
       status: txData.status || 'success',
       network: txData.network || 'preprod',
-      contract_address: txData.contractAddress || null,
+      contract_address: txData.contractAddress ? txData.contractAddress.replace(/^0x/, '').trim() : null,
       description: txData.description || null,
       timestamp: new Date().toISOString(),
       metadata: txData.metadata || {}
@@ -200,7 +301,6 @@ export async function saveTransactionToSupabase(txData: {
 }
 
 export async function fetchOnChainStateFromSupabase() {
-  if (supabaseUrl === 'https://mock.supabase.co') return null;
   try {
     const { data: auditEvents } = await supabase.from('audit_events').select('*').order('timestamp', { ascending: false });
     const { data: policies } = await supabase.from('policies').select('*');
