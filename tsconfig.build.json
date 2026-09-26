@@ -6,8 +6,7 @@
     "tests",
     "bboard",
     "ghost-contract",
-    "scripts",
-    "deploy-simulated.ts"
+    "scripts"
   ],
   "compilerOptions": {}
 }

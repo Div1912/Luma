@@ -63,7 +63,6 @@
     "src-vite-old",
     "tests",
     "bboard",
-    "ghost-contract",
-    "deploy-simulated.ts"
+    "ghost-contract"
   ]
 }

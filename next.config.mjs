@@ -17,7 +17,7 @@ const nextConfig = {
     if (!config.resolve.alias) {
       config.resolve.alias = {};
     }
-    config.resolve.alias['isomorphic-ws'] = path.resolve(__dirname, 'dummy-ws.js');
+    config.resolve.alias['isomorphic-ws'] = path.resolve(__dirname, 'lib', 'dummy-ws.js');
     
     return config;
   },
