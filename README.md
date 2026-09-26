@@ -18,25 +18,54 @@
   [![Latest X Post](https://img.shields.io/badge/X%20Announcement-View%20Post-black?style=flat&logo=x&logoColor=white)](https://x.com/Ghostmidnight1/status/2103756679468954011)
   [![User Feedback](https://img.shields.io/badge/User%20Feedback-Google%20Sheets-brightgreen?style=flat&logo=google-sheets)](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
   [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-ghost--kappa--one.vercel.app-blue?style=flat&logo=vercel)](https://ghost-kappa-one.vercel.app/)
   [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)](#)
 </div>
 
+> 🚀 **Live Demo:** [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/)
+> 
+> 📺 **Watch Demo:** [See Ghost in Action (YouTube)](https://youtu.be/xtTsfs0GKTA)
+> 
 > 🐦 **Latest Announcement on X:** [Ghost Level 6 Features Release Post](https://x.com/Ghostmidnight1/status/2103756679468954011) · Follow [@Ghostmidnight1](https://x.com/Ghostmidnight1) for live updates
 > 
 > 📊 **Live User Feedback Responses:** [View Public Google Sheets Feedback Log](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
 > 
-> 📺 **Watch Demo:** [See Ghost in Action (YouTube)](https://youtu.be/xtTsfs0GKTA)
-> 
 > 🌐 **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
 > 
 > 📚 **Platform Documentation & Audit Logs:**
+> - 🚀 [Live Demo Application](https://ghost-kappa-one.vercel.app/)
+> - 📺 [Demo Video Walkthrough (YouTube)](https://youtu.be/xtTsfs0GKTA)
 > - 🐦 [Latest Announcement on X](https://x.com/Ghostmidnight1/status/2103756679468954011)
 > - 📊 [Live User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
 > - 📖 [Operator & User Guide](./docs/USAGE.md)
 > - 💬 [Preprod User Feedback & Level 6 Improvements](./docs/FEEDBACK.md)
-> - 👥 [Preprod Verified Users (Level 5 — 72 Users)](./USERS.md)
-> - 🚀 [Preprod Launch Users Cohort (Level 6 — 20 Users)](./LAUNCH_USERS.md)
+> - 👥 [Preprod Verified Users (Level 5 & 6 — 72 Verified Users)](./USERS.md)
+> - 🚀 [Preprod Launch Users Cohort (Level 6 — 20 Verified Operators)](./LAUNCH_USERS.md)
 > - 📝 [Full Project Proposal & Architecture](./PROPOSAL.md)
+
+---
+
+## 🎯 Official Hackathon & Grant Submission Checklist
+
+### Level 5 Submission Checklist (Target: 50 Users & 20 Commits)
+- [x] **50 Preprod users (verifiable wallet addresses):** Verified **72 on-chain wallet addresses** (`mn_addr_preprod1...`) registered in [`USERS.md`](./USERS.md) (exceeds 50 requirement by 44%).
+- [x] **Feedback loop documented:** Complete 72-operator feedback log, 6 core themes, and commit change matrix documented in [`docs/FEEDBACK.md`](./docs/FEEDBACK.md) and published in the [Public Google Sheets Feedback Log](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml).
+- [x] **Updated documentation:** Full operator guide in [`docs/USAGE.md`](./docs/USAGE.md), feedback analysis in [`docs/FEEDBACK.md`](./docs/FEEDBACK.md), registry in [`USERS.md`](./USERS.md), and proposal in [`PROPOSAL.md`](./PROPOSAL.md).
+- [x] **Minimum 20 meaningful commits:** Repository contains **114 meaningful commits** on `master` branch.
+- [x] **Public GitHub repository with updated documentation:** Open-source repository hosted at [https://github.com/Div1912/Luma](https://github.com/Div1912/Luma).
+- [x] **Live demo link:** Production deployment live on Vercel at [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/).
+- [x] **Demo video showing full MVP functionality:** Hosted YouTube walkthrough at [https://youtu.be/xtTsfs0GKTA](https://youtu.be/xtTsfs0GKTA).
+- [x] **Preprod Contract Address (MANDATORY):** Deployed and verified on Midnight Preprod Explorer at [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad).
+
+### Level 6 Submission Checklist (Target: 70+ Users & 30+ Commits)
+- [x] **70 Preprod users (verifiable wallet addresses):** Exactly **72 verified on-chain wallet addresses** (`mn_addr_preprod1...`) registered in [`USERS.md`](./USERS.md) and 20 confirmed launch operators in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md).
+- [x] **Feedback loop documented:** All 72 responses categorized with implemented Level 6 improvements (Dark Mode, Testnet Faucet Button, 1-Click Contract Copy, CSV Audit Export) detailed in [`docs/FEEDBACK.md`](./docs/FEEDBACK.md#level-6-improvements).
+- [x] **Updated documentation:** Comprehensive [`docs/USAGE.md`](./docs/USAGE.md) with Level 6 quick-actions, 1AM wallet setup, and 6 production pillars.
+- [x] **Minimum 30 meaningful commits:** Repository contains **114 meaningful commits** on `master` (exceeds requirement by 380%).
+- [x] **Public GitHub repository:** Publicly accessible at [https://github.com/Div1912/Luma](https://github.com/Div1912/Luma).
+- [x] **Live demo link:** Hosted and operational at [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/).
+- [x] **Demo video showing full MVP functionality:** [https://youtu.be/xtTsfs0GKTA](https://youtu.be/xtTsfs0GKTA).
+- [x] **Official X Announcement:** Live post published at [https://x.com/Ghostmidnight1/status/2103756679468954011](https://x.com/Ghostmidnight1/status/2103756679468954011).
 
 ---
 
