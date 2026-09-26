@@ -7,7 +7,6 @@ import { useMidnight } from "@/lib/midnight/useMidnight";
 import { Play, Pause, ShieldBan, Plus, X, ShieldAlert, Cpu, Activity, Network, Layers, Copy, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { SwarmTelemetry } from "@/components/agents/SwarmTelemetry";
-import { FleetDispatcherModal } from "@/components/agents/FleetDispatcherModal";
 
 export default function AgentsPage() {
   const { agents, fleets, policies, createAgent, createFleet, createBulkAgents, revokeAgent, pauseAgent, resumeAgent, updateAgent, addAuditEvent } = useGhostStore();
@@ -34,7 +33,6 @@ export default function AgentsPage() {
   const [provisionCount, setProvisionCount] = useState<number>(100);
   
   const [isSpending, setIsSpending] = useState<string | null>(null);
-  const [isFleetDispatcherOpen, setIsFleetDispatcherOpen] = useState(false);
 
   const handleConnectAgent = () => {
     if (!newAgentName) {
@@ -116,14 +114,6 @@ export default function AgentsPage() {
           <p className="text-sm text-zinc-400">Manage agent networks, provision node fleets, and monitor cryptographic telemetry.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsFleetDispatcherOpen(true)}
-            className="btn-liquid bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-2 shadow-lg shadow-blue-600/25 border border-blue-400/30"
-          >
-            <Cpu className="w-4 h-4 text-white" />
-            <span className="font-semibold">Dispatch 20-Agent Fleet</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/20 font-mono text-white">Preprod</span>
-          </button>
           <button
             onClick={() => setIsFleetModalOpen(true)}
             className="btn-liquid bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center gap-2"
@@ -523,11 +513,6 @@ export default function AgentsPage() {
           </div>
         )}
       </AnimatePresence>
-
-      <FleetDispatcherModal
-        isOpen={isFleetDispatcherOpen}
-        onClose={() => setIsFleetDispatcherOpen(false)}
-      />
     </div>
   );
 }
