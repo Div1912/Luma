@@ -56,6 +56,57 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     if (savedContract && savedContract !== 'none' && savedContract !== 'reset') {
       setContractAddress(savedContract.replace(/^0x/, '').trim());
     }
+
+    // Auto-restore wallet state if previously connected or user has active wallet identity
+    const savedConnected = localStorage.getItem('ghost_wallet_connected');
+    const savedAddress = localStorage.getItem('ghost_wallet_address');
+    const storeUser = useGhostStore.getState().user;
+    const initialAddress = savedAddress || (storeUser?.walletAddress?.startsWith('mn_') ? storeUser.walletAddress : undefined);
+
+    if ((savedConnected === 'true' || storeUser?.authType === 'wallet') && initialAddress) {
+      setWalletState({
+        address: initialAddress,
+        isConnected: true,
+        error: undefined
+      });
+
+      // Silently try to re-establish the 1AM wallet session
+      const trySilentReconnect = async () => {
+        try {
+          const midnight = typeof window !== 'undefined' ? (window as any).midnight : null;
+          if (midnight) {
+            let provider: any = midnight['1am'] ?? null;
+            if (!provider || typeof provider.connect !== 'function') {
+              const wallets = Object.values(midnight) as any[];
+              provider = wallets.find((w: any) => w && typeof w === 'object' && 'apiVersion' in w && typeof w.connect === 'function') ?? null;
+            }
+            if (provider && typeof provider.connect === 'function') {
+              const activeNet = savedNetwork || 'preprod';
+              const apiInstance = await provider.connect(activeNet);
+              setApi(apiInstance);
+              const state = await apiInstance.getUnshieldedAddress();
+              const freshAddr = state?.unshieldedAddress || initialAddress;
+              setWalletState({
+                address: freshAddr,
+                isConnected: true,
+                error: undefined
+              });
+              localStorage.setItem('ghost_wallet_connected', 'true');
+              localStorage.setItem('ghost_wallet_address', freshAddr);
+            }
+          }
+        } catch (e) {
+          // Silent reconnect warning — preserves existing address in walletState
+          console.warn('Silent wallet auto-reconnect notice:', e);
+        }
+      };
+
+      trySilentReconnect();
+      if (typeof window !== 'undefined') {
+        const timer = setTimeout(trySilentReconnect, 800);
+        return () => clearTimeout(timer);
+      }
+    }
   }, []);
 
   const setNetwork = (newNetwork: 'preview' | 'preprod') => {
@@ -128,6 +179,13 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
         error: undefined
       });
 
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('ghost_wallet_connected', 'true');
+        if (unshieldedAddr) {
+          localStorage.setItem('ghost_wallet_address', unshieldedAddr);
+        }
+      }
+
       // Seamlessly sync cryptographic identity to Supabase so it appears in the database immediately
       if (unshieldedAddr) {
         import('@/store/useGhostStore').then(({ useGhostStore }) => {
@@ -189,7 +247,11 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     setGhost(null);
     setPublicState(null);
     setContractAddress(null);
-    localStorage.removeItem('ghost_contract_address');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ghost_contract_address');
+      localStorage.removeItem('ghost_wallet_connected');
+      localStorage.removeItem('ghost_wallet_address');
+    }
   };
 
   const disconnectLace = disconnect1AM;
@@ -522,6 +584,10 @@ export function MidnightProvider({ children }: { children: ReactNode }) {
     setApi(null);
     setWalletState({ isConnected: false });
     setContractAddress(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ghost_wallet_connected');
+      localStorage.removeItem('ghost_wallet_address');
+    }
   };
 
   return (

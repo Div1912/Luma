@@ -30,7 +30,7 @@
 > 
 > 📊 **Live User Feedback Responses:** [View Public Google Sheets Feedback Log](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
 > 
-> 🌐 **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+> 🌐 **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
 > 
 > 📚 **Platform Documentation & Verification Audits:**
 > - 🚀 [Live Demo Application](https://ghost-kappa-one.vercel.app/)
@@ -101,7 +101,7 @@ Open `http://localhost:3000` (or `http://localhost:3000/dashboard`) to connect y
 - [x] **Public GitHub repository with updated documentation:** Open-source repository hosted at [https://github.com/Div1912/Luma](https://github.com/Div1912/Luma).
 - [x] **Live demo link:** Production deployment live on Vercel at [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/).
 - [x] **Demo video showing full MVP functionality:** Hosted YouTube walkthrough at [https://www.youtube.com/watch?v=xtTsfs0GKTA](https://www.youtube.com/watch?v=xtTsfs0GKTA) (HTTP 200 OK).
-- [x] **Preprod Contract Address (MANDATORY):** Deployed and verified on Midnight Preprod Explorer at [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad).
+- [x] **Preprod Contract Address (MANDATORY):** Deployed and verified on Midnight Preprod Explorer at [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad).
 
 ### Level 6 Submission Checklist (Target: 70+ Users & 30+ Commits)
 - [x] **70 Preprod users (verifiable wallet addresses):** Exactly **72 verified on-chain wallet addresses** (`mn_addr_preprod1...`) registered in [`USERS.md`](./USERS.md) and **20 distinct launch operators** in [`LAUNCH_USERS.md`](./LAUNCH_USERS.md).
@@ -484,14 +484,14 @@ Ghost is fully integrated with Midnight. It generates real zero-knowledge proofs
 
 > [!IMPORTANT]
 > **Verified Network Deployments:** 
-> - **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
-> - **Preview Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contract/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
+> - **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+> - **Preview Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contracts/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
 > - **Dynamic Switcher:** The Ghost dApp frontend features a top-bar **Network Switcher** allowing instant connection to both **Preprod** and **Preview** networks.
 
 ### Preprod Network Execution (Contract & Transaction)
 *Ghost operating on the Midnight Preprod Network with full ZK verification.*
-* **Contract Address:** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
-* **Transaction Hash:** [`063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889`](https://preprod.midnightexplorer.com/tx/063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889)
+* **Contract Address:** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+* **Transaction Hash:** [`063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889`](https://preprod.midnightexplorer.com/transactions/063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889)
 <img src="./Screenshot/Preprod%20Deployed%20Contract.png" alt="Preprod Deployed Contract" width="100%" />
 
 ### Real Transaction Hash (Preview)

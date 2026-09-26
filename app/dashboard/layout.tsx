@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
-  const { network, setNetwork, disconnect1AM } = useMidnight();
+  const { network, setNetwork, disconnect1AM, walletState, connect1AM } = useMidnight();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
@@ -172,6 +172,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           
           <div className="flex items-center gap-4">
+            {/* Live Wallet Connection Badge / Connect Action */}
+            {walletState?.isConnected ? (
+              <div 
+                className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs font-mono text-emerald-400"
+                title={`Connected Midnight Wallet: ${walletState.address || user?.walletAddress || 'Active'}`}
+              >
+                <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
+                <span className="hidden sm:inline text-zinc-400">1AM:</span>
+                <span>
+                  {walletState.address 
+                    ? `${walletState.address.slice(0, 7)}...${walletState.address.slice(-4)}`
+                    : user?.walletAddress 
+                      ? `${user.walletAddress.slice(0, 7)}...${user.walletAddress.slice(-4)}`
+                      : 'Connected'}
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  connect1AM()
+                    .then(() => toast.success("1AM Wallet Connected! 🛡️"))
+                    .catch((e: any) => toast.error("Wallet Connection Failed", { description: e.message || String(e) }));
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/20 rounded-xl text-xs font-mono transition-all"
+                title="Connect 1AM Midnight Wallet"
+              >
+                <ActivitySquare className="w-3.5 h-3.5 text-[#b8d4f0]" />
+                <span className="hidden sm:inline">Connect 1AM</span>
+              </button>
+            )}
+
             <div className="flex items-center gap-1.5 bg-black/50 border border-white/10 rounded-xl p-1 text-xs">
               <span className="text-[10px] text-zinc-400 uppercase font-mono px-2">Net:</span>
               <button 

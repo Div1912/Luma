@@ -94,7 +94,7 @@ Ghost has completed comprehensive preprod validation with verified on-chain metr
 - **Verified Preprod Operators:** **72 Active Wallets**
 - **On-Chain Transactions Confirmed:** **93 Verified Consensus Transactions**
 - **Master Preprod Contract Address:** `d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`
-- **Explorer Verification:** 100% of contracts and transactions indexed on [Midnight Preprod Explorer](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad).
+- **Explorer Verification:** 100% of contracts and transactions indexed on [Midnight Preprod Explorer](https://preprod.midnightexplorer.com/contracts/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad).
 
 ---
 

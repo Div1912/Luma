@@ -10,7 +10,7 @@ import { SwarmTelemetry } from "@/components/agents/SwarmTelemetry";
 
 export default function AgentsPage() {
   const { agents, fleets, policies, createAgent, createFleet, createBulkAgents, revokeAgent, pauseAgent, resumeAgent, updateAgent, addAuditEvent } = useGhostStore();
-  const { spend, walletState } = useMidnight();
+  const { spend, walletState, connect1AM } = useMidnight();
   
   const [activeTab, setActiveTab] = useState<"fleets" | "agents">("fleets");
   
@@ -114,6 +114,15 @@ export default function AgentsPage() {
           <p className="text-sm text-zinc-400">Manage agent networks, provision node fleets, and monitor cryptographic telemetry.</p>
         </div>
         <div className="flex items-center gap-3">
+          {!walletState.isConnected && (
+            <button
+              onClick={() => connect1AM().catch((e: any) => toast.error("Wallet Error", { description: e.message || String(e) }))}
+              className="btn-liquid btn-liquid-cyan flex items-center gap-2"
+            >
+              <Activity className="w-4 h-4" />
+              <span>Connect 1AM Wallet</span>
+            </button>
+          )}
           <button
             onClick={() => setIsFleetModalOpen(true)}
             className="btn-liquid bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center gap-2"
@@ -313,36 +322,46 @@ export default function AgentsPage() {
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-white/10 flex flex-col gap-2">
-                    {walletState.isConnected && agent.status === 'connected' && (
-                      <button 
-                        onClick={async () => {
-                          try {
-                            setIsSpending(agent.id);
-                            await spend(BigInt(25), {
-                              agentId: agent.id,
-                              agentName: agent.name,
-                              description: `Agent ${agent.name} successfully executed a 25 tDUST on-chain spend under policy ${policy?.name || 'Unknown'}.`
-                            });
-                            
-                            updateAgent(agent.id, {
-                              totalSpent: (agent.totalSpent || 0) + 25,
-                              totalTransactions: (agent.totalTransactions || 0) + 1,
-                              lastActivity: new Date().toLocaleTimeString()
-                            });
-                            
-                            toast.success(`Executed 25 tDUST spend on-chain!`);
-                          } catch (e: any) {
-                            toast.error(`Transaction failed`, { description: e.message || String(e) });
-                          } finally {
-                            setIsSpending(null);
-                          }
-                        }}
-                        disabled={isSpending === agent.id}
-                        className="btn-liquid btn-liquid-cyan w-full text-xs py-2 flex justify-center items-center gap-1.5"
-                      >
-                        <Activity className="w-3.5 h-3.5" />
-                        <span>{isSpending === agent.id ? "Executing ZK Spend..." : "Execute ZK Spend"}</span>
-                      </button>
+                    {agent.status === 'connected' && (
+                      walletState.isConnected ? (
+                        <button 
+                          onClick={async () => {
+                            try {
+                              setIsSpending(agent.id);
+                              await spend(BigInt(25), {
+                                agentId: agent.id,
+                                agentName: agent.name,
+                                description: `Agent ${agent.name} successfully executed a 25 tDUST on-chain spend under policy ${policy?.name || 'Unknown'}.`
+                              });
+                              
+                              updateAgent(agent.id, {
+                                totalSpent: (agent.totalSpent || 0) + 25,
+                                totalTransactions: (agent.totalTransactions || 0) + 1,
+                                lastActivity: new Date().toLocaleTimeString()
+                              });
+                              
+                              toast.success(`Executed 25 tDUST spend on-chain!`);
+                            } catch (e: any) {
+                              toast.error(`Transaction failed`, { description: e.message || String(e) });
+                            } finally {
+                              setIsSpending(null);
+                            }
+                          }}
+                          disabled={isSpending === agent.id}
+                          className="btn-liquid btn-liquid-cyan w-full text-xs py-2 flex justify-center items-center gap-1.5"
+                        >
+                          <Activity className="w-3.5 h-3.5" />
+                          <span>{isSpending === agent.id ? "Executing ZK Spend..." : "Execute ZK Spend"}</span>
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => connect1AM().catch((e: any) => toast.error("Wallet Error", { description: e.message || String(e) }))}
+                          className="btn-liquid bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 w-full text-xs py-2 flex justify-center items-center gap-1.5"
+                        >
+                          <Activity className="w-3.5 h-3.5 text-[#b8d4f0]" />
+                          <span>Connect 1AM to Spend</span>
+                        </button>
+                      )
                     )}
                     <div className="flex gap-2">
                       <button onClick={() => pauseAgent(agent.id)} className="btn-liquid btn-liquid-secondary flex-1 py-1.5 text-xs">Pause</button>

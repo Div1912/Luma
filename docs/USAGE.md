@@ -153,8 +153,8 @@ Navigate to `/dashboard/audit` to view the tamper-proof cryptographic audit log:
 
 ### 5.3 Verifying on Midnight Preprod Explorer
 Every contract and transaction can be verified independently on the public Midnight explorer:
-- **Contract Details:** `https://preprod.midnightexplorer.com/contract/<CONTRACT_ADDRESS>`
-- **Transaction Proof:** `https://preprod.midnightexplorer.com/tx/<TRANSACTION_HASH>`
+- **Contract Details:** `https://preprod.midnightexplorer.com/contracts/<CONTRACT_ADDRESS>`
+- **Transaction Proof:** `https://preprod.midnightexplorer.com/transactions/<TRANSACTION_HASH>`
 
 ---
 

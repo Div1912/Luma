@@ -332,7 +332,7 @@ export default function DashboardOverview() {
                   </a>
                   <span className="text-white/20">•</span>
                   <a 
-                    href={`https://${network || 'preprod'}.midnightexplorer.com/contract/${contractAddress}`} 
+                    href={`https://${network || 'preprod'}.midnightexplorer.com/contracts/${contractAddress}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1"

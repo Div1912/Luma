@@ -31,7 +31,7 @@ describe('Level 6 Improvements & Verification Testbed (tests/ x25)', () => {
     expect(mandatoryContract).toHaveLength(64);
     expect(/^[0-9a-f]{64}$/.test(mandatoryContract)).toBe(true);
     
-    const explorerUrl = `https://preprod.midnightexplorer.com/contract/${mandatoryContract}`;
+    const explorerUrl = `https://preprod.midnightexplorer.com/contracts/${mandatoryContract}`;
     expect(explorerUrl).toContain(mandatoryContract);
   });
 
