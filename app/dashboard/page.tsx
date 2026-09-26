@@ -12,7 +12,8 @@ import {
   Check,
   X,
   Clock,
-  Server
+  Server,
+  Copy
 } from "lucide-react";
 import { 
   BarChart, 
@@ -302,7 +303,19 @@ export default function DashboardOverview() {
             
             {contractAddress ? (
               <div className="mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/10 flex flex-col gap-2">
-                <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold font-mono">Verifiable Contract Address ({network.toUpperCase()})</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-white/50 uppercase tracking-wider font-semibold font-mono">Verifiable Contract Address ({network.toUpperCase()})</span>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(contractAddress);
+                      toast.success("Contract Address Copied!", { description: `${contractAddress.slice(0, 16)}... copied to clipboard.` });
+                    }} 
+                    className="p-1 text-zinc-400 hover:text-white hover:bg-white/10 rounded transition-all"
+                    title="Copy full 64-char contract address"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-white font-mono break-all">{contractAddress}</span>
                 </div>
@@ -319,7 +332,7 @@ export default function DashboardOverview() {
                   </a>
                   <span className="text-white/20">•</span>
                   <a 
-                    href={`https://${network || 'preprod'}.midnightexplorer.com/contracts/${contractAddress}`} 
+                    href={`https://${network || 'preprod'}.midnightexplorer.com/contract/${contractAddress}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1"

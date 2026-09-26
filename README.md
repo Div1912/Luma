@@ -15,13 +15,26 @@
   [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod%20%26%20Preview-blueviolet)](https://midnight.network/)
   [![SDK](https://img.shields.io/badge/@ghost/sdk-v1.0.0-blue)](./packages/sdk)
   [![Official X](https://img.shields.io/badge/Follow%20on%20X-%40Ghostmidnight1-000000?style=flat&logo=x&logoColor=white)](https://x.com/Ghostmidnight1)
+  [![User Feedback](https://img.shields.io/badge/User%20Feedback-Google%20Sheets-brightgreen?style=flat&logo=google-sheets)](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
   [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
   [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)](#)
 </div>
 
+> 📊 **Live User Feedback Responses:** [View Public Google Sheets Feedback Log](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
+> 
 > 🐦 **Official X (Twitter):** Follow [@Ghostmidnight1](https://x.com/Ghostmidnight1) for live updates, protocol releases, and Midnight Zero-Knowledge agent network announcements.
 > 
 > 📺 **Watch Demo:** [See Ghost in Action (YouTube)](https://youtu.be/xtTsfs0GKTA)
+> 
+> 🌐 **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+> 
+> 📚 **Platform Documentation & Audit Logs:**
+> - 📊 [Live User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
+> - 📖 [Operator & User Guide](./docs/USAGE.md)
+> - 💬 [Preprod User Feedback & Level 6 Improvements](./docs/FEEDBACK.md)
+> - 👥 [Preprod Verified Users (Level 5 — 72 Users)](./USERS.md)
+> - 🚀 [Preprod Launch Users Cohort (Level 6 — 20 Users)](./LAUNCH_USERS.md)
+> - 📝 [Full Project Proposal & Architecture](./PROPOSAL.md)
 
 ---
 
@@ -348,16 +361,16 @@ Here is the complete showcase of all production modules and enterprise capabilit
 
 Ghost is fully integrated with Midnight. It generates real zero-knowledge proofs and settles them on-chain.
 
-> [!NOTE]
-> **Network & Testnet Details:** 
-> - **Preprod Verified Deployment:** Midnight Preprod Network (Contract Address: `0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`).
-> - **Primary Verified Deployment:** Midnight Preview Testnet (Contract Address: `e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`).
+> [!IMPORTANT]
+> **Verified Network Deployments:** 
+> - **Preprod Contract Address (MANDATORY):** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+> - **Preview Contract Address:** [`e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70`](https://preview.midnightexplorer.com/contract/e0c9d5d6d0ce7d5dc8dd4251a8d5ba0b368c42bb653f85b444e1318d93221f70)
 > - **Dynamic Switcher:** The Ghost dApp frontend features a top-bar **Network Switcher** allowing instant connection to both **Preprod** and **Preview** networks.
 
 ### Preprod Network Execution (Contract & Transaction)
 *Ghost operating on the Midnight Preprod Network with full ZK verification.*
-* **Contract Address:** [`0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/0xd72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
-* **Transaction Hash:** [`0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889`](https://preprod.midnightexplorer.com/transactions/0x063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889)
+* **Contract Address:** [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contract/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad)
+* **Transaction Hash:** [`063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889`](https://preprod.midnightexplorer.com/tx/063d2925b9428dd77e829933b9a41dc7b8c7ae8a702e15c16d56fcc0ae8e5889)
 <img src="./Screenshot/Preprod%20Deployed%20Contract.png" alt="Preprod Deployed Contract" width="100%" />
 
 ### Real Transaction Hash (Preview)

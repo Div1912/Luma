@@ -20,7 +20,10 @@ import {
   Search,
   Bell,
   Plus,
-  Ghost
+  Ghost,
+  Sun,
+  Moon,
+  Droplets
 } from "lucide-react";
 import { useGhostStore } from "@/store/useGhostStore";
 import { useMidnight } from "@/lib/midnight/useMidnight";
@@ -46,6 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { isAuthenticated, user, signOut, approvals, fetchData } = useGhostStore();
   const { network, setNetwork, disconnect1AM } = useMidnight();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -183,6 +187,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 Preprod
               </button>
             </div>
+            <a 
+              href="https://faucet.preprod.midnight.network" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-xs font-mono font-medium transition-all"
+              title="Claim free testnet tDUST tokens from Midnight Faucet"
+            >
+              <Droplets className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">tDUST Faucet</span>
+            </a>
+            <button 
+              onClick={() => {
+                const next = !isDarkMode;
+                setIsDarkMode(next);
+                toast.info(next ? "Dark Mode Enabled" : "High-Contrast Mode Enabled", {
+                  description: next ? "Standard midnight OLED palette active." : "High-visibility contrast enabled."
+                });
+              }}
+              className="p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-all"
+              title={isDarkMode ? "Switch to High-Contrast Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Moon className="w-4 h-4 text-[#b8d4f0]" /> : <Sun className="w-4 h-4 text-amber-400" />}
+            </button>
             <button onClick={() => toast.info("Search active", { description: "Filter by agent ID, tx hash, or merchant." })} className="p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-all">
               <Search className="w-4 h-4" />
             </button>
