@@ -24,7 +24,7 @@
 
 > **Live Demo:** [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/)
 > 
-> **Watch Demo (Direct 200 OK):** [https://www.youtube.com/watch?v=xtTsfs0GKTA](https://www.youtube.com/watch?v=xtTsfs0GKTA) *(Shortlink: [https://youtu.be/xtTsfs0GKTA](https://youtu.be/xtTsfs0GKTA))*
+> **Watch Demo (Direct 200 OK):** [https://www.youtube.com/watch?v=Z0rMz7RlNQc](https://www.youtube.com/watch?v=Z0rMz7RlNQc) *(Shortlink: [https://youtu.be/Z0rMz7RlNQc](https://youtu.be/Z0rMz7RlNQc))*
 > 
 > **Latest Announcement on X:** [Ghost Level 6 Features Release Post](https://x.com/Ghostmidnight1/status/2103756679468954011) · Follow [@Ghostmidnight1](https://x.com/Ghostmidnight1) for live updates
 > 
@@ -34,7 +34,7 @@
 > 
 > **Platform Documentation & Verification Audits:**
 > - [Live Demo Application](https://ghost-kappa-one.vercel.app/)
-> - [Demo Video Walkthrough (YouTube)](https://www.youtube.com/watch?v=xtTsfs0GKTA)
+> - [Demo Video Walkthrough (YouTube)](https://www.youtube.com/watch?v=Z0rMz7RlNQc)
 > - [Latest Announcement on X](https://x.com/Ghostmidnight1/status/2103756679468954011)
 > - [Live User Feedback Spreadsheet](https://docs.google.com/spreadsheets/d/e/2PACX-1vRRil6AaS3PflN8c-XBKMkozNLaKpPa4U1DQtL5iBkWjzLS_xeKE2rldMzbPRhIMsTtrMQ-kmNSvPov/pubhtml)
 > - [Operator & User Guide](./docs/USAGE.md)
@@ -329,55 +329,59 @@ Complete end-to-end integration with Midnight indexers and proof servers for ins
 
 Here is the complete showcase of all production modules and enterprise capabilities of the Ghost platform:
 
-### 1. Midnight Zero-Knowledge Access & 1AM Wallet Authentication
+### 1. Enterprise Landing Page & 3D Interactive Hero
+*Next-generation Dark Mode landing page featuring real-time 3D interactive particle waves, dynamic ambient glowing orbs, and full Zero-Knowledge autonomous agent value proposition.*
+<img src="./Screenshot/Landing%20Page.png" alt="Ghost Enterprise Landing Page" width="100%" />
+
+### 2. Midnight Zero-Knowledge Access & 1AM Wallet Authentication
 *Cryptographic Web3 identity authentication: connect securely via 1AM Wallet across Midnight Preprod and Preview networks with dual-mode credential and sandbox fallback.*
 <img src="./Screenshot/Wallet%20Conect.png" alt="1AM Wallet Authentication" width="100%" />
 
-### 2. Central Command Dashboard
+### 3. Central Command Dashboard
 *Unified operational command for autonomous commerce: monitor real-time treasury spend, active agent fleets, policy adherence, and live Midnight proof verifications.*
 <img src="./Screenshot/Dashboard.png" alt="Central Command Dashboard" width="100%" />
 
-### 3. Autonomous Agent Fleet Orchestration & Swarm Provisioning
+### 4. Autonomous Agent Fleet Orchestration & Swarm Provisioning
 *Hierarchical fleet nesting, role-based capability scoping, and instant cryptographic credential provisioning across hundreds of specialized AI shopping and procurement bots.*
 <img src="./Screenshot/Agent%20Fleet%20Management.png" alt="Agent Fleet Management" width="100%" />
 
-### 4. Enterprise Policy Engine & Spending Guardrails
+### 5. Enterprise Policy Engine & Spending Guardrails
 *Granular Zero-Knowledge spending rules, per-transaction velocity limits, category allowlists/blocklists, and dynamic encrypted threshold re-balancing without contract redeployment.*
 <img src="./Screenshot/Enterprice%20policies.png" alt="Enterprise Policies" width="100%" />
 
-### 5. Multi-Party ZK Approval Center (HITL Queue)
+### 6. Multi-Party ZK Approval Center (HITL Queue)
 *Human-in-the-Loop (HITL) authorization and M-of-N Segregation of Duties consensus: high-value purchases exceeding automatic caps require multi-signature cryptographic approval before fund disbursement.*
 <img src="./Screenshot/Approval%20Center.png" alt="Multi-Party Approval Center" width="100%" />
 
-### 6. Cryptographic Audit Log & Selective Disclosure
+### 7. Cryptographic Audit Log & Selective Disclosure
 *Immutable Merkle tree transaction receipts providing mathematical proof of 100% regulatory compliance (SOX 404 / SOC 2) to financial auditors without revealing proprietary prompt logs or trade secrets.*
 <img src="./Screenshot/Audit%20Log.png" alt="Verifiable Audit Log" width="100%" />
 
-### 7. AI Incident Management & Dispute Resolution
+### 8. AI Incident Management & Dispute Resolution
 *Real-time anomaly monitoring, automated velocity kill-switch tripping, and vendor dispute handling for rogue, hallucinating, or compromised agent behaviors.*
 <img src="./Screenshot/Dispute%20%26Incidents.png" alt="Disputes and Incidents" width="100%" />
 
-### 8. Real-Time Zero-Knowledge Proof Explorer
+### 9. Real-Time Zero-Knowledge Proof Explorer
 *Inspect and verify every on-chain cryptographic witness commitment, proving execution integrity and policy adherence on the Midnight blockchain ledger.*
 <img src="./Screenshot/Proof%20Verification.png" alt="ZK Proof Verification" width="100%" />
 
-### 9. Developer Hub & Cryptographic SDK Portal
+### 10. Developer Hub & Cryptographic SDK Portal
 *Manage enterprise API credentials, configure real-time webhook listeners, and integrate Ghost's Zero-Knowledge spending guardrails into LangChain, AutoGPT, and ElizaOS in 3 lines of code.*
 <img src="./Screenshot/Developer%20Tools.png" alt="Developer Tools" width="100%" />
 
-### 10. In-App Smart Contract Deployment via 1AM Wallet
+### 11. In-App Smart Contract Deployment via 1AM Wallet
 *Deploy native Compact smart contracts directly to the Midnight network through the 1AM wallet connector with automated parameter initialization and indexer binding.*
 <img src="./Screenshot/Deployed%20Contract%20Via%20App.png" alt="Deployed Contract Via App" width="100%" />
 
-### 11. Client-Side Circuit Execution & Settlement
+### 12. Client-Side Circuit Execution & Settlement
 *Zero-Knowledge spend proofs synthesized client-side in WebAssembly, balanced through 1AM wallet, and permanently settled on-chain.*
 <img src="./Screenshot/Succesfull%20Circuit%20called%20via%20App.png" alt="Successful Circuit Execution" width="100%" />
 
-### 12. Compact Smart Contract Compiler Pipeline
+### 13. Compact Smart Contract Compiler Pipeline
 *Midnight Compact compiler toolchain compiling formal ZK circuit definitions into optimized proving keys and TypeScript contract interfaces.*
 <img src="./Screenshot/Compiler.png" alt="Compact Compiler" width="100%" />
 
-### 13. Automated CI/CD & Monorepo Test Verification
+### 14. Automated CI/CD & Monorepo Test Verification
 *Continuous integration pipeline executing 25 comprehensive test suites and 214 unit/penetration tests with 100% pass rate.*
 <img src="./Screenshot/Succesfull%20Test%20Files.png" alt="Test Suites Passed" width="100%" />
 

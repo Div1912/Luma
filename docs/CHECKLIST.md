@@ -7,7 +7,7 @@
 - [x] **Minimum 20 meaningful commits:** Repository contains **115+ meaningful commits** on `master` branch.
 - [x] **Public GitHub repository with updated documentation:** Open-source repository hosted at [https://github.com/Div1912/Luma](https://github.com/Div1912/Luma).
 - [x] **Live demo link:** Production deployment live on Vercel at [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/).
-- [x] **Demo video showing full MVP functionality:** Hosted YouTube walkthrough at [https://www.youtube.com/watch?v=xtTsfs0GKTA](https://www.youtube.com/watch?v=xtTsfs0GKTA) (HTTP 200 OK).
+- [x] **Demo video showing full MVP functionality:** Hosted YouTube walkthrough at [https://www.youtube.com/watch?v=Z0rMz7RlNQc](https://www.youtube.com/watch?v=Z0rMz7RlNQc) *(Shortlink: [https://youtu.be/Z0rMz7RlNQc](https://youtu.be/Z0rMz7RlNQc))* (HTTP 200 OK).
 - [x] **Preprod Contract Address (MANDATORY):** Deployed and verified on Midnight Preprod Explorer at [`d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad`](https://preprod.midnightexplorer.com/contracts/d72f60d3f297dc84078e19677b60e88759f9982a3ea3dbf87a387814cda034ad).
 
 ---
@@ -67,5 +67,5 @@
 
 - [x] **Public GitHub repository:** Publicly accessible at [https://github.com/Div1912/Luma](https://github.com/Div1912/Luma).
 - [x] **Live demo link:** Hosted and operational at [https://ghost-kappa-one.vercel.app/](https://ghost-kappa-one.vercel.app/).
-- [x] **Demo video showing full MVP functionality:** Direct YouTube link at [https://www.youtube.com/watch?v=xtTsfs0GKTA](https://www.youtube.com/watch?v=xtTsfs0GKTA) (HTTP 200 OK).
+- [x] **Demo video showing full MVP functionality:** Direct YouTube link at [https://www.youtube.com/watch?v=Z0rMz7RlNQc](https://www.youtube.com/watch?v=Z0rMz7RlNQc) *(Shortlink: [https://youtu.be/Z0rMz7RlNQc](https://youtu.be/Z0rMz7RlNQc))* (HTTP 200 OK).
 - [x] **Official X Announcement:** Live post published at [https://x.com/Ghostmidnight1/status/2103756679468954011](https://x.com/Ghostmidnight1/status/2103756679468954011).
