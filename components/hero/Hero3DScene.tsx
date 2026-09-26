@@ -70,13 +70,11 @@ function Monolith() {
 
 export default function Hero3DScene() {
   return (
-    <div className="absolute inset-0 w-full h-full z-0 bg-black">
-      <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]}>
-        <color attach="background" args={['#000000']} />
-        <fog attach="fog" args={['#000000', 5, 15]} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 5, 5]} intensity={2} color="#ffffff" />
-        <directionalLight position={[-5, -5, -5]} intensity={0.5} color="#888888" />
+    <div className="absolute inset-0 w-full h-full z-0 bg-transparent pointer-events-none">
+      <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]} gl={{ alpha: true }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 5, 5]} intensity={2.5} color="#ffffff" />
+        <directionalLight position={[-5, -5, -5]} intensity={0.8} color="#b8d4f0" />
         <Monolith />
         {/* Environment map for realistic glass reflections */}
         <Environment preset="studio" />
@@ -89,8 +87,6 @@ export default function Hero3DScene() {
           minPolarAngle={Math.PI / 2 - 0.2}
         />
       </Canvas>
-      {/* Vignette overlay for cinematic feel */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] pointer-events-none opacity-80" />
     </div>
   );
 }

@@ -24,13 +24,23 @@ import {
   SplitSquareHorizontal
 } from "lucide-react";
 import Hero3DScene from "@/components/hero/Hero3DScene";
+import { ParticleWave } from "@/components/ui/particle-wave";
 
 export default function LandingPage() {
   const containerRef = useRef(null);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#b8d4f0] selection:text-black font-sans overflow-hidden">
-      <Navbar />
+    <div ref={containerRef} className="relative min-h-screen bg-[#03040a] text-white selection:bg-[#b8d4f0] selection:text-black font-sans overflow-hidden">
+      {/* Luminous Ambient Glowing Light Orbs (Must be behind wave) */}
+      <div className="fixed -top-32 left-1/3 w-[650px] h-[650px] bg-gradient-to-br from-[#b8d4f0]/20 via-sky-600/15 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="fixed -bottom-20 right-1/4 w-[550px] h-[550px] bg-gradient-to-tl from-indigo-600/20 via-[#b8d4f0]/15 to-transparent rounded-full blur-[140px] pointer-events-none z-0" />
+      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(184,212,240,0.15),rgba(15,23,42,0.4)_55%,rgba(3,4,10,0.85)_100%)]" />
+
+      {/* 3D Liquid Glass Particle Wave Background */}
+      <ParticleWave className="opacity-100" transparent={true} />
+
+      <div className="relative z-10">
+        <Navbar />
       
       {/* 1. HERO: What are we? */}
       <section className="relative min-h-screen flex flex-col pt-32 pb-20 px-6 lg:px-12 max-w-[1600px] mx-auto">
@@ -160,7 +170,7 @@ export default function LandingPage() {
       </section>
 
       {/* 3. THE SOLUTION: GHOST PROTOCOL */}
-      <section id="protocol" className="py-32 px-6 bg-[rgba(15,15,15,1)] border-y border-white/[0.06]">
+      <section id="protocol" className="py-32 px-6 bg-black/30 backdrop-blur-xl border-y border-white/[0.06]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-5xl font-medium tracking-tight mb-6">The Solution: Ghost Protocol</h2>
@@ -241,7 +251,7 @@ export default function LandingPage() {
       </section>
 
       {/* 5. MARKET VIABILITY */}
-      <section className="py-32 px-6 bg-[rgba(15,15,15,1)] border-y border-white/[0.06]">
+      <section className="py-32 px-6 bg-black/30 backdrop-blur-xl border-y border-white/[0.06]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 flex flex-col gap-8">
             <h2 className="text-3xl md:text-5xl font-medium tracking-tight">Market Viability & Business Model</h2>
@@ -255,7 +265,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="p-8 border border-white/[0.06] bg-black rounded-xl"
+              className="p-8 border border-white/[0.06] bg-black/40 backdrop-blur-xl rounded-xl"
             >
               <Users className="w-8 h-8 text-[#b8d4f0] mb-6" />
               <h4 className="text-xl font-medium mb-3">Target Audience</h4>
@@ -267,7 +277,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="p-8 border border-white/[0.06] bg-black rounded-xl"
+              className="p-8 border border-white/[0.06] bg-black/40 backdrop-blur-xl rounded-xl"
             >
               <LineChart className="w-8 h-8 text-[#b8d4f0] mb-6" />
               <h4 className="text-xl font-medium mb-3">Commercial Model</h4>
@@ -300,7 +310,7 @@ export default function LandingPage() {
               A lightweight npm package enabling developers to plug ZK policy compliance directly into LangChain or AutoGPT workflows in 3 lines of code.
             </p>
             
-            <div className="p-4 bg-black border border-white/[0.1] rounded-lg font-mono text-sm flex items-center justify-between">
+            <div className="p-4 bg-black/40 backdrop-blur-md border border-white/[0.1] rounded-lg font-mono text-sm flex items-center justify-between">
               <span className="text-white/70">npm install @ghost/sdk</span>
               <Terminal className="w-4 h-4 text-white/30" />
             </div>
@@ -348,7 +358,7 @@ export default function LandingPage() {
       </section>
 
       {/* 7. FINAL CTA */}
-      <section className="py-32 px-6 text-center border-t border-white/[0.06] bg-[rgba(5,5,5,1)] relative overflow-hidden">
+      <section className="py-32 px-6 text-center border-t border-white/[0.06] bg-black/30 backdrop-blur-xl relative overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#b8d4f0]/[0.02] blur-[120px] rounded-full pointer-events-none" />
         
@@ -363,7 +373,7 @@ export default function LandingPage() {
       </section>
 
       {/* 8. FOOTER */}
-      <footer className="px-6 py-12 border-t border-white/[0.06] bg-black">
+      <footer className="px-6 py-12 border-t border-white/[0.06] bg-black/60 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto flex flex-col gap-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <Link href="/" className="flex items-center gap-3">
@@ -397,6 +407,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
